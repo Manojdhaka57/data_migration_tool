@@ -55,10 +55,16 @@ import { SchemaViewerPage } from './features/schema';
 import { ReadSchemaPage } from './features/readSchema';
 import { SchemaDdlPage } from './features/schemaDdl';
 import { HelpGuide } from './components/shared';
-import { CloudDownload as ReadSchemaIcon, Code as SchemaDdlIcon } from '@mui/icons-material';
+import { ConnectionSettingsPage, restoreConnectionSettings } from './features/connection';
+import {
+  CloudDownload as ReadSchemaIcon,
+  Code as SchemaDdlIcon,
+  SettingsEthernet as ConnectionIcon,
+} from '@mui/icons-material';
 
 // Navigation items — each tab is a real route. Order here drives the sidebar order.
 const navItems = [
+  { path: '/connection', label: 'Connection', icon: ConnectionIcon, description: 'Database connection settings' },
   { path: '/read-schema', label: 'Read Schema', icon: ReadSchemaIcon, description: 'Fetch schema from database' },
   { path: '/schema-ddl', label: 'Schema DDL', icon: SchemaDdlIcon, description: 'View schema as CREATE TABLE DDL' },
   { path: '/schema', label: 'Schema', icon: SchemaIcon, description: 'View database schemas' },
@@ -183,6 +189,13 @@ function App() {
       console.log('🔄 All data reset - loaded from default files');
     }
   };
+
+  // The API server keeps connection settings in memory only, so re-send the
+  // ones saved in this browser. Runs before any page reads a schema, and is a
+  // no-op when nothing has been configured in the Connection tab.
+  useEffect(() => {
+    void restoreConnectionSettings();
+  }, []);
 
   useEffect(() => {
     type DataSourceType = 'localStorage' | 'file';
@@ -568,6 +581,7 @@ function App() {
         <Box sx={{ flex: 1, overflow: 'hidden' }}>
           <Routes>
             <Route path="/" element={<Navigate to="/read-schema" replace />} />
+            <Route path="/connection" element={<ConnectionSettingsPage />} />
             <Route path="/read-schema" element={<ReadSchemaPage />} />
             <Route path="/schema-ddl" element={<SchemaDdlPage />} />
             <Route path="/schema" element={<SchemaViewerPage />} />

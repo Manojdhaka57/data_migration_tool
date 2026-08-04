@@ -11,6 +11,14 @@ import {
 } from '../queue/queue';
 import { startWorkers, setProgressCallback } from '../queue/worker';
 import { createAdapter, resolveDbType } from '../adapters/factory';
+import {
+  setRuntimeConnectionConfig,
+  clearRuntimeConnectionConfig,
+  getRuntimeConnectionConfig,
+  getRoleOverride,
+  resolveEncryptionKey,
+  describeResolvedConnection,
+} from '../adapters/runtimeConfig';
 import { portableDefault } from '../adapters/typeMap';
 import { getJobProgress, listTableStatuses, resetTableStatus, DbScope } from '../state/tableState';
 import { DatabaseSchema, TableMapping, TableStructure } from '../types';
@@ -38,15 +46,28 @@ const io = new Server(server, {
   },
 });
 
-// Resolve dialects from env (both source and target now selectable: mysql | postgresql)
-const sourceDbType = resolveDbType('source');
-const targetDbType = resolveDbType('target');
+// Resolved dialects (both source and target selectable: mysql | postgresql).
+// These are `let` because the Connection Settings page can change them at
+// runtime — refreshResolvedConfig() re-derives them after every update.
+let sourceDbType = resolveDbType('source');
+let targetDbType = resolveDbType('target');
 
 // Scope for the durable Redis table-status markers
-const stateScope: DbScope = {
-  sourceDb: process.env.SOURCE_DB_NAME || 'src',
-  targetDb: process.env.TARGET_DB_NAME || 'tgt',
-};
+let stateScope: DbScope = resolveStateScope();
+
+function resolveStateScope(): DbScope {
+  return {
+    sourceDb: getRoleOverride('source').database || process.env.SOURCE_DB_NAME || 'src',
+    targetDb: getRoleOverride('target').database || process.env.TARGET_DB_NAME || 'tgt',
+  };
+}
+
+/** Re-derive everything cached from env after the UI changes connection settings. */
+function refreshResolvedConfig(): void {
+  sourceDbType = resolveDbType('source');
+  targetDbType = resolveDbType('target');
+  stateScope = resolveStateScope();
+}
 
 const getSourceAdapter = () => createAdapter(sourceDbType, 'source');
 const getTargetAdapter = () => createAdapter(targetDbType, 'target');
@@ -542,7 +563,7 @@ app.post('/api/migrate', async (req, res) => {
       batchSize: 2000,
       useCopy,
       force,
-      encryptionKey: reqEncryptionKey || process.env.ENCRYPTION_KEY,
+      encryptionKey: reqEncryptionKey || resolveEncryptionKey(),
     });
 
     res.json({ message: 'Migration started', jobId, status: 'running' });
@@ -569,7 +590,7 @@ app.post('/api/migrate/dry-run', async (req, res) => {
       dryRun: true,
       tableWiseMode: false,
       customDependencies,
-      encryptionKey: reqEncryptionKey || process.env.ENCRYPTION_KEY,
+      encryptionKey: reqEncryptionKey || resolveEncryptionKey(),
     });
 
     res.json({ message: 'Dry run started', jobId, status: 'running' });
@@ -747,6 +768,114 @@ app.get('/api/config', (_req, res) => {
     sourceDb: stateScope.sourceDb,
     targetDb: stateScope.targetDb,
   });
+});
+
+// CONNECTION SETTINGS
+// Lets the UI supply DB connection details when .env doesn't have them (or to
+// point at a different database without editing .env). UI values win; anything
+// left blank falls back to the matching *_DB_* env var.
+
+/**
+ * Current settings plus the effective value of each field and where it came
+ * from ('ui' | 'env' | 'default'), so the form can show what is actually in use.
+ * Passwords are never echoed back — only whether one is set.
+ */
+app.get('/api/connection-config', (_req, res) => {
+  const stored = getRuntimeConnectionConfig();
+  res.json({
+    success: true,
+    // Stored overrides, with the password redacted to a boolean.
+    stored: {
+      source: { ...stored.source, password: undefined, hasPassword: !!stored.source.password },
+      target: { ...stored.target, password: undefined, hasPassword: !!stored.target.password },
+      hasEncryptionKey: !!stored.encryptionKey,
+    },
+    resolved: {
+      source: describeResolvedConnection('source'),
+      target: describeResolvedConnection('target'),
+    },
+  });
+});
+
+/** Store connection settings for this server process. */
+app.post('/api/connection-config', (req, res) => {
+  try {
+    const { source, target, encryptionKey } = req.body ?? {};
+    setRuntimeConnectionConfig({ source, target, encryptionKey });
+    refreshResolvedConfig();
+
+    console.log(
+      `\x1b[36m[CONFIG]\x1b[0m connection settings updated from UI — ` +
+        `source: ${sourceDbType}://${stateScope.sourceDb}, target: ${targetDbType}://${stateScope.targetDb}`,
+    );
+
+    res.json({
+      success: true,
+      sourceDbType,
+      targetDbType,
+      resolved: {
+        source: describeResolvedConnection('source'),
+        target: describeResolvedConnection('target'),
+      },
+    });
+  } catch (err: any) {
+    logError('POST /api/connection-config', err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+/** Drop all UI settings and go back to .env alone. */
+app.delete('/api/connection-config', (_req, res) => {
+  clearRuntimeConnectionConfig();
+  refreshResolvedConfig();
+  console.log('\x1b[36m[CONFIG]\x1b[0m connection settings cleared — falling back to .env');
+  res.json({
+    success: true,
+    sourceDbType,
+    targetDbType,
+    resolved: {
+      source: describeResolvedConnection('source'),
+      target: describeResolvedConnection('target'),
+    },
+  });
+});
+
+/**
+ * Try connecting with the settings in the request WITHOUT storing them, so the
+ * form can offer a "Test" button before saving. Applies the settings, probes,
+ * then always restores whatever was stored before.
+ */
+app.post('/api/connection-config/test', async (req, res) => {
+  const previous = getRuntimeConnectionConfig();
+  const { source, target } = req.body ?? {};
+  const roles = (req.body?.roles as ('source' | 'target')[]) ?? ['source', 'target'];
+
+  const probe = async (role: 'source' | 'target') => {
+    const adapter = createAdapter(resolveDbType(role), role);
+    try {
+      await adapter.connect();
+      const tables = await adapter.getTableNames();
+      return { success: true, message: `Connected (${resolveDbType(role)})`, tables: tables.length };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    } finally {
+      await adapter.disconnect().catch(() => undefined);
+    }
+  };
+
+  try {
+    setRuntimeConnectionConfig({ source, target });
+    const results: Record<string, unknown> = {};
+    for (const role of roles) results[role] = await probe(role);
+    res.json({ success: true, ...results });
+  } catch (err: any) {
+    logError('POST /api/connection-config/test', err);
+    res.status(500).json({ success: false, error: err.message });
+  } finally {
+    // Never let a test leave the server pointing somewhere new.
+    setRuntimeConnectionConfig(previous);
+    refreshResolvedConfig();
+  }
 });
 
 // Live Redis progress counters for a job (the "rows processed" indicator)
