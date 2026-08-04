@@ -1,0 +1,45 @@
+{
+  "database": "old_db",
+  "tables": [
+    {
+      "name": "student",
+      "columns": [
+        { "name": "id", "type": "int" },
+        { "name": "name", "type": "varchar" },
+        { "name": "dob", "type": "date" },
+        { "name": "city", "type": "varchar" }
+      ],
+      "sampleData": [
+        { "id": 1, "name": "Rahul", "dob": "2000-01-01", "city": "Jaipur" },
+        { "id": 2, "name": "Priya", "dob": "1999-05-15", "city": "Delhi" },
+        { "id": 3, "name": "Amit", "dob": "2001-08-22", "city": "Mumbai" }
+      ]
+    },
+    {
+      "name": "course",
+      "columns": [
+        { "name": "course_id", "type": "int" },
+        { "name": "course_name", "type": "varchar" },
+        { "name": "credits", "type": "int" },
+        { "name": "instructor", "type": "varchar" }
+      ],
+      "sampleData": [
+        { "course_id": 101, "course_name": "Mathematics", "credits": 4, "instructor": "Dr. Sharma" },
+        { "course_id": 102, "course_name": "Physics", "credits": 3, "instructor": "Dr. Gupta" }
+      ]
+    },
+    {
+      "name": "enrollment",
+      "columns": [
+        { "name": "enrollment_id", "type": "int" },
+        { "name": "student_id", "type": "int" },
+        { "name": "course_id", "type": "int" },
+        { "name": "enrollment_date", "type": "date" },
+        { "name": "grade", "type": "varchar" }
+      ],
+      "sampleData": [
+        { "enrollment_id": 1, "student_id": 1, "course_id": 101, "enrollment_date": "2023-01-15", "grade": "A" }
+      ]
+    }
+  ]
+}

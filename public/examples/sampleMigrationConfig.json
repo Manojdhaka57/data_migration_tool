@@ -1,0 +1,136 @@
+{
+  "version": "1.0.0",
+  "createdAt": "2026-01-18T10:30:00.000Z",
+  "sourceDatabase": "old_db",
+  "targetDatabase": "new_db",
+  "tableMappings": [
+    {
+      "id": "tm-001",
+      "sourceTables": ["student"],
+      "targetTables": ["student_master", "student_address"],
+      "description": "Split student data into master and address tables",
+      "columnMappings": [
+        {
+          "target": { "table": "student_master", "column": "student_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student", "column": "id" }
+        },
+        {
+          "target": { "table": "student_master", "column": "full_name" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "UPPER"
+          },
+          "sourceColumns": [
+            { "table": "student", "column": "name" }
+          ]
+        },
+        {
+          "target": { "table": "student_master", "column": "date_of_birth" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student", "column": "dob" }
+        },
+        {
+          "target": { "table": "student_master", "column": "created_by" },
+          "mappingType": "CONSTANT",
+          "constantValue": "SYSTEM"
+        },
+        {
+          "target": { "table": "student_address", "column": "student_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student", "column": "id" }
+        },
+        {
+          "target": { "table": "student_address", "column": "city" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student", "column": "city" }
+        },
+        {
+          "target": { "table": "student_address", "column": "country" },
+          "mappingType": "CONSTANT",
+          "constantValue": "India"
+        }
+      ]
+    },
+    {
+      "id": "tm-002",
+      "sourceTables": ["course"],
+      "targetTables": ["course_catalog"],
+      "description": "Migrate courses to course catalog",
+      "columnMappings": [
+        {
+          "target": { "table": "course_catalog", "column": "id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "course", "column": "course_id" }
+        },
+        {
+          "target": { "table": "course_catalog", "column": "title" },
+          "mappingType": "DIRECT",
+          "source": { "table": "course", "column": "course_name" }
+        },
+        {
+          "target": { "table": "course_catalog", "column": "credit_hours" },
+          "mappingType": "DIRECT",
+          "source": { "table": "course", "column": "credits" }
+        },
+        {
+          "target": { "table": "course_catalog", "column": "instructor_name" },
+          "mappingType": "DIRECT",
+          "source": { "table": "course", "column": "instructor" }
+        },
+        {
+          "target": { "table": "course_catalog", "column": "is_active" },
+          "mappingType": "CONSTANT",
+          "constantValue": true
+        }
+      ]
+    },
+    {
+      "id": "tm-003",
+      "sourceTables": ["enrollment"],
+      "targetTables": ["student_courses"],
+      "description": "Migrate enrollments with default status",
+      "columnMappings": [
+        {
+          "target": { "table": "student_courses", "column": "id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "enrollment", "column": "enrollment_id" }
+        },
+        {
+          "target": { "table": "student_courses", "column": "student_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "enrollment", "column": "student_id" }
+        },
+        {
+          "target": { "table": "student_courses", "column": "course_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "enrollment", "column": "course_id" }
+        },
+        {
+          "target": { "table": "student_courses", "column": "enrolled_on" },
+          "mappingType": "DIRECT",
+          "source": { "table": "enrollment", "column": "enrollment_date" }
+        },
+        {
+          "target": { "table": "student_courses", "column": "final_grade" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "UPPER"
+          },
+          "sourceColumns": [
+            { "table": "enrollment", "column": "grade" }
+          ]
+        },
+        {
+          "target": { "table": "student_courses", "column": "status" },
+          "mappingType": "CONSTANT",
+          "constantValue": "MIGRATED"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "author": "Data Migration Tool",
+    "description": "Migration configuration from old_db to new_db"
+  }
+}

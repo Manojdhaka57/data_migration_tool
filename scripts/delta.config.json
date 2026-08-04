@@ -1,0 +1,458 @@
+{
+  "tableMappings": [
+    {
+      "id": "e6d8fbe5-8463-49e2-859f-cb960189b669",
+      "sourceTables": [
+        "students",
+        "student_other_details",
+        "students_extra_fields",
+        "student_enrollment_details"
+      ],
+      "targetTables": [
+        "opportunities"
+      ],
+      "columnMappings": [
+        {
+          "id": "abb83e6d-5873-4911-b030-fde726a0f285",
+          "target": { "table": "opportunities", "column": "id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "lead_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "629ad349-65c3-4501-bc9a-8216b2fa2cb4",
+          "target": { "table": "opportunities", "column": "active_status" },
+          "mappingType": "CONSTANT",
+          "constantValue": "ACTIVE",
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "6ea50f37-a3fc-444c-9412-cfa7650495dc",
+          "target": { "table": "opportunities", "column": "created_at" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.created_at IS NOT NULL\n         AND students.created_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.created_at)\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "created_at" } ],
+          "convertDateToEpoch": true,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "287638c1-2e8a-4d9e-9b95-9b4d57d00b7b",
+          "target": { "table": "opportunities", "column": "updated_at" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.modified_at IS NOT NULL\n         AND students.modified_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.modified_at)\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "modified_at" } ],
+          "convertDateToEpoch": true,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "e26c5740-f0f5-449e-b24b-4bef74de80d3",
+          "target": { "table": "opportunities", "column": "created_by" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "created_by" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "ea017216-fa2f-4d21-a9d7-d3494dd6308b",
+          "target": { "table": "opportunities", "column": "updated_by" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "modified_by" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "17efaee6-ebc5-4ca9-a110-3366cb41966f",
+          "target": { "table": "opportunities", "column": "is_deleted" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "is_deleted" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": true,
+          "zeroToNull": false,
+          "encrypt": false,
+          "useGroupMin": false
+        },
+        {
+          "id": "2d9019a6-f94d-4e4a-8c68-c275a18f1c78",
+          "target": { "table": "opportunities", "column": "lead_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "lead_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "158f9880-d51f-44a2-984f-acf6627b092c",
+          "target": { "table": "opportunities", "column": "batch_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "batch_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "aeb3c618-bd43-48af-b4be-af7f63d278b5",
+          "target": { "table": "opportunities", "column": "campaign_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "campaign_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "95e8851b-6b72-4e9f-a491-5ab6ec0606b6",
+          "target": { "table": "opportunities", "column": "source_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "source_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "641a6325-b080-4428-a038-4a2ba943f079",
+          "target": { "table": "opportunities", "column": "is_first" },
+          "mappingType": "CONSTANT",
+          "constantValue": true,
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "67fa3708-70f9-4593-b2ab-ef252ce681e1",
+          "target": { "table": "opportunities", "column": "course_id" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.course_id IN (625, 626, 627) THEN 2\n    WHEN students.course_id IN (628, 674) THEN 3\n    WHEN students.course_id = 750 THEN 1\n    WHEN students.course_id = 751 THEN 4\n    ELSE students.course_id\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "course_id" } ],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "109e0939-3e78-4e87-9602-26fbc37728c3",
+          "target": { "table": "opportunities", "column": "sales_primary_status_id" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.call_status IN (29, 31) THEN 58\n    ELSE students.call_status\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "call_status" } ],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false,
+          "useGroupMin": false
+        },
+        {
+          "id": "7cdded90-d236-4447-9aed-da7f360aa5fb",
+          "target": { "table": "opportunities", "column": "sales_secondary_status_id" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE students.call_sub_status\n    WHEN 36 THEN 72\n    WHEN 37 THEN 73\n    WHEN 38 THEN 74\n    WHEN 39 THEN 75\n    WHEN 41 THEN 76\n    WHEN 42 THEN 77\n    WHEN 43 THEN 78\n    WHEN 52 THEN 79\n    WHEN 53 THEN 80\n    WHEN 54 THEN 81\n    ELSE students.call_sub_status\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "call_sub_status" } ],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false,
+          "useGroupMin": false
+        },
+        {
+          "id": "371bc921-dd40-4cb3-81a4-7df8090432d6",
+          "target": { "table": "opportunities", "column": "enquiry_date" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.enquire_date IS NOT NULL\n         AND students.enquire_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.enquire_date)\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "enquire_date" } ],
+          "convertDateToEpoch": true,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "b059b962-5899-46d7-bb2a-960e0479c5de",
+          "target": { "table": "opportunities", "column": "re_enquire_date" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.reenquire_date IS NOT NULL\n         AND students.reenquire_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.reenquire_date)\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "reenquire_date" } ],
+          "convertDateToEpoch": true,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "9465f7fb-ee47-4128-a012-677126702769",
+          "target": { "table": "opportunities", "column": "is_ips" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "is_ips" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": true,
+          "encrypt": false
+        },
+        {
+          "id": "f4066fd8-2200-4fa6-b432-485f0c010b5d",
+          "target": { "table": "opportunities", "column": "ip_generation_date" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.ip_generation_date IS NOT NULL\n         AND students.ip_generation_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.ip_generation_date)\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "ip_generation_date" } ],
+          "convertDateToEpoch": true,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "2db7616b-59d9-4d56-859b-02aa3799e9e7",
+          "target": { "table": "opportunities", "column": "sub_entity_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "university_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "7c2b9beb-1370-44bf-a69a-e8a7e8cd714e",
+          "target": { "table": "opportunities", "column": "shared_user_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "shared_user_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "d21fc3d4-9338-4018-a208-54cbb3293bb1",
+          "target": { "table": "opportunities", "column": "owner_user_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "user_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "77253967-900d-4dc6-9fb9-7971cb381b2a",
+          "target": { "table": "opportunities", "column": "media_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "media_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "17f9b1ea-9562-49d8-9d76-036cc65e79be",
+          "target": { "table": "opportunities", "column": "sales_tertiary_status_value" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "tertiary_status_decs" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "b40077f1-0525-4911-b56f-37ae5ace0378",
+          "target": { "table": "opportunities", "column": "sales_tertiary_status_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "students", "column": "tertiary_status_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "2823385b-807a-46ec-a2e6-e12b7ed2de6f",
+          "target": { "table": "opportunities", "column": "payment_primary_status_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student_other_details", "column": "payment_status" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "d683005e-f252-44d3-8db5-4cf9a5cb464d",
+          "target": { "table": "opportunities", "column": "admission_primary_status_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student_other_details", "column": "admission_status" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "665a81b2-83cc-4d1e-8ae5-1fb480bc4c84",
+          "target": { "table": "opportunities", "column": "document_primary_status_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student_other_details", "column": "document_upload_status" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": false,
+          "encrypt": false
+        },
+        {
+          "id": "537e1f9c-d353-446a-8efa-2e6912750721",
+          "target": { "table": "opportunities", "column": "enrollment_number" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student_enrollment_details", "column": "enrollment_no" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "f4723476-9efc-4752-a8aa-c1d189d4dd63",
+          "target": { "table": "opportunities", "column": "admission_officer_user_id" },
+          "mappingType": "DIRECT",
+          "source": { "table": "student_other_details", "column": "ao_id" },
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false
+        },
+        {
+          "id": "38fa10be-7982-4fe3-b4d7-60815eef5072",
+          "target": { "table": "opportunities", "column": "year_of_graduation" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN TRIM(students_extra_fields.year_of_graduation) REGEXP '^[0-9]+$'\n    THEN CAST(TRIM(students_extra_fields.year_of_graduation) AS UNSIGNED)\n    ELSE NULL\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students_extra_fields", "column": "year_of_graduation" } ],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "8b739235-5f68-4729-93a0-0bd8d7384bc2",
+          "target": { "table": "opportunities", "column": "follow_up_date" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.expected_date IS NOT NULL\n         AND students.expected_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.expected_date)\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "expected_date" } ],
+          "convertDateToEpoch": true,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "e4bb9f60-7a04-4d2f-9061-93dabb9819e3",
+          "target": { "table": "opportunities", "column": "student_category" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.currency IS NULL THEN NULL\n    WHEN TRIM(students.currency) = '0' THEN NULL\n    WHEN UPPER(TRIM(students.currency)) = 'INR' THEN 'Domestic'\n    WHEN UPPER(TRIM(students.currency)) = 'USD' THEN 'International/NRI'\n    ELSE NULL\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "currency" } ],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "encrypt": false
+        },
+        {
+          "id": "8666bc17-79d8-4f8d-b362-9c737b1d4f98",
+          "target": { "table": "opportunities", "column": "specialization_id" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.course_id = 625 THEN 2\n    WHEN students.course_id = 626 THEN 3\n    WHEN students.course_id = 627 THEN 1\n    WHEN students.course_id = 628 THEN 5\n    WHEN students.course_id = 674 THEN 4\n    WHEN students.course_id = 750 THEN NULL\n    WHEN students.course_id = 751 THEN 6\n    ELSE NULL\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "course_id" } ],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": false,
+          "encrypt": false
+        },
+        {
+          "id": "cfabd2a8-757f-4001-8a4d-e2c2d114dd85",
+          "target": { "table": "opportunities", "column": "course_type_id" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.course_id IN (625, 626, 627) THEN 2\n    WHEN students.course_id IN (628, 674) THEN 1\n    WHEN students.course_id = 750 THEN 2\n    WHEN students.course_id = 751 THEN 2\n    ELSE NULL\nEND"
+            }
+          },
+          "sourceColumns": [],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": false,
+          "encrypt": false
+        },
+        {
+          "id": "dab043b7-4fa0-441d-8b45-03ca4e81c429",
+          "target": { "table": "opportunities", "column": "referral_id" },
+          "mappingType": "TRANSFORM",
+          "transformation": {
+            "type": "CUSTOM",
+            "params": {
+              "expression": "CASE\n    WHEN students.refer_lead_id REGEXP '^[0-9]+$'\n         AND CAST(students.refer_lead_id AS UNSIGNED) > 0\n    THEN students.refer_lead_id\n    ELSE NULL\nEND"
+            }
+          },
+          "sourceColumns": [ { "table": "students", "column": "refer_lead_id" } ],
+          "convertDateToEpoch": false,
+          "convertTinyintToBoolean": false,
+          "zeroToNull": true,
+          "encrypt": false,
+          "useGroupMin": false
+        }
+      ],
+      "conflictStrategy": "upsert",
+      "rowFilters": [
+        { "column": "students.university_id", "operator": "=", "value": "31" }
+      ],
+      "joins": [
+        { "table": "student_other_details", "type": "LEFT", "leftColumn": "students.lead_id", "rightColumn": "student_id" },
+        { "table": "students_extra_fields", "type": "LEFT", "leftColumn": "students.lead_id", "rightColumn": "student_id" },
+        { "table": "student_enrollment_details", "type": "LEFT", "leftColumn": "students.lead_id", "rightColumn": "student_id" }
+      ]
+    }
+  ]
+}

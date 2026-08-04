@@ -1,0 +1,11 @@
+/* Minimal global styles - MUI CssBaseline handles most resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}

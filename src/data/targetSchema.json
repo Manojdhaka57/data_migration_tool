@@ -1,0 +1,6737 @@
+{
+  "database": "parsed_db",
+  "tables": [
+    {
+      "name": "access_list",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(150)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "allocation_rule",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "criteria",
+          "type": "JSONB NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "rule_desc",
+          "type": "TEXT"
+        },
+        {
+          "name": "rule_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "group_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "group",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "group_id",
+          "references": {
+            "table": "group",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "batch",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "end_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "sis_batch_id",
+          "type": "INTEGER NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sis_batch",
+            "column": "id"
+          }
+        },
+        {
+          "name": "start_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "sis_batch_id",
+          "references": {
+            "table": "sis_batch",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk_import_group_user_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "completed_at",
+          "type": "BIGINT"
+        },
+        {
+          "name": "failed_count",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "file_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_url",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "import_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "success_count",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "total_records",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "group_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "group",
+            "column": "id"
+          }
+        },
+        {
+          "name": "uploaded_by",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "group_id",
+          "references": {
+            "table": "group",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk_import_group_user_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "row_number",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "user_email",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "validation_message",
+          "type": "VARCHAR(500)"
+        },
+        {
+          "name": "validation_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "weightage",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "bulk_import_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "bulk_import",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "bulk_import_id",
+          "references": {
+            "table": "bulk_import",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk_import_shift_member_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "completed_at",
+          "type": "BIGINT"
+        },
+        {
+          "name": "failed_count",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "file_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_url",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "import_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "success_count",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "total_records",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "uploaded_by",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "bulk_import_shift_member_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "row_number",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "shift_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "user_email",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "validation_message",
+          "type": "VARCHAR(500)"
+        },
+        {
+          "name": "validation_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "bulk_import_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "bulk_import",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "bulk_import_id",
+          "references": {
+            "table": "bulk_import",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "calling_service",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "api_base_url",
+          "type": "VARCHAR(500)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "service_type",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "calling_service_field_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "fields_config",
+          "type": "JSONB NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "calling_service_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "calling_service",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "calling_service_id",
+          "references": {
+            "table": "calling_service",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "campaign",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_offline",
+          "type": "BOOLEAN DEFAULT FALSE NOT NULL",
+          "nullable": false,
+          "defaultValue": "false"
+        },
+        {
+          "name": "campaign_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "channel",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "channel_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "churning_rule",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "include_child_lead",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "ip_generation_date",
+          "type": "BIGINT"
+        },
+        {
+          "name": "module",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "rule_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_user_ids",
+          "type": "JSONB"
+        },
+        {
+          "name": "source_user_university_ids",
+          "type": "JSONB"
+        },
+        {
+          "name": "submodule",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "target_user_ids",
+          "type": "JSONB"
+        },
+        {
+          "name": "time_interval_days",
+          "type": "INTEGER"
+        },
+        {
+          "name": "time_interval_hours",
+          "type": "INTEGER"
+        },
+        {
+          "name": "time_interval_minutes",
+          "type": "INTEGER"
+        },
+        {
+          "name": "transfer_frequency",
+          "type": "INTEGER"
+        },
+        {
+          "name": "transfer_type",
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "call_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "call_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "department_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "department",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reset_call_status_to_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "reset_call_status_to",
+            "column": "id"
+          }
+        },
+        {
+          "name": "source_user_level_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "source_user_level",
+            "column": "id"
+          }
+        },
+        {
+          "name": "target_user_level_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "target_user_level",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "call_status_id",
+          "references": {
+            "table": "call_status",
+            "column": "id"
+          }
+        },
+        {
+          "column": "department_id",
+          "references": {
+            "table": "department",
+            "column": "id"
+          }
+        },
+        {
+          "column": "reset_call_status_to_id",
+          "references": {
+            "table": "reset_call_status_to",
+            "column": "id"
+          }
+        },
+        {
+          "column": "source_user_level_id",
+          "references": {
+            "table": "source_user_level",
+            "column": "id"
+          }
+        },
+        {
+          "column": "target_user_level_id",
+          "references": {
+            "table": "target_user_level",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "city",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "state_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "state_id",
+          "references": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "country",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "phone_code",
+          "type": "VARCHAR(5)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "course",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "course_duration",
+          "type": "JSONB NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "deb_course_name",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "course_category_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_category",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_stream_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_stream",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_type_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_type",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sub_entity_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "course_category_id",
+          "references": {
+            "table": "course_category",
+            "column": "id"
+          }
+        },
+        {
+          "column": "course_stream_id",
+          "references": {
+            "table": "course_stream",
+            "column": "id"
+          }
+        },
+        {
+          "column": "course_type_id",
+          "references": {
+            "table": "course_type",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sub_entity_id",
+          "references": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "course_batch_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "admission_end_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "admission_start_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "admission_type",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "course_pattern",
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        {
+          "name": "lms_batch_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lms_batch",
+            "column": "id"
+          }
+        },
+        {
+          "name": "lms_course_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lms_course",
+            "column": "id"
+          }
+        },
+        {
+          "name": "lms_institute_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lms_institute",
+            "column": "id"
+          }
+        },
+        {
+          "name": "lms_program_batch_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lms_program_batch",
+            "column": "id"
+          }
+        },
+        {
+          "name": "required_work_experience_in_years",
+          "type": "SMALLINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "sis_course_id",
+          "type": "INTEGER",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sis_course",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sis_specialization_id",
+          "type": "INTEGER",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sis_specialization",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sis_university_id",
+          "type": "INTEGER",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sis_university",
+            "column": "id"
+          }
+        },
+        {
+          "name": "total_semesters",
+          "type": "SMALLINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "batch_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "batch",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course",
+            "column": "id"
+          }
+        },
+        {
+          "name": "specialization_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "specialization",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "lms_batch_id",
+          "references": {
+            "table": "lms_batch",
+            "column": "id"
+          }
+        },
+        {
+          "column": "lms_course_id",
+          "references": {
+            "table": "lms_course",
+            "column": "id"
+          }
+        },
+        {
+          "column": "lms_institute_id",
+          "references": {
+            "table": "lms_institute",
+            "column": "id"
+          }
+        },
+        {
+          "column": "lms_program_batch_id",
+          "references": {
+            "table": "lms_program_batch",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sis_course_id",
+          "references": {
+            "table": "sis_course",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sis_specialization_id",
+          "references": {
+            "table": "sis_specialization",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sis_university_id",
+          "references": {
+            "table": "sis_university",
+            "column": "id"
+          }
+        },
+        {
+          "column": "batch_id",
+          "references": {
+            "table": "batch",
+            "column": "id"
+          }
+        },
+        {
+          "column": "course_id",
+          "references": {
+            "table": "course",
+            "column": "id"
+          }
+        },
+        {
+          "column": "specialization_id",
+          "references": {
+            "table": "specialization",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "course_batch_mapping_documents",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "attestation_required",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_internal",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_mandatory",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "course_batch_mapping_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "name": "document_check_items_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "document_check_items",
+            "column": "id"
+          }
+        },
+        {
+          "name": "for_learner",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "course_batch_mapping_id",
+          "references": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "column": "document_check_items_id",
+          "references": {
+            "table": "document_check_items",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "course_batch_mapping_eligibility_mapping",
+      "columns": [
+        {
+          "name": "course_batch_mapping_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "name": "eligibility_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "eligibility",
+            "column": "id"
+          }
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "course_batch_mapping_id",
+          "references": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "column": "eligibility_id",
+          "references": {
+            "table": "eligibility",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "course_batch_mapping_qualification_mapping",
+      "columns": [
+        {
+          "name": "course_batch_mapping_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "name": "qualification_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "qualification",
+            "column": "id"
+          }
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "course_batch_mapping_id",
+          "references": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "column": "qualification_id",
+          "references": {
+            "table": "qualification",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "course_batch_mapping_service_mapping",
+      "columns": [
+        {
+          "name": "course_batch_mapping_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "name": "service_id",
+          "type": "INTEGER NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "service",
+            "column": "id"
+          }
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "course_batch_mapping_id",
+          "references": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        },
+        {
+          "column": "service_id",
+          "references": {
+            "table": "service",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "course_category",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "course_stream",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "course_type",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "department",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "department_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "level",
+          "type": "INTEGER"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "parent_department",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "designation",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "designation_code",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "dialer",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "dialer_type",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "document_check_items",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_government_issued",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "eligibility",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "VARCHAR(1000)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "entity",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "address",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "sub_entity_label",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "website",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "city_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "name": "country_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "name": "organization_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "organization",
+            "column": "id"
+          }
+        },
+        {
+          "name": "state_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "city_id",
+          "references": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "column": "country_id",
+          "references": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "column": "organization_id",
+          "references": {
+            "table": "organization",
+            "column": "id"
+          }
+        },
+        {
+          "column": "state_id",
+          "references": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "external_service_tokens",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "expires_in",
+          "type": "BIGINT"
+        },
+        {
+          "name": "service_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "token",
+          "type": "VARCHAR(2000)",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "fee_installment_head_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type": "NUMERIC(10,2)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "fee_plan_installment_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "fee_plan_installment",
+            "column": "id"
+          }
+        },
+        {
+          "name": "payment_head_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "payment_head",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "fee_plan_installment_id",
+          "references": {
+            "table": "fee_plan_installment",
+            "column": "id"
+          }
+        },
+        {
+          "column": "payment_head_id",
+          "references": {
+            "table": "payment_head",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fee_plan_installments",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "recurring_time_period",
+          "type": "JSONB"
+        },
+        {
+          "name": "sequence_order",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "fee_plan_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "fee_plan",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "fee_plan_id",
+          "references": {
+            "table": "fee_plan",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fee_plans",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "end_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "fee_plan_category",
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "payment_proof_doc_url",
+          "type": "TEXT"
+        },
+        {
+          "name": "recurring_time_period",
+          "type": "JSONB"
+        },
+        {
+          "name": "start_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "student_category",
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "course_batch_mapping_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "course_batch_mapping_id",
+          "references": {
+            "table": "course_batch_mapping",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "group_category",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "group_category_roles",
+      "columns": [
+        {
+          "name": "group_category_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "group_category",
+            "column": "id"
+          }
+        },
+        {
+          "name": "role_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "role",
+            "column": "id"
+          }
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "group_category_id",
+          "references": {
+            "table": "group_category",
+            "column": "id"
+          }
+        },
+        {
+          "column": "role_id",
+          "references": {
+            "table": "role",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "group_users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "counter",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "weightage",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "group_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "group",
+            "column": "id"
+          }
+        },
+        {
+          "name": "user_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "group_id",
+          "references": {
+            "table": "group",
+            "column": "id"
+          }
+        },
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "groups",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "group_category_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "group_category",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "group_category_id",
+          "references": {
+            "table": "group_category",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "lead_sharing",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "distribution_mode",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "filters_metadata",
+          "type": "JSONB"
+        },
+        {
+          "name": "lead_ids",
+          "type": "JSONB"
+        },
+        {
+          "name": "remark",
+          "type": "TEXT"
+        },
+        {
+          "name": "shared_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "shared_to_users",
+          "type": "JSONB"
+        },
+        {
+          "name": "sharing_type",
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "shared_by",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "lead_sharing_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "lead_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "name": "lead_owner",
+          "type": "BIGINT"
+        },
+        {
+          "name": "lead_sharing_status",
+          "type": "VARCHAR(30)",
+          "nullable": false
+        },
+        {
+          "name": "shared_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "shared_to",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "shared_by",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "sharing_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sharing",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "lead_id",
+          "references": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sharing_id",
+          "references": {
+            "table": "sharing",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "lead_status",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "last_transfer_at",
+          "type": "BIGINT"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "assigned_to",
+          "type": "BIGINT"
+        },
+        {
+          "name": "lead_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "name": "status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sub_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_status",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "lead_id",
+          "references": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "column": "status_id",
+          "references": {
+            "table": "status",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sub_status_id",
+          "references": {
+            "table": "sub_status",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "lead_transfers",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "distribution_mode",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "filter_metadata",
+          "type": "JSONB"
+        },
+        {
+          "name": "lead_ids",
+          "type": "JSONB"
+        },
+        {
+          "name": "remark",
+          "type": "TEXT"
+        },
+        {
+          "name": "requested_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "reset_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "reset_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reset_sub_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "reset_sub_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "transfer_to_users",
+          "type": "JSONB"
+        },
+        {
+          "name": "transfer_type",
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "requested_by",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "reset_status_id",
+          "references": {
+            "table": "reset_status",
+            "column": "id"
+          }
+        },
+        {
+          "column": "reset_sub_status_id",
+          "references": {
+            "table": "reset_sub_status",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "leads",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "alternate_email",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "alternate_mobile_number",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "custom_data",
+          "type": "JSONB"
+        },
+        {
+          "name": "date_of_birth",
+          "type": "BIGINT"
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "enquiry_date",
+          "type": "BIGINT"
+        },
+        {
+          "name": "first_name",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "gender",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "is_original",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "last_name",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "middle_name",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "mobile_number",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "campaign_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "campaign",
+            "column": "id"
+          }
+        },
+        {
+          "name": "city_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "name": "country_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "name": "media_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "media",
+            "column": "id"
+          }
+        },
+        {
+          "name": "pincode_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "pincode",
+            "column": "id"
+          }
+        },
+        {
+          "name": "source_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "source",
+            "column": "id"
+          }
+        },
+        {
+          "name": "state_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "state",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sub_entity_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        },
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "ip_generation_date",
+          "type": "BIGINT"
+        },
+        {
+          "name": "is_ips",
+          "type": "BOOLEAN DEFAULT FALSE",
+          "defaultValue": "false"
+        },
+        {
+          "name": "shared_user_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "shared_user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "experience_in_months",
+          "type": "INTEGER"
+        },
+        {
+          "name": "full_name",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "highest_qualification_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "highest_qualification",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "campaign_id",
+          "references": {
+            "table": "campaign",
+            "column": "id"
+          }
+        },
+        {
+          "column": "city_id",
+          "references": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "column": "country_id",
+          "references": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "column": "media_id",
+          "references": {
+            "table": "media",
+            "column": "id"
+          }
+        },
+        {
+          "column": "pincode_id",
+          "references": {
+            "table": "pincode",
+            "column": "id"
+          }
+        },
+        {
+          "column": "source_id",
+          "references": {
+            "table": "source",
+            "column": "id"
+          }
+        },
+        {
+          "column": "state_id",
+          "references": {
+            "table": "state",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sub_entity_id",
+          "references": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        },
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "column": "shared_user_id",
+          "references": {
+            "table": "shared_user",
+            "column": "id"
+          }
+        },
+        {
+          "column": "highest_qualification_id",
+          "references": {
+            "table": "highest_qualification",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "leadwise_transfer_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "lead_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "name": "new_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "new_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "new_sub_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "new_sub_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "new_user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "new_user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "old_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "old_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "old_sub_status_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "old_sub_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "old_user_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "old_user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "transferred_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "transfer_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "transfer",
+            "column": "id"
+          }
+        },
+        {
+          "name": "transferred_by",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "lead_id",
+          "references": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "column": "new_status_id",
+          "references": {
+            "table": "new_status",
+            "column": "id"
+          }
+        },
+        {
+          "column": "new_sub_status_id",
+          "references": {
+            "table": "new_sub_status",
+            "column": "id"
+          }
+        },
+        {
+          "column": "new_user_id",
+          "references": {
+            "table": "new_user",
+            "column": "id"
+          }
+        },
+        {
+          "column": "old_status_id",
+          "references": {
+            "table": "old_status",
+            "column": "id"
+          }
+        },
+        {
+          "column": "old_sub_status_id",
+          "references": {
+            "table": "old_sub_status",
+            "column": "id"
+          }
+        },
+        {
+          "column": "old_user_id",
+          "references": {
+            "table": "old_user",
+            "column": "id"
+          }
+        },
+        {
+          "column": "transfer_id",
+          "references": {
+            "table": "transfer",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "media",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_offline",
+          "type": "BOOLEAN DEFAULT FALSE NOT NULL",
+          "nullable": false,
+          "defaultValue": "false"
+        },
+        {
+          "name": "media_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "media_category_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "media_category",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "media_category_id",
+          "references": {
+            "table": "media_category",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "media_category",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "media_category_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "module",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "icon",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "url",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "module_group_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "module_group",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "module_group_id",
+          "references": {
+            "table": "module_group",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "module_group",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "url",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "module_menu_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "module_menu",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "module_menu_id",
+          "references": {
+            "table": "module_menu",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "module_menu",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "icon",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "url",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "opportunities",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "custom_data",
+          "type": "JSONB"
+        },
+        {
+          "name": "enquirydate",
+          "type": "BIGINT"
+        },
+        {
+          "name": "ip_generation_date",
+          "type": "BIGINT"
+        },
+        {
+          "name": "is_first",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "is_ips",
+          "type": "BOOLEAN DEFAULT FALSE",
+          "defaultValue": "false"
+        },
+        {
+          "name": "batch_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "batch",
+            "column": "id"
+          }
+        },
+        {
+          "name": "campaign_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "campaign",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course",
+            "column": "id"
+          }
+        },
+        {
+          "name": "lead_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "name": "media_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "media",
+            "column": "id"
+          }
+        },
+        {
+          "name": "owner_user_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "owner_user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "source_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "source",
+            "column": "id"
+          }
+        },
+        {
+          "name": "specialization_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "specialization",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sub_entity_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "batch_id",
+          "references": {
+            "table": "batch",
+            "column": "id"
+          }
+        },
+        {
+          "column": "campaign_id",
+          "references": {
+            "table": "campaign",
+            "column": "id"
+          }
+        },
+        {
+          "column": "course_id",
+          "references": {
+            "table": "course",
+            "column": "id"
+          }
+        },
+        {
+          "column": "lead_id",
+          "references": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "column": "media_id",
+          "references": {
+            "table": "media",
+            "column": "id"
+          }
+        },
+        {
+          "column": "owner_user_id",
+          "references": {
+            "table": "owner_user",
+            "column": "id"
+          }
+        },
+        {
+          "column": "source_id",
+          "references": {
+            "table": "source",
+            "column": "id"
+          }
+        },
+        {
+          "column": "specialization_id",
+          "references": {
+            "table": "specialization",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sub_entity_id",
+          "references": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "organization",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "payment_head",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "pincode",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "code",
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "city_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "name": "country_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "name": "state_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "city_id",
+          "references": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "column": "country_id",
+          "references": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "column": "state_id",
+          "references": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "process",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "process_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "qualification",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "qualification_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "qualifications",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "VARCHAR(1000)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "role",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "role_code",
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "department_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "department",
+            "column": "id"
+          }
+        },
+        {
+          "name": "role_level_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "role_level",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "department_id",
+          "references": {
+            "table": "department",
+            "column": "id"
+          }
+        },
+        {
+          "column": "role_level_id",
+          "references": {
+            "table": "role_level",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "role_access",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "access_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "access",
+            "column": "id"
+          }
+        },
+        {
+          "name": "module_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "module",
+            "column": "id"
+          }
+        },
+        {
+          "name": "role_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "role",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sub_module_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_module",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "access_id",
+          "references": {
+            "table": "access",
+            "column": "id"
+          }
+        },
+        {
+          "column": "module_id",
+          "references": {
+            "table": "module",
+            "column": "id"
+          }
+        },
+        {
+          "column": "role_id",
+          "references": {
+            "table": "role",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sub_module_id",
+          "references": {
+            "table": "sub_module",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "role_level",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "level_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "level_number",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "rule_parameter",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "list_endpoint",
+          "type": "TEXT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "parameter_name",
+          "type": "VARCHAR(100)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "services",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "shift",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "days_of_week",
+          "type": "JSONB"
+        },
+        {
+          "name": "end_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "end_time",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "shift_code",
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        {
+          "name": "shift_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "start_date",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "start_time",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "shift_members",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "shift_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "shift",
+            "column": "id"
+          }
+        },
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "shift_id",
+          "references": {
+            "table": "shift",
+            "column": "id"
+          }
+        },
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "source",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "source_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "specialization",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "deb_course_name",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "course_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "course_id",
+          "references": {
+            "table": "course",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "state",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "country_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "country",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "country_id",
+          "references": {
+            "table": "country",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "status_types",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "styles",
+          "type": "JSONB"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ]
+    },
+    {
+      "name": "statuses",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "status_type_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "status_type",
+            "column": "id"
+          }
+        },
+        {
+          "name": "styles",
+          "type": "JSONB"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "status_type_id",
+          "references": {
+            "table": "status_type",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "student_course_batch_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "batch_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "batch",
+            "column": "id"
+          }
+        },
+        {
+          "name": "course_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "course",
+            "column": "id"
+          }
+        },
+        {
+          "name": "lead_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "name": "specialization_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "specialization",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "batch_id",
+          "references": {
+            "table": "batch",
+            "column": "id"
+          }
+        },
+        {
+          "column": "course_id",
+          "references": {
+            "table": "course",
+            "column": "id"
+          }
+        },
+        {
+          "column": "lead_id",
+          "references": {
+            "table": "lead",
+            "column": "id"
+          }
+        },
+        {
+          "column": "specialization_id",
+          "references": {
+            "table": "specialization",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sub_entity",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "address",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT"
+        },
+        {
+          "name": "emails",
+          "type": "JSONB"
+        },
+        {
+          "name": "logo_url",
+          "type": "TEXT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "phone_numbers",
+          "type": "JSONB"
+        },
+        {
+          "name": "short_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "urls",
+          "type": "JSONB"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "city_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "name": "country_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "name": "entity",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "pincode_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "pincode",
+            "column": "id"
+          }
+        },
+        {
+          "name": "state_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "city_id",
+          "references": {
+            "table": "city",
+            "column": "id"
+          }
+        },
+        {
+          "column": "country_id",
+          "references": {
+            "table": "country",
+            "column": "id"
+          }
+        },
+        {
+          "column": "pincode_id",
+          "references": {
+            "table": "pincode",
+            "column": "id"
+          }
+        },
+        {
+          "column": "state_id",
+          "references": {
+            "table": "state",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sub_entity_doc_checklist",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "document_check_items_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "document_check_items",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sub_entity_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "document_check_items_id",
+          "references": {
+            "table": "document_check_items",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sub_entity_id",
+          "references": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sub_entity_services",
+      "columns": [
+        {
+          "name": "sub_entity_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        },
+        {
+          "name": "service_id",
+          "type": "INTEGER NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "service",
+            "column": "id"
+          }
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "sub_entity_id",
+          "references": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        },
+        {
+          "column": "service_id",
+          "references": {
+            "table": "service",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sub_status",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(100)",
+          "nullable": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "status_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "styles",
+          "type": "JSONB"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "status_id",
+          "references": {
+            "table": "status",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "submodule",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "side_nav_access",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "url",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "module_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "module",
+            "column": "id"
+          }
+        },
+        {
+          "name": "icon",
+          "type": "VARCHAR(255)"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "module_id",
+          "references": {
+            "table": "module",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "tertiary_status",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "secondary_status_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "secondary_status",
+            "column": "id"
+          }
+        },
+        {
+          "name": "styles",
+          "type": "JSONB"
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "secondary_status_id",
+          "references": {
+            "table": "secondary_status",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_activity",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "last_login_date",
+          "type": "TIMESTAMP(6)"
+        },
+        {
+          "name": "last_logout_date",
+          "type": "TIMESTAMP(6)"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_calling_service_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "field_values",
+          "type": "JSONB NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "calling_service_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "calling_service",
+            "column": "id"
+          }
+        },
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "calling_service_id",
+          "references": {
+            "table": "calling_service",
+            "column": "id"
+          }
+        },
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_contact",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "address_street",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "mobile",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "mobile_work",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "postal_code",
+          "type": "VARCHAR(8)"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "city_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "city",
+            "column": "id"
+          }
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "column": "city_id",
+          "references": {
+            "table": "city",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_employment",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "doa",
+          "type": "BIGINT"
+        },
+        {
+          "name": "doj",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "level_id",
+          "type": "INTEGER",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "level",
+            "column": "id"
+          }
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "department_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "department",
+            "column": "id"
+          }
+        },
+        {
+          "name": "designation_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "designation",
+            "column": "id"
+          }
+        },
+        {
+          "name": "qualification_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "qualification",
+            "column": "id"
+          }
+        },
+        {
+          "name": "reports_to",
+          "type": "BIGINT"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "column": "level_id",
+          "references": {
+            "table": "level",
+            "column": "id"
+          }
+        },
+        {
+          "column": "department_id",
+          "references": {
+            "table": "department",
+            "column": "id"
+          }
+        },
+        {
+          "column": "designation_id",
+          "references": {
+            "table": "designation",
+            "column": "id"
+          }
+        },
+        {
+          "column": "qualification_id",
+          "references": {
+            "table": "qualification",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_extension",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "extension_number",
+          "type": "BIGINT"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "user_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_flag",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_cucp",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "is_parallel",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "is_pii",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_role_access",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "access_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "access",
+            "column": "id"
+          }
+        },
+        {
+          "name": "module_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "module",
+            "column": "id"
+          }
+        },
+        {
+          "name": "sub_module_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_module",
+            "column": "id"
+          }
+        },
+        {
+          "name": "user_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "access_id",
+          "references": {
+            "table": "access",
+            "column": "id"
+          }
+        },
+        {
+          "column": "module_id",
+          "references": {
+            "table": "module",
+            "column": "id"
+          }
+        },
+        {
+          "column": "sub_module_id",
+          "references": {
+            "table": "sub_module",
+            "column": "id"
+          }
+        },
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user_sub_entity_mapping",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "sub_entity_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        },
+        {
+          "name": "user_id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "sub_entity_id",
+          "references": {
+            "table": "sub_entity",
+            "column": "id"
+          }
+        },
+        {
+          "column": "user_id",
+          "references": {
+            "table": "user",
+            "column": "id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT NOT NULL",
+          "nullable": false,
+          "isPrimaryKey": true
+        },
+        {
+          "name": "active_status",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "is_deleted",
+          "type": "BOOLEAN NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "dob",
+          "type": "BIGINT NOT NULL",
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "employee_code",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "external_access",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "first_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "gender",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "last_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "oauth_uid",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "password",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "user_photo",
+          "type": "TEXT"
+        },
+        {
+          "name": "user_name",
+          "type": "VARCHAR(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "updated_by",
+          "type": "BIGINT"
+        },
+        {
+          "name": "channel_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "channel",
+            "column": "id"
+          }
+        },
+        {
+          "name": "process_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "process",
+            "column": "id"
+          }
+        },
+        {
+          "name": "role_id",
+          "type": "BIGINT",
+          "isForeignKey": true,
+          "foreignKeyRef": {
+            "table": "role",
+            "column": "id"
+          }
+        }
+      ],
+      "primaryKey": [
+        "id"
+      ],
+      "foreignKeys": [
+        {
+          "column": "channel_id",
+          "references": {
+            "table": "channel",
+            "column": "id"
+          }
+        },
+        {
+          "column": "process_id",
+          "references": {
+            "table": "process",
+            "column": "id"
+          }
+        },
+        {
+          "column": "role_id",
+          "references": {
+            "table": "role",
+            "column": "id"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "database": "new_db",
+  "tables": [
+    {
+      "name": "student_master",
+      "columns": [
+        { "name": "student_id", "type": "int" },
+        { "name": "full_name", "type": "varchar" },
+        { "name": "date_of_birth", "type": "date" },
+        { "name": "created_by", "type": "varchar" },
+        { "name": "created_at", "type": "timestamp" }
+      ]
+    },
+    {
+      "name": "student_address",
+      "columns": [
+        { "name": "address_id", "type": "int" },
+        { "name": "student_id", "type": "int" },
+        { "name": "city", "type": "varchar" },
+        { "name": "state", "type": "varchar" },
+        { "name": "country", "type": "varchar" }
+      ]
+    },
+    {
+      "name": "course_catalog",
+      "columns": [
+        { "name": "id", "type": "int" },
+        { "name": "title", "type": "varchar" },
+        { "name": "credit_hours", "type": "int" },
+        { "name": "instructor_name", "type": "varchar" },
+        { "name": "is_active", "type": "boolean" }
+      ]
+    },
+    {
+      "name": "student_courses",
+      "columns": [
+        { "name": "id", "type": "int" },
+        { "name": "student_id", "type": "int" },
+        { "name": "course_id", "type": "int" },
+        { "name": "enrolled_on", "type": "date" },
+        { "name": "final_grade", "type": "varchar" },
+        { "name": "status", "type": "varchar" }
+      ]
+    }
+  ]
+}
