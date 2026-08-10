@@ -1,0 +1,25 @@
+{
+  // Type-checks the Node/backend code under scripts/.
+  //
+  // scripts/tsconfig.json cannot do this: it sets moduleResolution "NodeNext",
+  // which requires explicit .js extensions on relative imports, while the code
+  // uses extensionless imports (resolved fine at runtime by tsx). Running it
+  // reports an error on nearly every import and hides real problems.
+  //
+  // Usage: npm run typecheck:scripts
+  // Known pre-existing errors: 3 (server.ts ai-suggest, and the two orphaned
+  // duplicate engines under scripts/transformation and scripts/validation).
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["scripts/**/*.ts"]
+}

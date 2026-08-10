@@ -28,17 +28,14 @@ export const migrationQueue = new Queue('migration-execution', {
   },
 });
 
-// Queue for failed row retries (Dead Letter Queue / Retry Queue)
-export const retryQueue = new Queue('failed-row-retries', {
-  connection: redisConnection,
-  defaultJobOptions: {
-    attempts: 5,
-    backoff: {
-      type: 'fixed',
-      delay: 2000,
-    },
-  },
-});
+// NOTE: a 'failed-row-retries' dead-letter queue used to be declared here. No
+// Worker was ever created for it, so nothing drained it, and the producer
+// enqueued the first 50 rows of a failing batch rather than the rows that
+// actually failed — so even a consumer could not have recovered anything.
+// Rejected rows are now written to scripts/output/rejects/<jobId>/<table>.ndjson
+// with their primary key and offending column (see state/rejects.ts). Automated
+// re-drive belongs with the migration_run_error table in the configuration
+// phase, where a retry can be scoped to a specific run.
 
 export const migrationEvents = new QueueEvents('migration-execution', {
   connection: redisConnection,

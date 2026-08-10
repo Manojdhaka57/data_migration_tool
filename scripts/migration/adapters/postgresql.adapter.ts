@@ -2,7 +2,7 @@ import { Pool, PoolClient } from 'pg';
 import QueryStream from 'pg-query-stream';
 import { from as copyFrom } from 'pg-copy-streams';
 import { Readable } from 'stream';
-import { IDatabaseAdapter, InsertOptions } from './db.interface';
+import { IDatabaseAdapter, InsertOptions, FailedRowDetail, InsertBatchResult } from './db.interface';
 import { mapColumnType, portableDefault, Dialect } from './typeMap';
 import { DatabaseSchema, TableStructure, TableStructureColumn } from '../types';
 
@@ -332,7 +332,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     rows: any[],
     pkColumns: string[],
     options?: InsertOptions
-  ): Promise<{ inserted: number; failed: number; skipped: number; errors: string[] }> {
+  ): Promise<InsertBatchResult> {
     if (rows.length === 0) {
       return { inserted: 0, failed: 0, skipped: 0, errors: [] };
     }
@@ -345,6 +345,7 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
     let failed = 0;
     let skipped = 0;
     const errors: string[] = [];
+    const failedRowDetails: FailedRowDetail[] = [];
 
     try {
       const placeholders: string[] = [];
@@ -366,10 +367,19 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
         ${conflictClause}
       `;
 
+      // The batch is atomic: it either lands whole or not at all. Without this a
+      // crash mid-statement could leave the target holding an arbitrary prefix
+      // that the resume cursor would then skip past.
+      await client.query('BEGIN');
       const result = await client.query(insertQuery, values);
+      await client.query('COMMIT');
       inserted = result.rowCount || 0;
       skipped = rows.length - inserted;
     } catch (err: any) {
+      // Roll the failed batch back, then salvage row-by-row. Each single-row
+      // insert below runs in its own implicit transaction, so good rows still
+      // land and bad rows stay individually attributable.
+      await client.query('ROLLBACK').catch(() => undefined);
       // Fallback: insert row-by-row to pinpoint issues and support retries
       errors.push(err.message || String(err));
 
@@ -400,6 +410,15 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
           const culprits = badVal !== null
             ? columns.filter(c => { const v = row[c]; return v != null && String(v) === badVal; })
             : [];
+          failedRowDetails.push({
+            row,
+            pk: pkColumns.length
+              ? Object.fromEntries(pkColumns.map(c => [c, row[c]]))
+              : undefined,
+            columns: culprits.length ? culprits : undefined,
+            error: msg,
+            timestamp: new Date().toISOString(),
+          });
           // Full column = value breakdown, marking the likely culprit column(s).
           const breakdown = columns.map(c => {
             const v = row[c];
@@ -417,7 +436,13 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
       client.release();
     }
 
-    return { inserted, failed, skipped, errors: Array.from(new Set(errors)).slice(0, 10) };
+    return {
+      inserted,
+      failed,
+      skipped,
+      errors: Array.from(new Set(errors)).slice(0, 10),
+      failedRowDetails,
+    };
   }
 
   async copyBatch(
@@ -442,19 +467,33 @@ export class PostgreSQLAdapter implements IDatabaseAdapter {
         }).join('\t');
       }).join('\n') + '\n';
 
+      // Atomic like insertBatch — a partially applied COPY would leave rows the
+      // resume cursor could skip past.
+      await client.query('BEGIN');
+
       const copyStream = client.query(
         copyFrom(`COPY "${tableName}" (${columns.map(c => `"${c}"`).join(', ')}) FROM STDIN WITH NULL AS '\\N'`)
       );
 
       const sourceStream = Readable.from(csvLines);
-      
+
       await new Promise<void>((resolve, reject) => {
         sourceStream.pipe(copyStream);
         copyStream.on('finish', resolve);
         copyStream.on('error', reject);
       });
 
-      return rows.length;
+      await client.query('COMMIT');
+
+      // Report what the server actually accepted rather than assuming the whole
+      // batch landed. pg-copy-streams exposes rowCount once the stream finishes;
+      // older drivers may not, so fall back to the batch size.
+      const copied = (copyStream as unknown as { rowCount?: number }).rowCount;
+      return typeof copied === 'number' ? copied : rows.length;
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => undefined);
+      // Rethrow so the worker's existing COPY→INSERT fallback still triggers.
+      throw err;
     } finally {
       client.release();
     }

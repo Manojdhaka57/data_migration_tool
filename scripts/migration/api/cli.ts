@@ -1,6 +1,6 @@
 import { createAdapter, resolveDbType } from '../adapters/factory';
 import { TransformationEngine } from '../transformation/engine';
-import { ValidationEngine } from '../validation/engine';
+import { ValidationEngine, ValidationReport } from '../validation/engine';
 import { TableMapping, TableResult } from '../types';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
@@ -139,16 +139,21 @@ async function runCliMigration() {
       );
 
       // Validate migrated table
-      let validationReport = null;
+      let validationReport: ValidationReport | null = null;
       if (!dryRun && successRows > 0) {
         log.info(`Validating migrated table ${targetTable}...`);
-        validationReport = await ValidationEngine.validateTable(
+        validationReport = await ValidationEngine.validateTable({
           sourceAdapter,
           targetAdapter,
-          mapping.sourceTable,
+          sourceTable: mapping.sourceTable,
           targetTable,
-          targetCols
-        );
+          rowsInserted: successRows,
+          rowsRead: successRows + failedRows + skippedRows,
+          // The CLI does not baseline the target before streaming, so the delta
+          // check reports 'skipped' and the run comes back 'unverified' rather
+          // than claiming a pass it cannot support.
+          targetCountBefore: -1,
+        });
         if (validationReport.status !== 'passed') {
           errors.push(...validationReport.errors);
         }

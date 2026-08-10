@@ -8,6 +8,32 @@ export interface InsertOptions {
   conflictStrategy?: ConflictStrategy;
 }
 
+/**
+ * A single row the target refused, kept whole so the failure can actually be
+ * acted on. The adapters already identify the offending column during their
+ * row-by-row fallback; this carries that detail out instead of printing it to
+ * the console and discarding it.
+ */
+export interface FailedRowDetail {
+  row: Record<string, unknown>;
+  /** Primary-key values when the mapping supplies a key, for identification. */
+  pk?: Record<string, unknown>;
+  /** Column(s) the driver error points at, when it can be determined. */
+  columns?: string[];
+  error: string;
+  timestamp: string;
+}
+
+export interface InsertBatchResult {
+  inserted: number;
+  failed: number;
+  skipped: number;
+  /** Deduped, capped summary strings — retained for the UI and CSV export. */
+  errors: string[];
+  /** Every rejected row, uncapped. Optional so other adapters stay valid. */
+  failedRowDetails?: FailedRowDetail[];
+}
+
 export interface IDatabaseAdapter {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
@@ -47,7 +73,7 @@ export interface IDatabaseAdapter {
     rows: any[],
     pkColumns: string[],
     options?: InsertOptions
-  ): Promise<{ inserted: number; failed: number; skipped: number; errors: string[] }>;
+  ): Promise<InsertBatchResult>;
   
   // PostgreSQL COPY support
   copyBatch?(

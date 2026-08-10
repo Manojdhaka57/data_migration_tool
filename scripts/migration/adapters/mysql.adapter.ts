@@ -1,5 +1,5 @@
 import mysql, { Pool, PoolConnection } from 'mysql2/promise';
-import { IDatabaseAdapter, InsertOptions } from './db.interface';
+import { IDatabaseAdapter, InsertOptions, FailedRowDetail, InsertBatchResult } from './db.interface';
 import { mapColumnType, Dialect } from './typeMap';
 import { DatabaseSchema, TableStructure, TableStructureColumn } from '../types';
 
@@ -302,7 +302,7 @@ export class MySQLAdapter implements IDatabaseAdapter {
     rows: any[],
     pkColumns: string[],
     options?: InsertOptions
-  ): Promise<{ inserted: number; failed: number; skipped: number; errors: string[] }> {
+  ): Promise<InsertBatchResult> {
     if (rows.length === 0) {
       return { inserted: 0, failed: 0, skipped: 0, errors: [] };
     }
@@ -316,6 +316,7 @@ export class MySQLAdapter implements IDatabaseAdapter {
     let failed = 0;
     let skipped = 0;
     const errors: string[] = [];
+    const failedRowDetails: FailedRowDetail[] = [];
 
     try {
       const placeholders: string[] = [];
@@ -339,11 +340,20 @@ export class MySQLAdapter implements IDatabaseAdapter {
         ${suffix}
       `;
 
+      // The batch is atomic: it either lands whole or not at all. Without this a
+      // crash mid-statement could leave the target holding an arbitrary prefix
+      // that the resume cursor would then skip past.
+      await connection.beginTransaction();
       const [result]: any = await connection.execute(insertQuery, values);
+      await connection.commit();
       // ON DUPLICATE KEY UPDATE counts 2 per updated row, so clamp for reporting.
       inserted = Math.min(rows.length, result.affectedRows || 0);
       skipped = rows.length - inserted;
     } catch (err: any) {
+      // Roll the failed batch back, then salvage row-by-row. Each single-row
+      // insert below runs in its own implicit transaction, so good rows still
+      // land and bad rows stay individually attributable.
+      await connection.rollback().catch(() => undefined);
       errors.push(err.message || String(err));
 
       // Fallback
@@ -375,6 +385,15 @@ export class MySQLAdapter implements IDatabaseAdapter {
           const culprits = badVal !== null
             ? columns.filter(c => { const v = row[c]; return v != null && String(v) === badVal; })
             : [];
+          failedRowDetails.push({
+            row,
+            pk: pkColumns.length
+              ? Object.fromEntries(pkColumns.map(c => [c, row[c]]))
+              : undefined,
+            columns: culprits.length ? culprits : undefined,
+            error: msg,
+            timestamp: new Date().toISOString(),
+          });
           const breakdown = columns.map(c => {
             const v = row[c];
             const sv = v === null || v === undefined ? 'NULL' : (typeof v === 'string' ? `'${v}'` : String(v));
@@ -391,7 +410,13 @@ export class MySQLAdapter implements IDatabaseAdapter {
       connection.release();
     }
 
-    return { inserted, failed, skipped, errors: Array.from(new Set(errors)).slice(0, 10) };
+    return {
+      inserted,
+      failed,
+      skipped,
+      errors: Array.from(new Set(errors)).slice(0, 10),
+      failedRowDetails,
+    };
   }
 
   async dropTable(tableName: string): Promise<void> {

@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck:scripts": "tsc -p tsconfig.scripts-check.json",
     "preview": "vite preview",
     "migrate": "npx tsx scripts/test-mysql-connection.ts",
     "migrate:dry-run": "npx tsx scripts/migrate-db.ts --dry-run",
@@ -57,6 +60,7 @@
     "tsx": "^4.19.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^4.1.10"
   }
 }

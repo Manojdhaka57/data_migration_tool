@@ -1,8 +1,10 @@
 import { Worker, Job } from 'bullmq';
-import { redisConnection, retryQueue, MigrationJobData } from './queue';
+import { redisConnection, MigrationJobData } from './queue';
+import { appendRejects } from '../state/rejects';
 import { createAdapter } from '../adapters/factory';
 import { TransformationEngine } from '../transformation/engine';
 import { ValidationEngine, ValidationReport } from '../validation/engine';
+import { decideTableStatus, deriveResumeState, VerificationOutcome } from '../decisions';
 import {
   acquireTableLock,
   releaseTableLock,
@@ -26,6 +28,19 @@ dotenv.config();
 const FILTER_OPERATORS = new Set([
   '=', '!=', '>', '<', '>=', '<=', 'LIKE', 'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL',
 ]);
+
+/**
+ * Row cap the adapters' getChecksum queries apply. Mirrored here only so the
+ * validation report can state the limit instead of quietly implying whole-table
+ * coverage. Keep in sync with the LIMIT in each adapter's getChecksum.
+ */
+const CHECKSUM_ROW_CAP = 50000;
+
+/**
+ * How often the durable per-table cursor is written to Redis mid-stream. This is
+ * the granularity a crash can rewind to, traded against write volume.
+ */
+const CHECKPOINT_INTERVAL_MS = 10_000;
 
 /**
  * Build a safe SQL WHERE fragment (no leading WHERE) from a table mapping's row
@@ -474,8 +489,15 @@ export function startWorkers(concurrency = 2): Worker[] {
               }
             }
 
-            // Disable FK check on target DB for streaming speed and self-references
-            await targetAdapter.disableConstraints?.();
+            // NOTE: disableConstraints() used to be called here. It set a
+            // SESSION-scoped variable (session_replication_role / FOREIGN_KEY_CHECKS)
+            // and then released the pooled connection immediately, so subsequent
+            // inserts — which check out different connections — never saw it. It
+            // was a no-op giving a false sense of safety, and removing the call
+            // changes no observable behaviour. FK-ordered migration (the level
+            // sort below) is what actually makes the ordering work. Turning FK
+            // checks genuinely off is a real behaviour change and needs its own
+            // decision, not a silent side effect.
           }
 
           // Check if there is an existing checkpoint to resume from
@@ -624,6 +646,17 @@ export function startWorkers(concurrency = 2): Worker[] {
                   ? mapping.conflictKeyColumns
                   : sourceStruct.primaryKeyColumns;
 
+              // Upsert needs a conflict target. Without one the adapters emit a
+              // plain INSERT, which works on a first run and then hard-fails on
+              // every duplicate when re-run. Surface it once per table rather than
+              // leaving it to be discovered as a wall of row errors on a retry.
+              if (mapping.conflictStrategy === 'upsert' && conflictKeyColumns.length === 0) {
+                console.warn(
+                  `⚠️ ${targetTable}: upsert requested but no conflict key (no PK detected and none configured). ` +
+                  `Rows will be inserted without conflict handling and a re-run will fail on duplicates.`,
+                );
+              }
+
               // Resolve the source query for streaming. GROUP BY (dedup) wraps the source in a
               // ROW_NUMBER() window subquery to keep one full row per group; ORDER BY and joins
               // also force the non-keyset (streamed) path. The pieces feed both the row-count
@@ -675,7 +708,80 @@ export function startWorkers(concurrency = 2): Worker[] {
               let skippedRows = 0;
               const errors: string[] = [];
 
-              let lastId = targetTable === resumeTable ? resumeLastId : null;
+              // Resume from the DURABLE record, so a newly submitted job picks up
+              // where a crashed one stopped. The in-job `job.progress` cursor only
+              // survives a BullMQ retry of the same job id, which is why every
+              // fresh submission previously restarted the table from zero.
+              const resumeDecision = deriveResumeState(
+                data.force ? null : await getTableStatus(scope, targetTable),
+                {
+                  cursorResumable: !forceStream && !!pkColumn,
+                  idempotent: conflictKeyColumns.length > 0,
+                },
+              );
+
+              if (resumeDecision.action === 'blocked') {
+                // Restarting here would duplicate rows. Report it instead of
+                // silently doing the wrong thing.
+                console.warn(`⛔ ${targetTable}: ${resumeDecision.reason}`);
+                const blocked: TableResult = {
+                  table: targetTable,
+                  sourceTable: mapping.sourceTable,
+                  totalRows: 0,
+                  successRows: 0,
+                  failedRows: 0,
+                  skippedRows: 0,
+                  errors: [resumeDecision.reason],
+                  duration: 0,
+                  status: 'partial',
+                  level,
+                };
+                const blockedIdx = results.findIndex(r => r.table === targetTable);
+                if (blockedIdx >= 0) results[blockedIdx] = blocked; else results.push(blocked);
+                continue;
+              }
+
+              if (resumeDecision.action !== 'fresh') {
+                console.log(`🔄 ${targetTable}: ${resumeDecision.reason}`);
+              }
+
+              // Durable cursor wins; the in-job checkpoint remains a fallback so a
+              // BullMQ same-job retry behaves exactly as it did before.
+              let lastId =
+                resumeDecision.startId ?? (targetTable === resumeTable ? resumeLastId : null);
+
+              // Baseline the target BEFORE streaming so validation can assert on the
+              // delta this run produced rather than on an absolute count — the target
+              // may already hold rows, and a row filter/join/dedup means the source
+              // total was never the right thing to compare against anyway.
+              let targetCountBefore = -1;
+              if (!data.dryRun) {
+                try {
+                  targetCountBefore = await targetAdapter.getRowCount(targetTable);
+                } catch (cntErr: unknown) {
+                  const msg = cntErr instanceof Error ? cntErr.message : String(cntErr);
+                  console.warn(`⚠️ Could not baseline target count for ${targetTable}: ${msg}`);
+                }
+              }
+
+              // Checksums only mean something for columns copied verbatim. A CONSTANT,
+              // a TRANSFORM, or any of the value-converting flags makes source and
+              // target differ by design, and a reshaped source query (join / dedup /
+              // filter / order) can't be compared against a plain-table checksum.
+              const checksumComparable =
+                !forceStream && !streamFromClause && !streamWhere;
+              const checksumPairs = checksumComparable
+                ? mapping.columnMappings.filter(cm =>
+                    (cm.mappingType ?? 'DIRECT') === 'DIRECT' &&
+                    cm.source && cm.target &&
+                    cm.target !== autoIdColumn &&
+                    !String(cm.source).includes('.') &&
+                    !cm.convertDateToEpoch && !cm.convertTinyintToBoolean &&
+                    !cm.zeroToNull && !cm.encrypt
+                  )
+                : [];
+
+              let lastCheckpointAt = Date.now();
 
               // Stream handler
               const processBatch = async (batchRows: any[]) => {
@@ -715,15 +821,13 @@ export function startWorkers(concurrency = 2): Worker[] {
                   // Explicit Redis indicator — increment by what this batch actually moved.
                   await incrJobProgress(job.id!, targetTable, loadResult.inserted, loadResult.failed, loadResult.skipped);
 
-                  // Track failures in retry queue (dead-letter queue queueing)
-                  if (loadResult.failed > 0) {
-                    await retryQueue.add(`failed-batch-${targetTable}-${job.id}`, {
-                      jobId: job.id,
-                      tableName: targetTable,
-                      columns: targetCols,
-                      rows: transformed.slice(0, 50), // Sample fail rows for dead letter analysis
-                      errors: loadResult.errors,
-                    });
+                  // Persist the rows the target actually rejected, with their PK
+                  // and the offending column, so a failure can be diagnosed and
+                  // re-driven. This replaces a dead-letter queue that had no
+                  // consumer and recorded the wrong rows (the first 50 of the
+                  // batch rather than the ones that failed).
+                  if (loadResult.failedRowDetails?.length) {
+                    appendRejects(job.id!, targetTable, mapping.sourceTable, loadResult.failedRowDetails);
                   }
 
                   if (loadResult.errors.length > 0) {
@@ -746,6 +850,14 @@ export function startWorkers(concurrency = 2): Worker[] {
                 // The streamed/dedup path isn't keyset-resumable, so don't record a PK cursor.
                 lastId = (!forceStream && pkColumn) ? lastRow[pkColumn] : null;
 
+                // Durable mid-stream checkpoint. Written only AFTER the batch has
+                // been written to the target, so the stored cursor can never claim
+                // rows that did not land. Throttled to keep Redis writes bounded.
+                if (!data.dryRun && Date.now() - lastCheckpointAt >= CHECKPOINT_INTERVAL_MS) {
+                  lastCheckpointAt = Date.now();
+                  await markTablePartial(scope, targetTable, 'partial', successRows, lastId, job.id!);
+                }
+
                 // Save checkpoint periodically (updates progress in Redis)
                 const currentProgress = Math.round(((idx + (successRows / (tableTotalRows || 1))) / sortedMappings.length) * 100);
                 const progressPayload = {
@@ -763,7 +875,14 @@ export function startWorkers(concurrency = 2): Worker[] {
                       skippedRows,
                       errors: Array.from(new Set(errors)).slice(0, 5),
                       duration: Date.now() - tableStartTime,
-                      status: failedRows > 0 ? 'partial' : 'success',
+                      // Mid-stream: the table is by definition unfinished, so it can
+                      // never claim 'success' here. It previously could, and a retry
+                      // then treated it as complete and skipped the remaining rows.
+                      status: decideTableStatus({
+                        streamComplete: false,
+                        failedRows,
+                        verification: 'not-run',
+                      }),
                       level,
                     }
                   ],
@@ -811,22 +930,43 @@ export function startWorkers(concurrency = 2): Worker[] {
               let validationReport: ValidationReport | null = null;
               if (!data.dryRun) {
                 console.log(`🔍 Running Validation Engine for table ${targetTable}...`);
-                validationReport = await ValidationEngine.validateTable(
+                validationReport = await ValidationEngine.validateTable({
                   sourceAdapter,
                   targetAdapter,
-                  mapping.sourceTable,
+                  sourceTable: mapping.sourceTable,
                   targetTable,
-                  targetCols,
-                  streamWhere,
-                  streamFromClause
+                  rowsInserted: successRows,
+                  rowsRead: successRows + failedRows + skippedRows,
+                  targetCountBefore,
+                  conflictStrategy,
+                  sourceWhere: streamWhere,
+                  sourceFromClause: streamFromClause,
+                  checksumSourceColumns: checksumPairs.map(cm => String(cm.source)),
+                  checksumTargetColumns: checksumPairs.map(cm => String(cm.target)),
+                  checksumRowCap: CHECKSUM_ROW_CAP,
+                });
+                console.log(
+                  `   ↳ ${validationReport.status.toUpperCase()}: ` +
+                  validationReport.checks.map(c => `${c.name}=${c.status}`).join(' '),
                 );
               }
-              // "Done" is gated on the target row count matching the source — i.e. the data
-              // is actually present. Checksums can legitimately differ when column mappings
-              // transform values, so a checksum-only mismatch is a warning, not a failure.
-              const countVerified = !validationReport ? true : validationReport.countMatch;
+
+              // A checksum difference alone stays advisory — mapped values are allowed
+              // to differ — and is suppressed across dialects where encodings vary. A
+              // count problem, or a check that could not run at all, is never suppressed.
+              let verification: VerificationOutcome;
+              if (!validationReport) {
+                verification = 'not-run';
+              } else if (validationReport.status === 'failed') {
+                verification = 'mismatch';
+              } else if (validationReport.status === 'unverified') {
+                verification = 'unverified';
+              } else {
+                verification = 'verified';
+              }
+
               if (validationReport && validationReport.status !== 'passed') {
-                const checksumOnly = validationReport.countMatch; // counts match, checksum differs
+                const checksumOnly = validationReport.status === 'warning';
                 if (!checksumOnly || !crossDialect) {
                   errors.push(...validationReport.errors);
                 }
@@ -841,7 +981,7 @@ export function startWorkers(concurrency = 2): Worker[] {
                 skippedRows,
                 errors: Array.from(new Set(errors)).slice(0, 5),
                 duration: Date.now() - tableStartTime,
-                status: failedRows > 0 ? 'failed' : (countVerified ? 'success' : 'partial'),
+                status: decideTableStatus({ streamComplete: true, failedRows, verification }),
                 level,
               };
 
@@ -861,7 +1001,12 @@ export function startWorkers(concurrency = 2): Worker[] {
               // otherwise 'partial'/'failed' so a re-run retries. Store the verified target
               // row count (reflects data already present, not just rows inserted this run).
               if (!data.dryRun) {
-                const doneRows = validationReport ? validationReport.targetCount : successRows;
+                // targetCount is -1 when the count query failed; fall back to what
+                // this run actually inserted rather than persisting the sentinel.
+                const doneRows =
+                  validationReport && validationReport.targetCount >= 0
+                    ? validationReport.targetCount
+                    : successRows;
                 if (tableResult.status === 'success') {
                   await markTableDone(scope, targetTable, doneRows, lastId, job.id!);
                 } else {
@@ -882,10 +1027,10 @@ export function startWorkers(concurrency = 2): Worker[] {
             }
           }
 
-          // Re-enable target constraints
-          if (!data.dryRun) {
-            await targetAdapter.enableConstraints?.();
-          }
+          // NOTE: the matching enableConstraints() call was removed alongside
+          // disableConstraints() above — re-enabling something that was never
+          // disabled is misleading, and it was a no-op for the same reason (the
+          // session variable died with the pooled connection that set it).
 
         } finally {
           await sourceAdapter.disconnect();
