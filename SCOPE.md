@@ -66,7 +66,8 @@
 ## 3. Out of Scope / Limitations
 
 - **No schema push to database:** The app does not create or alter tables in the source DB; it can create tables on the **target** (PostgreSQL) when defined in target schema and supported by the migration server.
-- **No built-in user auth:** The app and migration server do not implement authentication/authorization; assume controlled access (e.g. local/trusted network or reverse proxy with auth).
+- **User auth is implemented but not yet enforced by default:** the migration server supports user accounts, login and role-based access (`admin` / `operator` / `viewer`) backed by the metadata database. Enforcement is gated on `AUTH_ENABLED`, which defaults to `false` because the browser UI has no login screen yet — turning it on before that ships would lock the app out of its own API. Until it is enabled, assume controlled access (local/trusted network or a reverse proxy with auth).
+- **Custom SQL transformations are unsandboxed:** a `CUSTOM` column transformation is interpolated into the source query as written. Combined with an unauthenticated API this means anyone who can reach the server can run arbitrary SQL against the source database. Enable `AUTH_ENABLED` before exposing the server beyond a trusted network.
 - **Single target type:** Target is **PostgreSQL only** (no MySQL/SQL Server as target).
 - **Transform engine:** Custom SQL or complex ETL (stored procedures, multi-step pipelines) are not part of the tool; transformations are per-column (Direct, Constant, Transform, plus date→epoch and tinyint→boolean).
 - **No incremental/sync:** Focus is one-time or batch migration, not continuous replication or CDC.

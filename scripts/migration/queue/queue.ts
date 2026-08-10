@@ -56,6 +56,12 @@ export interface MigrationJobData {
   force?: boolean;
   /** Passphrase used to AES-256 encrypt columns flagged `encrypt`. */
   encryptionKey?: string;
+  /**
+   * migration_run row this job reports into, when the job was started from a
+   * saved configuration. Absent for the legacy path where the mapping config is
+   * posted directly in the request body and no run history is recorded.
+   */
+  runId?: number;
 }
 
 /**

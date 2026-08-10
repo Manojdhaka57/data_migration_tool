@@ -19,6 +19,16 @@ import {
   resolveEncryptionKey,
   describeResolvedConnection,
 } from '../adapters/runtimeConfig';
+import { createMetadataRouter } from '../../metadata/api/routes';
+import { attachUser, requireRole } from '../../metadata/auth';
+import { isAppDbConfigured } from '../../metadata/db';
+import {
+  getConfiguration,
+  getCurrentVersion,
+  getVersion,
+} from '../../metadata/repositories/configurations';
+import { resolveConnectionCredentials } from '../../metadata/repositories/connections';
+import { createRun, markRunStarted } from '../../metadata/repositories/runs';
 import { portableDefault } from '../adapters/typeMap';
 import { getJobProgress, listTableStatuses, resetTableStatus, DbScope } from '../state/tableState';
 import { DatabaseSchema, TableMapping, TableStructure } from '../types';
@@ -147,6 +157,13 @@ setProgressCallback((jobId, progressData) => {
 
   io.emit('migration-progress', payload);
 });
+
+// Metadata database: authentication, users, connection registry and saved
+// configurations. attachUser always runs so writes can be attributed even while
+// AUTH_ENABLED is off; the router itself degrades to a 503 when APP_DB_* is
+// unset, leaving every pre-existing endpoint below untouched.
+app.use(attachUser);
+app.use('/api', createMetadataRouter());
 
 // REST ENDPOINTS
 
@@ -570,6 +587,133 @@ app.post('/api/migrate', async (req, res) => {
   } catch (err: any) {
     logError('POST /api/migrate', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Run a SAVED configuration.
+ *
+ * Unlike POST /api/migrate — which takes a mapping config in the request body
+ * and keeps no record — this pins the exact configuration version executed and
+ * records a migration_run row, so the migration is auditable and reproducible
+ * afterwards. Connections come from the registry by id, so no credentials
+ * travel in the request.
+ */
+app.post('/api/migration-configurations/:id/run', requireRole('operator'), async (req, res) => {
+  if (!isAppDbConfigured()) {
+    return res.status(503).json({
+      success: false,
+      code: 'APP_DB_NOT_CONFIGURED',
+      error: 'Running a saved configuration requires APP_DB_* to be configured.',
+    });
+  }
+
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const configurationId = parseInt(String(rawId), 10);
+  if (!Number.isFinite(configurationId)) {
+    return res.status(400).json({ success: false, error: 'invalid configuration id' });
+  }
+
+  const { version: requestedVersion, dryRun = false, useCopy = true, force = false } = req.body ?? {};
+
+  try {
+    const configuration = await getConfiguration(configurationId);
+    if (!configuration) {
+      return res.status(404).json({ success: false, error: 'configuration not found' });
+    }
+
+    // A specific version can be replayed; otherwise the current one runs.
+    const versionRecord = requestedVersion
+      ? await getVersion(configurationId, Number(requestedVersion))
+      : await getCurrentVersion(configurationId);
+    if (!versionRecord) {
+      return res.status(404).json({ success: false, error: 'configuration version not found' });
+    }
+
+    const configJson = versionRecord.configuration_json ?? {};
+    const tableMappings = configJson.tableMappings;
+    if (!Array.isArray(tableMappings) || tableMappings.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Version ${versionRecord.version} has no table mappings`,
+      });
+    }
+
+    // Point the adapters at the registered connections for this run. Credentials
+    // are decrypted here and never leave the server.
+    let sourceType = sourceDbType;
+    let targetType = targetDbType;
+    if (configuration.source_connection_id || configuration.target_connection_id) {
+      const [source, target] = await Promise.all([
+        configuration.source_connection_id
+          ? resolveConnectionCredentials(configuration.source_connection_id)
+          : null,
+        configuration.target_connection_id
+          ? resolveConnectionCredentials(configuration.target_connection_id)
+          : null,
+      ]);
+
+      // The registry accepts 'hive' so Hive schemas can be imported, but there
+      // is no Hive adapter to move data with. Refuse the run rather than
+      // silently treating it as PostgreSQL.
+      for (const [role, conn] of [['source', source], ['target', target]] as const) {
+        if (conn && conn.type !== 'mysql' && conn.type !== 'postgresql') {
+          return res.status(400).json({
+            success: false,
+            error:
+              `The ${role} connection uses "${conn.type}", which cannot be used to run a migration yet. ` +
+              `Only mysql and postgresql have data-movement adapters.`,
+          });
+        }
+      }
+
+      setRuntimeConnectionConfig({
+        ...(source ? { source: { ...source, type: source.type as 'mysql' | 'postgresql' } } : {}),
+        ...(target ? { target: { ...target, type: target.type as 'mysql' | 'postgresql' } } : {}),
+      });
+      refreshResolvedConfig();
+      sourceType = sourceDbType;
+      targetType = targetDbType;
+    }
+
+    const jobId = `job_${dryRun ? 'dry_' : ''}${Date.now()}`;
+    const run = await createRun({
+      configurationId,
+      configurationVersionId: versionRecord.id,
+      jobId,
+      dryRun: !!dryRun,
+      createdBy: req.actor ?? 'system',
+    });
+
+    await addMigrationJob({
+      jobId,
+      sourceDbType: sourceType,
+      targetDbType: targetType,
+      tableMappings,
+      dryRun: !!dryRun,
+      tableWiseMode: false,
+      customDependencies: req.body?.customDependencies,
+      batchSize: req.body?.batchSize ?? 2000,
+      useCopy,
+      force,
+      encryptionKey: resolveEncryptionKey(),
+      runId: run.id,
+    });
+
+    await markRunStarted(run.id, jobId);
+
+    res.json({
+      success: true,
+      message: dryRun ? 'Dry run started' : 'Migration started',
+      jobId,
+      runId: run.id,
+      configurationId,
+      version: versionRecord.version,
+      configurationVersionId: versionRecord.id,
+    });
+  } catch (err: unknown) {
+    logError(`POST /api/migration-configurations/${req.params.id}/run`, err);
+    res.status(500).json({ success: false, error: err instanceof Error ? err.message : String(err) });
   }
 });
 

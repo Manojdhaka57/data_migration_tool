@@ -1,6 +1,13 @@
 import { Worker, Job } from 'bullmq';
 import { redisConnection, MigrationJobData } from './queue';
 import { appendRejects } from '../state/rejects';
+import {
+  recordRunStarted,
+  recordTableResult,
+  recordCheckpoint,
+  recordRunFinished,
+  deriveRunStatus,
+} from '../../metadata/runRecorder';
 import { createAdapter } from '../adapters/factory';
 import { TransformationEngine } from '../transformation/engine';
 import { ValidationEngine, ValidationReport } from '../validation/engine';
@@ -522,6 +529,7 @@ export function startWorkers(concurrency = 2): Worker[] {
 
           // Initialize the explicit Redis progress counters for this job.
           await initJobProgress(job.id!, 0);
+          await recordRunStarted(data.runId, job.id!);
 
           // 4. Stream & Load for each table
           for (let idx = 0; idx < sortedMappings.length; idx++) {
@@ -856,6 +864,9 @@ export function startWorkers(concurrency = 2): Worker[] {
                 if (!data.dryRun && Date.now() - lastCheckpointAt >= CHECKPOINT_INTERVAL_MS) {
                   lastCheckpointAt = Date.now();
                   await markTablePartial(scope, targetTable, 'partial', successRows, lastId, job.id!);
+                  // Mirror into the metadata database when this run came from a
+                  // saved configuration. Redis stays the hot path resume reads.
+                  await recordCheckpoint(data.runId, targetTable, lastId, successRows, 'partial');
                 }
 
                 // Save checkpoint periodically (updates progress in Redis)
@@ -985,6 +996,20 @@ export function startWorkers(concurrency = 2): Worker[] {
                 level,
               };
 
+              await recordTableResult(data.runId, {
+                sourceTable: mapping.sourceTable,
+                targetTable,
+                status: tableResult.status,
+                totalRows: tableTotalRows,
+                successRows,
+                failedRows,
+                skippedRows,
+                durationMs: tableResult.duration,
+                validationStatus: validationReport?.status ?? null,
+                errors: tableResult.errors,
+                level,
+              });
+
               // Replace or push the table results
               const existIdx = results.findIndex(r => r.table === targetTable);
               if (existIdx >= 0) {
@@ -1058,8 +1083,21 @@ export function startWorkers(concurrency = 2): Worker[] {
           results,
         });
 
+        // Record the run outcome. Only reached when the job did not throw; the
+        // failure path is handled by the worker's 'failed' hook below.
+        await recordRunFinished(data.runId, {
+          status: data.dryRun
+            ? 'COMPLETED'
+            : deriveRunStatus(results.map(r => r.status), false),
+          successCount: totalSuccess,
+          failedCount: totalFailed,
+          skippedCount: results.reduce((sum, r) => sum + (r.skippedRows || 0), 0),
+          sourceRowCount: totalRows,
+          targetRowCount: totalSuccess,
+        });
+
         console.log(`🏁 Job ${job.id} completed. Rows: ${totalSuccess}/${totalRows}`);
-        
+
         return jobResult;
       },
       {
@@ -1070,6 +1108,12 @@ export function startWorkers(concurrency = 2): Worker[] {
 
     worker.on('failed', (job, err) => {
       console.error(`❌ Worker: Job ${job?.id} failed with error:`, err);
+      // A job that threw never reached the completion block, so the run would
+      // otherwise sit at RUNNING forever.
+      void recordRunFinished(job?.data?.runId, {
+        status: 'FAILED',
+        errorMessage: err?.message ?? String(err),
+      });
     });
 
     activeWorkers.push(worker);
