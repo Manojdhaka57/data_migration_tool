@@ -12,6 +12,53 @@ const STORAGE_KEYS = {
 } as const;
 
 /**
+ * Everything this app keeps in localStorage, for wiping on sign-out.
+ *
+ * Wider than STORAGE_KEYS on purpose: the connection settings are excluded
+ * from that set so the sidebar's Reset button cannot wipe database
+ * credentials, but sign-out is exactly when they SHOULD go — they include
+ * database passwords in plaintext, and leaving them behind hands the next
+ * person at this browser a working connection to the target database.
+ *
+ * The help-guide flag is deliberately kept: re-showing the tour at every
+ * sign-in is irritating and protects nothing.
+ */
+const SIGN_OUT_KEYS: readonly string[] = [
+  ...Object.values(STORAGE_KEYS),
+  'erp_migration_connection_config',
+  'erp_migration_active_configuration',
+];
+
+/** Wipe every trace of the signed-in user's working data from this browser. */
+export function clearAllUserData(): string[] {
+  const cleared: string[] = [];
+  for (const key of SIGN_OUT_KEYS) {
+    try {
+      if (localStorage.getItem(key) !== null) {
+        localStorage.removeItem(key);
+        cleared.push(key);
+      }
+    } catch {
+      // Storage unavailable — nothing to clear, and failing here must not
+      // prevent the sign-out itself.
+    }
+  }
+  return cleared;
+}
+
+/** Table mappings held only in this browser, i.e. at risk on sign-out. */
+export function countLocalMappings(): number {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.MAPPING_CONFIG);
+    if (!raw) return 0;
+    const parsed = JSON.parse(raw) as { tableMappings?: unknown[] };
+    return Array.isArray(parsed?.tableMappings) ? parsed.tableMappings.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
  * Save data to localStorage
  */
 export function saveToLocalStorage<T>(key: string, data: T): boolean {

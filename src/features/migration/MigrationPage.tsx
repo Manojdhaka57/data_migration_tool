@@ -793,29 +793,17 @@ export default function MigrationPage() {
     }
   };
 
-  // Sync mapping config to server when it changes
-  useEffect(() => {
-    if (tableMappings.length > 0 && serverOnline) {
-      const syncMappingConfig = async () => {
-        try {
-          const serverMappings = transformMappingForServer(tableMappings);
-          const mappingConfig = {
-            tableMappings: serverMappings,
-          };
-          
-          await fetch(`${API_BASE}/mapping/config`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(mappingConfig),
-          });
-        } catch (err) {
-          // Silently fail - config will be sent with migration request anyway
-        }
-      };
-      
-      syncMappingConfig();
-    }
-  }, [tableMappings, serverOnline]);
+  // REMOVED: an effect here used to POST the whole mapping config to
+  // /api/mapping/config on every change to `tableMappings` — i.e. once per
+  // keystroke in any mapping field. That endpoint writes
+  // src/data/mappingConfig.json, a git-tracked source file, so simply having
+  // this page open rewrote the repository's own data (it grew from 127 to 135
+  // table mappings that way).
+  //
+  // It is no longer needed for any purpose: the mapping config travels in the
+  // migration request itself, and configurations are now stored in the
+  // metadata database with version history. The endpoint still exists for
+  // backward compatibility, but nothing in the app calls it.
 
   // Initial load - only runs once
   useEffect(() => {

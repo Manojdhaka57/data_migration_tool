@@ -1,7 +1,12 @@
 export interface ColumnMapping {
   source: string;
+  /**
+   * CONCAT is handled alongside TRANSFORM by the worker (see the source-column
+   * skip at queue/worker.ts and the transformation engine); it was missing from
+   * this union, which is why call sites reach for `any`.
+   */
   target: string;
-  mappingType?: 'DIRECT' | 'CONSTANT' | 'TRANSFORM';
+  mappingType?: 'DIRECT' | 'CONSTANT' | 'TRANSFORM' | 'CONCAT';
   constantValue?: string | number | boolean | null;
   transformation?: { type: string; params?: Record<string, any> };
   convertDateToEpoch?: boolean;
@@ -10,6 +15,12 @@ export interface ColumnMapping {
   zeroToNull?: boolean;
   /** Encrypt this column's value (AES-256-CBC) before inserting into the target. */
   encrypt?: boolean;
+  /**
+   * Replace this column on every row with MIN(col) OVER (PARTITION BY
+   * groupByColumns), in addition to the table-level groupMinColumns list.
+   * Read by the worker when building the source query.
+   */
+  useGroupMin?: boolean;
 }
 
 export type FilterOperator =
