@@ -55,7 +55,6 @@ import {
   selectIsAnalyzed,
   selectSelectedTable,
   setSelectedTable,
-  setCustomDependencies,
   selectCustomDependencies,
   addCustomDependency,
   removeCustomDependency,
@@ -65,7 +64,8 @@ import {
   wouldCreateCycle,
   type TableDependency,
 } from './migrationOrderSlice';
-import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from '../../utils/localStorage';
+import { saveToLocalStorage, STORAGE_KEYS } from '../../utils/localStorage';
+import ManualOrderPanel from './ManualOrderPanel';
 import {
   generateMigrationSQL,
   generateFullMigrationScript,
@@ -107,25 +107,26 @@ export const MigrationOrderPage = () => {
   const tableMappings = useAppSelector(selectTableMappings);
   const allDependencies = useAppSelector(selectDependencies);
   
-  // Load custom dependencies from localStorage on mount (analysis will use them when it runs)
-  useEffect(() => {
-    const saved = loadFromLocalStorage<{ from: string; to: string }[]>(STORAGE_KEYS.MIGRATION_ORDER_CUSTOM_DEPS);
-    if (saved && Array.isArray(saved) && saved.length > 0) {
-      dispatch(setCustomDependencies(saved));
-    }
-  }, [dispatch]);
-
+  // Custom dependencies are NOT loaded from localStorage here any more.
+  //
+  // They used to be, and it was actively wrong once configurations became the
+  // source of truth: applyConfiguration puts the saved dependencies into the
+  // store at boot, and this effect then overwrote them with whatever this
+  // browser happened to have. A configuration with no custom dependencies would
+  // silently gain three of them the moment someone opened this page, changing
+  // the migration order of a run nobody had edited.
   useEffect(() => {
     if (tables.length > 0 && !isAnalyzed) {
       dispatch(analyzeDependencies(tables));
     }
   }, [tables, isAnalyzed, dispatch]);
 
-  // Persist custom dependencies to localStorage when they change
+  // Mirror to localStorage as a draft, so unsaved edits survive a reload.
+  // Writing the empty array matters: the old code skipped it, so removing the
+  // last dependency left the previous list on disk to be picked up by the
+  // backup/import tooling as though it were still in force.
   useEffect(() => {
-    if (customDependencies.length > 0) {
-      saveToLocalStorage(STORAGE_KEYS.MIGRATION_ORDER_CUSTOM_DEPS, customDependencies);
-    }
+    saveToLocalStorage(STORAGE_KEYS.MIGRATION_ORDER_CUSTOM_DEPS, customDependencies);
   }, [customDependencies]);
   
   // Generate JSON for selected table or all tables
@@ -543,6 +544,9 @@ export const MigrationOrderPage = () => {
           </Alert>
         )}
         
+        {/* The order tables actually migrate in — derived, or chosen by hand */}
+        <ManualOrderPanel />
+
         {/* Custom Dependencies Section */}
         {customDependencies.length > 0 && (
           <Paper sx={{ 
@@ -898,7 +902,7 @@ export const MigrationOrderPage = () => {
         fullWidth
         PaperProps={{
           sx: {
-            bgcolor: '#1a1a2e',
+            bgcolor: 'neutral.100',
             minHeight: '85vh',
             borderRadius: 3,
             overflow: 'hidden',
@@ -907,8 +911,8 @@ export const MigrationOrderPage = () => {
       >
         <DialogTitle sx={{ 
           borderBottom: 1, 
-          borderColor: 'rgba(255,255,255,0.1)', 
-          background: 'linear-gradient(135deg, #16213e 0%, #1a1a2e 100%)',
+          borderColor: 'neutral.200', 
+          background: 'linear-gradient(135deg, #272626 0%, #F7F7F6 100%)',
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between',
@@ -918,14 +922,14 @@ export const MigrationOrderPage = () => {
             <Box sx={{ 
               p: 1, 
               borderRadius: 1.5, 
-              bgcolor: 'rgba(76, 175, 80, 0.2)',
+              bgcolor: 'success.100',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-              <StorageIcon sx={{ color: '#4caf50', fontSize: 24 }} />
+              <StorageIcon sx={{ color: 'success.main', fontSize: 24 }} />
             </Box>
-            <Typography variant="h6" sx={{ color: '#ffffff', fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: 'neutral.800', fontWeight: 600 }}>
               Migration SQL Generator
             </Typography>
           </Box>
@@ -933,25 +937,25 @@ export const MigrationOrderPage = () => {
             <Chip 
               label={`${generatedSQL.length} Tables`}
               size="small"
-              sx={{ bgcolor: 'rgba(33, 150, 243, 0.2)', color: '#64b5f6', fontWeight: 600 }}
+              sx={{ bgcolor: 'primary.100', color: 'primary.main', fontWeight: 600 }}
             />
             <Chip 
               label={`${Array.from(groupSQLByLevel(generatedSQL).keys()).length} Levels`}
               size="small"
-              sx={{ bgcolor: 'rgba(156, 39, 176, 0.2)', color: '#ce93d8', fontWeight: 600 }}
+              sx={{ bgcolor: 'info.100', color: '#A8CFE1', fontWeight: 600 }}
             />
           </Box>
         </DialogTitle>
         <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
           {/* Toolbar with View Mode and Dialect */}
-          <Box sx={{ p: 2, borderBottom: 1, borderColor: 'rgba(255,255,255,0.08)', bgcolor: '#16213e' }}>
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: 'neutral.100', bgcolor: 'neutral.800' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
               {/* View Mode Toggle */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Typography variant="body2Medium" sx={{ color: '#b0bec5' }}>
+                <Typography variant="body2Medium" sx={{ color: 'neutral.500' }}>
                   View:
                 </Typography>
-                <Box sx={{ display: 'flex', bgcolor: 'rgba(0,0,0,0.3)', borderRadius: 1.5, overflow: 'hidden', p: 0.5 }}>
+                <Box sx={{ display: 'flex', bgcolor: 'rgba(39, 38, 38,0.08)', borderRadius: 1.5, overflow: 'hidden', p: 0.5 }}>
                   {([
                     { key: 'full', label: 'Full Script' },
                     { key: 'level', label: 'By Level' },
@@ -973,15 +977,15 @@ export const MigrationOrderPage = () => {
                         px: 2,
                         py: 0.75,
                         cursor: 'pointer',
-                        bgcolor: sqlViewMode === mode.key ? '#4caf50' : 'transparent',
-                        color: sqlViewMode === mode.key ? '#ffffff' : '#90a4ae',
+                        bgcolor: sqlViewMode === mode.key ? 'primary.main' : 'transparent',
+                        color: sqlViewMode === mode.key ? 'neutral.800' : 'neutral.500',
                         fontWeight: sqlViewMode === mode.key ? 600 : 400,
                         fontSize: '13px',
                         borderRadius: 1,
                         transition: 'all 0.2s ease',
                         '&:hover': { 
-                          bgcolor: sqlViewMode === mode.key ? '#43a047' : 'rgba(255,255,255,0.08)',
-                          color: '#ffffff',
+                          bgcolor: sqlViewMode === mode.key ? 'primary.700' : 'neutral.100',
+                          color: sqlViewMode === mode.key ? 'neutral.800' : 'neutral.800',
                         },
                       }}
                     >
@@ -993,7 +997,7 @@ export const MigrationOrderPage = () => {
               
               {/* Dialect Selector */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Typography variant="body2Medium" sx={{ color: '#b0bec5' }}>
+                <Typography variant="body2Medium" sx={{ color: 'neutral.500' }}>
                   Dialect:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -1011,12 +1015,12 @@ export const MigrationOrderPage = () => {
                       }}
                       sx={{
                         cursor: 'pointer',
-                        bgcolor: sqlDialect === dialect ? '#2196f3' : 'rgba(255,255,255,0.1)',
-                        color: sqlDialect === dialect ? '#ffffff' : '#90a4ae',
+                        bgcolor: sqlDialect === dialect ? 'primary.700' : 'neutral.200',
+                        color: sqlDialect === dialect ? 'neutral.800' : 'neutral.500',
                         fontWeight: sqlDialect === dialect ? 600 : 400,
                         transition: 'all 0.2s ease',
                         '&:hover': { 
-                          bgcolor: sqlDialect === dialect ? '#1976d2' : 'rgba(255,255,255,0.15)',
+                          bgcolor: sqlDialect === dialect ? '#2D6079' : 'neutral.200',
                         },
                       }}
                     />
@@ -1034,9 +1038,9 @@ export const MigrationOrderPage = () => {
                   startIcon={<CopyIcon />}
                   onClick={handleCopySQL}
                   sx={{ 
-                    borderColor: '#64b5f6', 
-                    color: '#64b5f6',
-                    '&:hover': { borderColor: '#42a5f5', bgcolor: 'rgba(33, 150, 243, 0.1)' },
+                    borderColor: 'primary.main', 
+                    color: 'primary.main',
+                    '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.100' },
                   }}
                 >
                   Copy SQL
@@ -1047,8 +1051,8 @@ export const MigrationOrderPage = () => {
                   startIcon={<DownloadIcon />}
                   onClick={handleDownloadSQL}
                   sx={{ 
-                    bgcolor: '#4caf50',
-                    '&:hover': { bgcolor: '#43a047' },
+                    bgcolor: 'success.main',
+                    '&:hover': { bgcolor: 'success.600' },
                   }}
                 >
                   Download .sql
@@ -1058,24 +1062,24 @@ export const MigrationOrderPage = () => {
           </Box>
           
           {generatedSQL.length === 0 ? (
-            <Box sx={{ p: 6, textAlign: 'center', bgcolor: '#1a1a2e' }}>
+            <Box sx={{ p: 6, textAlign: 'center', bgcolor: 'neutral.100' }}>
               <Box sx={{ 
                 width: 80, 
                 height: 80, 
                 borderRadius: '50%', 
-                bgcolor: 'rgba(255, 152, 0, 0.15)', 
+                bgcolor: 'warning.100', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
                 mx: 'auto',
                 mb: 3,
               }}>
-                <WarningIcon sx={{ fontSize: 40, color: '#ffb74d' }} />
+                <WarningIcon sx={{ fontSize: 40, color: 'warning.400' }} />
               </Box>
-              <Typography variant="h6" sx={{ color: '#ffffff', mb: 1 }}>
+              <Typography variant="h6" sx={{ color: 'neutral.800', mb: 1 }}>
                 No Mappings Found
               </Typography>
-              <Typography variant="body2" sx={{ color: '#90a4ae' }}>
+              <Typography variant="body2" sx={{ color: 'neutral.500' }}>
                 Please create table mappings in the Schema Mapping page first.
               </Typography>
             </Box>
@@ -1085,9 +1089,9 @@ export const MigrationOrderPage = () => {
               <Box sx={{ 
                 width: 320, 
                 borderRight: 1, 
-                borderColor: 'rgba(255,255,255,0.08)', 
+                borderColor: 'neutral.100', 
                 overflow: 'auto',
-                bgcolor: '#16213e',
+                bgcolor: 'neutral.800',
                 display: 'flex',
                 flexDirection: 'column',
               }}>
@@ -1097,13 +1101,13 @@ export const MigrationOrderPage = () => {
                     <Box sx={{ 
                       p: 2, 
                       borderBottom: 1, 
-                      borderColor: 'rgba(255,255,255,0.08)', 
+                      borderColor: 'neutral.100', 
                       position: 'sticky', 
                       top: 0, 
-                      bgcolor: '#0f3460', 
+                      bgcolor: 'primary.100', 
                       zIndex: 1 
                     }}>
-                      <Typography variant="body2Bold" sx={{ color: '#ffffff' }}>
+                      <Typography variant="body2Bold" sx={{ color: 'neutral.800' }}>
                         Migration Order ({generatedSQL.length} tables)
                       </Typography>
                     </Box>
@@ -1115,16 +1119,16 @@ export const MigrationOrderPage = () => {
                             <Box sx={{ 
                               px: 2, 
                               py: 1.5, 
-                              bgcolor: level === 0 ? 'rgba(76, 175, 80, 0.15)' : 
-                                       level === 1 ? 'rgba(255, 193, 7, 0.15)' : 
-                                       level === 2 ? 'rgba(255, 152, 0, 0.15)' : 'rgba(244, 67, 54, 0.15)',
+                              bgcolor: level === 0 ? 'success.100' : 
+                                       level === 1 ? '#FFF1E2' : 
+                                       level === 2 ? '#FFF1E2' : '#FBEAE8',
                               borderBottom: 1,
-                              borderColor: 'rgba(255,255,255,0.05)',
+                              borderColor: 'neutral.100',
                             }}>
                               <Typography variant="caption1Bold" sx={{ 
-                                color: level === 0 ? '#81c784' : 
-                                       level === 1 ? '#ffd54f' : 
-                                       level === 2 ? '#ffb74d' : '#e57373',
+                                color: level === 0 ? 'success.400' : 
+                                       level === 1 ? '#FFC28C' : 
+                                       level === 2 ? '#FF9933' : '#D25F53',
                               }}>
                                 Level {level} ({stmts.length} tables)
                               </Typography>
@@ -1135,22 +1139,22 @@ export const MigrationOrderPage = () => {
                                 sx={{
                                   p: 2,
                                   borderBottom: 1,
-                                  borderColor: 'rgba(255,255,255,0.05)',
+                                  borderColor: 'neutral.100',
                                   cursor: 'pointer',
-                                  bgcolor: selectedSQLTable === stmt.targetTable ? 'rgba(33, 150, 243, 0.2)' : 'transparent',
+                                  bgcolor: selectedSQLTable === stmt.targetTable ? 'primary.100' : 'transparent',
                                   transition: 'all 0.2s ease',
-                                  '&:hover': { bgcolor: 'rgba(33, 150, 243, 0.1)' },
+                                  '&:hover': { bgcolor: 'primary.100' },
                                 }}
                                 onClick={() => {
                                   setSelectedSQLTable(stmt.targetTable);
                                   setSqlViewMode('table');
                                 }}
                               >
-                                <Typography variant="body2" sx={{ color: '#64b5f6', fontWeight: 500, fontSize: '13px' }}>
+                                <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 500, fontSize: '13px' }}>
                                   {stmt.sourceTable}
                                 </Typography>
-                                <Typography variant="caption" sx={{ color: '#78909c', display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                                  <ArrowIcon sx={{ fontSize: 12, color: '#4caf50' }} />
+                                <Typography variant="caption" sx={{ color: 'neutral.400', display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                                  <ArrowIcon sx={{ fontSize: 12, color: 'success.main' }} />
                                   {stmt.targetTable}
                                   <Chip 
                                     label={`${stmt.columnCount} cols`} 
@@ -1158,8 +1162,8 @@ export const MigrationOrderPage = () => {
                                       ml: 'auto', 
                                       height: 18, 
                                       fontSize: '10px',
-                                      bgcolor: 'rgba(255,255,255,0.1)',
-                                      color: '#b0bec5',
+                                      bgcolor: 'neutral.200',
+                                      color: 'neutral.500',
                                     }} 
                                     size="small" 
                                   />
@@ -1178,13 +1182,13 @@ export const MigrationOrderPage = () => {
                     <Box sx={{ 
                       p: 2, 
                       borderBottom: 1, 
-                      borderColor: 'rgba(255,255,255,0.08)', 
+                      borderColor: 'neutral.100', 
                       position: 'sticky', 
                       top: 0, 
-                      bgcolor: '#0f3460', 
+                      bgcolor: 'primary.100', 
                       zIndex: 1 
                     }}>
-                      <Typography variant="body2Bold" sx={{ color: '#ffffff' }}>
+                      <Typography variant="body2Bold" sx={{ color: 'neutral.800' }}>
                         Migration Levels ({Array.from(groupSQLByLevel(generatedSQL).keys()).length})
                       </Typography>
                     </Box>
@@ -1193,18 +1197,18 @@ export const MigrationOrderPage = () => {
                         .sort(([a], [b]) => a - b)
                         .map(([level, stmts]) => {
                           const levelColors = {
-                            bg: level === 0 ? 'rgba(76, 175, 80, 0.2)' : 
-                                level === 1 ? 'rgba(255, 193, 7, 0.2)' : 
-                                level === 2 ? 'rgba(255, 152, 0, 0.2)' : 'rgba(244, 67, 54, 0.2)',
-                            border: level === 0 ? '#4caf50' : 
-                                    level === 1 ? '#ffc107' : 
-                                    level === 2 ? '#ff9800' : '#f44336',
-                            chip: level === 0 ? '#4caf50' : 
-                                  level === 1 ? '#ffc107' : 
-                                  level === 2 ? '#ff9800' : '#f44336',
-                            text: level === 0 ? '#a5d6a7' : 
-                                  level === 1 ? '#fff59d' : 
-                                  level === 2 ? '#ffcc80' : '#ef9a9a',
+                            bg: level === 0 ? '#EBF5EE' : 
+                                level === 1 ? '#FFF1E2' : 
+                                level === 2 ? '#FFF1E2' : '#FBEAE8',
+                            border: level === 0 ? '#356B43' : 
+                                    level === 1 ? '#A85C13' : 
+                                    level === 2 ? '#A85C13' : '#B03B33',
+                            chip: level === 0 ? '#356B43' : 
+                                  level === 1 ? '#A85C13' : 
+                                  level === 2 ? '#A85C13' : '#B03B33',
+                            text: level === 0 ? '#A9D4B6' : 
+                                  level === 1 ? '#FFDFC0' : 
+                                  level === 2 ? '#FFC28C' : '#E5978F',
                           };
                           
                           return (
@@ -1216,7 +1220,7 @@ export const MigrationOrderPage = () => {
                                 m: 1.5,
                                 borderRadius: 2,
                                 cursor: 'pointer',
-                                bgcolor: selectedLevel === level ? levelColors.bg : 'rgba(255,255,255,0.03)',
+                                bgcolor: selectedLevel === level ? levelColors.bg : 'neutral.100',
                                 border: 2,
                                 borderColor: selectedLevel === level ? levelColors.border : 'transparent',
                                 transition: 'all 0.2s ease',
@@ -1236,7 +1240,7 @@ export const MigrationOrderPage = () => {
                                     fontWeight: 700,
                                   }}
                                 />
-                                <Typography variant="caption1Bold" sx={{ color: '#ffffff' }}>
+                                <Typography variant="caption1Bold" sx={{ color: 'neutral.800' }}>
                                   {stmts.length} tables
                                 </Typography>
                               </Box>
@@ -1247,7 +1251,7 @@ export const MigrationOrderPage = () => {
                                   </Typography>
                                 ))}
                                 {stmts.length > 3 && (
-                                  <Typography variant="caption" sx={{ color: '#78909c', fontStyle: 'italic' }}>
+                                  <Typography variant="caption" sx={{ color: 'neutral.400', fontStyle: 'italic' }}>
                                     +{stmts.length - 3} more tables...
                                   </Typography>
                                 )}
@@ -1265,21 +1269,21 @@ export const MigrationOrderPage = () => {
                     <Box sx={{ 
                       p: 2, 
                       borderBottom: 1, 
-                      borderColor: 'rgba(255,255,255,0.08)', 
+                      borderColor: 'neutral.100', 
                       position: 'sticky', 
                       top: 0, 
-                      bgcolor: '#0f3460', 
+                      bgcolor: 'primary.100', 
                       zIndex: 1 
                     }}>
-                      <Typography variant="body2Bold" sx={{ color: '#ffffff' }}>
+                      <Typography variant="body2Bold" sx={{ color: 'neutral.800' }}>
                         Tables ({generatedSQL.length})
                       </Typography>
                     </Box>
                     <Box sx={{ flex: 1, overflow: 'auto' }}>
                       {generatedSQL.map((stmt, idx) => {
-                        const levelColor = stmt.level === 0 ? '#4caf50' : 
-                                          stmt.level === 1 ? '#ffc107' : 
-                                          stmt.level === 2 ? '#ff9800' : '#f44336';
+                        const levelColor = stmt.level === 0 ? '#356B43' : 
+                                          stmt.level === 1 ? '#A85C13' : 
+                                          stmt.level === 2 ? '#A85C13' : '#B03B33';
                         return (
                           <Box
                             key={idx}
@@ -1287,13 +1291,13 @@ export const MigrationOrderPage = () => {
                             sx={{
                               p: 2,
                               borderBottom: 1,
-                              borderColor: 'rgba(255,255,255,0.05)',
+                              borderColor: 'neutral.100',
                               cursor: 'pointer',
-                              bgcolor: selectedSQLTable === stmt.targetTable ? 'rgba(33, 150, 243, 0.15)' : 'transparent',
+                              bgcolor: selectedSQLTable === stmt.targetTable ? 'primary.100' : 'transparent',
                               borderLeft: selectedSQLTable === stmt.targetTable ? 3 : 0,
-                              borderLeftColor: '#2196f3',
+                              borderLeftColor: 'primary.700',
                               transition: 'all 0.2s ease',
-                              '&:hover': { bgcolor: 'rgba(33, 150, 243, 0.1)' },
+                              '&:hover': { bgcolor: 'primary.100' },
                             }}
                           >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
@@ -1308,15 +1312,15 @@ export const MigrationOrderPage = () => {
                                   fontWeight: 700,
                                 }}
                               />
-                              <Typography variant="caption" sx={{ color: '#90a4ae' }}>
+                              <Typography variant="caption" sx={{ color: 'neutral.500' }}>
                                 {stmt.columnCount} columns
                               </Typography>
                             </Box>
-                            <Typography variant="body2" sx={{ color: '#64b5f6', fontWeight: 500, fontSize: '13px' }}>
+                            <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 500, fontSize: '13px' }}>
                               {stmt.sourceTable}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#78909c', display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                              <ArrowIcon sx={{ fontSize: 12, color: '#4caf50' }} />
+                            <Typography variant="caption" sx={{ color: 'neutral.400', display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                              <ArrowIcon sx={{ fontSize: 12, color: 'success.main' }} />
                               {stmt.targetTable}
                             </Typography>
                           </Box>
@@ -1333,15 +1337,15 @@ export const MigrationOrderPage = () => {
                 <Box sx={{ 
                   p: 2, 
                   borderBottom: 1, 
-                  borderColor: 'rgba(255,255,255,0.08)', 
-                  bgcolor: '#0d1b2a',
+                  borderColor: 'neutral.100', 
+                  bgcolor: '#142329',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <CodeIcon sx={{ color: '#4caf50', fontSize: 20 }} />
-                    <Typography variant="body2Medium" sx={{ color: '#ffffff' }}>
+                    <CodeIcon sx={{ color: 'success.main', fontSize: 20 }} />
+                    <Typography variant="body2Medium" sx={{ color: 'neutral.800' }}>
                       {sqlViewMode === 'full' && 'Full Migration Script'}
                       {sqlViewMode === 'level' && selectedLevel !== null && `Level ${selectedLevel} - ${groupSQLByLevel(generatedSQL).get(selectedLevel)?.length || 0} table(s)`}
                       {sqlViewMode === 'table' && selectedSQLTable && `Table: ${selectedSQLTable}`}
@@ -1369,8 +1373,8 @@ export const MigrationOrderPage = () => {
                           setSnackbar({ open: true, message: 'SQL copied to clipboard!' });
                         }}
                         sx={{ 
-                          color: '#90a4ae', 
-                          '&:hover': { color: '#64b5f6', bgcolor: 'rgba(33, 150, 243, 0.1)' } 
+                          color: 'neutral.500', 
+                          '&:hover': { color: 'primary.main', bgcolor: 'primary.100' } 
                         }}
                       >
                         <CopyIcon fontSize="small" />
@@ -1408,8 +1412,8 @@ export const MigrationOrderPage = () => {
                           URL.revokeObjectURL(url);
                         }}
                         sx={{ 
-                          color: '#90a4ae', 
-                          '&:hover': { color: '#4caf50', bgcolor: 'rgba(76, 175, 80, 0.1)' } 
+                          color: 'neutral.500', 
+                          '&:hover': { color: 'success.main', bgcolor: 'success.100' } 
                         }}
                       >
                         <DownloadIcon fontSize="small" />
@@ -1419,13 +1423,13 @@ export const MigrationOrderPage = () => {
                 </Box>
                 
                 {/* SQL Content */}
-                <Box sx={{ flex: 1, overflow: 'auto', p: 2.5, bgcolor: '#0d1b2a' }}>
+                <Box sx={{ flex: 1, overflow: 'auto', p: 2.5, bgcolor: '#142329' }}>
                   <Typography
                     component="pre"
                     sx={{
                       fontFamily: '"Fira Code", "JetBrains Mono", "Consolas", monospace',
                       fontSize: '13px',
-                      color: '#a5d6a7',
+                      color: '#A9D4B6',
                       whiteSpace: 'pre-wrap',
                       wordBreak: 'break-word',
                       m: 0,
@@ -1466,30 +1470,30 @@ export const MigrationOrderPage = () => {
         </DialogContent>
         <DialogActions sx={{ 
           borderTop: 1, 
-          borderColor: 'rgba(255,255,255,0.08)', 
+          borderColor: 'neutral.100', 
           p: 2, 
-          bgcolor: '#16213e',
+          bgcolor: 'neutral.800',
           justifyContent: 'space-between',
         }}>
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Chip
               size="small"
               label={`${generatedSQL.reduce((sum, s) => sum + s.columnCount, 0)} columns mapped`}
-              sx={{ bgcolor: 'rgba(33, 150, 243, 0.2)', color: '#64b5f6' }}
+              sx={{ bgcolor: 'primary.100', color: 'primary.main' }}
             />
             <Chip
               size="small"
               label={`${tableMappings.length} source tables`}
-              sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: '#b0bec5' }}
+              sx={{ bgcolor: 'neutral.200', color: 'neutral.500' }}
             />
           </Box>
           <Button 
             onClick={() => setSqlDialog(false)} 
             variant="outlined"
             sx={{ 
-              color: '#b0bec5', 
-              borderColor: 'rgba(255,255,255,0.2)',
-              '&:hover': { borderColor: '#64b5f6', color: '#64b5f6' },
+              color: 'neutral.500', 
+              borderColor: 'neutral.200',
+              '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
             }}
           >
             Close

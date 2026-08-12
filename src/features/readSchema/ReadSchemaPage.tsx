@@ -25,10 +25,12 @@ import {
   Update as UpdateIcon,
   Link as ConnectedIcon,
   ContentCopy as CopyIcon,
+  Sync as RefreshIcon,
 } from '@mui/icons-material';
 import { useAppDispatch } from '../../store';
 import { setSchema as setSourceSchema } from '../sourceSchema/sourceSchemaSlice';
 import { setSchema as setTargetSchema } from '../targetSchema/targetSchemaSlice';
+import { refreshSchemaFromDatabase, type RefreshResult } from './refreshSchema';
 import { schemaToText } from '../../utils/schemaToText';
 import type { DatabaseSchema } from '../../types';
 
@@ -50,6 +52,34 @@ export default function ReadSchemaPage() {
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   const [schemaTextTab, setSchemaTextTab] = useState<'source' | 'target'>('source');
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshResult, setRefreshResult] = useState<RefreshResult | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
+
+  /**
+   * Read both databases, apply the result, and store it as a snapshot — the
+   * whole loop in one action, because doing it in three steps is how people end
+   * up looking at a schema that no longer matches the database.
+   */
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    setRefreshResult(null);
+    setRefreshError(null);
+    try {
+      const result = await dispatch(refreshSchemaFromDatabase()).unwrap();
+      setRefreshResult(result);
+      // Show what was just applied in the panes below, reusing the schema the
+      // thunk already read rather than fetching it a second time.
+      for (const role of result.refreshed) {
+        if (role.role === 'source') setSourceSchemaState(role.schema);
+        else setTargetSchemaState(role.schema);
+      }
+    } catch (err) {
+      setRefreshError(typeof err === 'string' ? err : 'Could not refresh from the database.');
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleCopySchemaText = async () => {
     const text = schemaTextTab === 'source' && sourceSchema
@@ -196,6 +226,88 @@ export default function ReadSchemaPage() {
       </Paper>
 
       <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 900, mx: 'auto', width: '100%' }}>
+        {/* One-click refresh: read, apply, and store the live schema */}
+        <Card variant="outlined" sx={{ borderColor: 'primary.200', bgcolor: 'primary.50' }}>
+          <CardContent>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+              Refresh schema from database
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'neutral.600', mb: 2 }}>
+              Reads both databases, applies the result to the app, and stores it as a schema
+              snapshot so a saved configuration can pin exactly what it was built against. Use this
+              whenever the database has changed — it is the fastest way to tell whether what you are
+              looking at is still real.
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={refreshing ? <CircularProgress size={18} color="inherit" /> : <RefreshIcon />}
+              onClick={handleRefresh}
+              disabled={refreshing || !!fetchLoading}
+            >
+              {refreshing ? 'Reading databases…' : 'Refresh from database'}
+            </Button>
+
+            {refreshError && (
+              <Alert severity="error" sx={{ mt: 2 }} onClose={() => setRefreshError(null)}>
+                {refreshError}
+              </Alert>
+            )}
+
+            {refreshResult && (
+              <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {refreshResult.refreshed.map((role) => {
+                  const delta = role.tablesAfter - role.tablesBefore;
+                  return (
+                    <Alert
+                      key={role.role}
+                      severity={delta === 0 ? 'success' : 'info'}
+                      icon={<SuccessIcon fontSize="small" />}
+                    >
+                      <Typography variant="body2">
+                        <strong>{role.role === 'source' ? 'Source' : 'Target'}</strong> ·{' '}
+                        {role.database} — {role.tablesAfter} tables, {role.columnsAfter} columns
+                        {delta !== 0 && (
+                          <>
+                            {' '}
+                            (<strong>
+                              {delta > 0 ? '+' : ''}
+                              {delta}
+                            </strong>{' '}
+                            vs what was loaded)
+                          </>
+                        )}
+                        {role.snapshotId !== null && (
+                          <>
+                            {' '}
+                            · snapshot #{role.snapshotId}
+                            {role.deduped && ' (identical to the one already stored)'}
+                          </>
+                        )}
+                      </Typography>
+                    </Alert>
+                  );
+                })}
+                {refreshResult.failed.map((failure) => (
+                  <Alert key={failure.role} severity="error">
+                    <Typography variant="body2">
+                      <strong>{failure.role}</strong> — {failure.error}
+                    </Typography>
+                  </Alert>
+                ))}
+                {refreshResult.warnings.map((warning) => (
+                  <Alert key={warning} severity="warning">
+                    <Typography variant="body2">{warning}</Typography>
+                  </Alert>
+                ))}
+                <Typography variant="caption" sx={{ color: 'neutral.500' }}>
+                  The app now uses this schema. To keep it, press “Save changes” in the header — that
+                  writes a new configuration version pinned to these snapshots.
+                </Typography>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Test connection */}
         <Card variant="outlined" sx={{ borderColor: 'neutral.200' }}>
           <CardContent>

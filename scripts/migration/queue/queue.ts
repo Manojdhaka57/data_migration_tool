@@ -50,6 +50,15 @@ export interface MigrationJobData {
   tableWiseMode: boolean;
   selectedTables?: string[];
   customDependencies?: Array<{ from: string; to: string }>;
+  /**
+   * Explicit target-table order, chosen by a person.
+   *
+   * Absent or empty means derive the order from foreign keys, which is what
+   * every job did before this existed. Tables not named here still migrate —
+   * they follow, in dependency order — so adding a mapping can never silently
+   * drop it from the run.
+   */
+  mappingOrder?: string[];
   batchSize?: number;
   useCopy?: boolean;
   /** When true, ignore durable "done" markers and re-migrate selected tables. */

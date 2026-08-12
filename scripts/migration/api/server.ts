@@ -137,6 +137,35 @@ io.on('connection', (socket) => {
   });
 });
 
+/**
+ * Run-wide row totals, refreshed at most twice a second.
+ *
+ * The counter lives in Redis (see addJobTotalRows in state/tableState.ts) and
+ * has never been exposed to the browser. Reading it on every progress event
+ * would mean a Redis round-trip per batch — hundreds a second on a fast table —
+ * so the last value is reused between refreshes. It only changes when a new
+ * table starts, which makes half a second of staleness immaterial.
+ *
+ * It is a MOVING total: tables that have not started yet contribute nothing, so
+ * it grows during a run. The dashboard labels it "so far" for that reason.
+ */
+const runTotals = new Map<string, { totalRows: number; fetchedAt: number }>();
+const RUN_TOTALS_TTL_MS = 500;
+
+function runTotalRowsFor(jobId: string): number {
+  const cached = runTotals.get(jobId);
+  if (!cached || Date.now() - cached.fetchedAt >= RUN_TOTALS_TTL_MS) {
+    // Refresh in the background; this event uses the previous value. Failure is
+    // not worth surfacing — the field is supplementary, and every other number
+    // in the payload is unaffected.
+    runTotals.set(jobId, { totalRows: cached?.totalRows ?? 0, fetchedAt: Date.now() });
+    void getJobProgress(jobId)
+      .then((p) => runTotals.set(jobId, { totalRows: p.totalRows, fetchedAt: Date.now() }))
+      .catch(() => undefined);
+  }
+  return runTotals.get(jobId)?.totalRows ?? 0;
+}
+
 // Set worker progress callback to pipe live stats through Socket.io
 setProgressCallback((jobId, progressData) => {
   // Calculate performance metrics: throughput, ETA, memory usage
@@ -161,6 +190,14 @@ setProgressCallback((jobId, progressData) => {
     throughput,
     eta: etaSeconds,
     memoryUsage: Math.round(memoryUsage * 100) / 100,
+    // Which batch this event represents. Passed straight through from the
+    // worker; every existing field above keeps its name and meaning, so
+    // consumers that ignore these are unaffected.
+    batchIndex: progressData.batchIndex ?? null,
+    batchRows: progressData.batchRows ?? null,
+    batchSize: progressData.batchSize ?? null,
+    /** Rows known to be in scope SO FAR — grows as each table starts. */
+    runTotalRows: runTotalRowsFor(jobId),
     results: progressData.results,
     timestamp: new Date().toISOString(),
   };
@@ -615,6 +652,7 @@ app.post('/api/migrate', requireRole('operator'), async (req, res) => {
   const {
     mappingConfig,
     customDependencies,
+    mappingOrder,
     dryRun = false,
     useCopy = true,
     force = false,
@@ -642,6 +680,7 @@ app.post('/api/migrate', requireRole('operator'), async (req, res) => {
       dryRun,
       tableWiseMode: false,
       customDependencies,
+      mappingOrder,
       batchSize: 2000,
       useCopy,
       force,
@@ -717,7 +756,8 @@ app.post('/api/migration-configurations/:id/run', requireRole('operator'), async
     // POST /api/migrate, so both paths execute identically.
     // Safe to apply even to an already-canonical config: toEngineConfig is a
     // fixed point (see scripts/metadata/configCanonical.test.ts).
-    const { config: engineConfig, dropped } = toEngineConfig(applyConfigDefaults(configJson));
+    const snapshot = applyConfigDefaults(configJson);
+    const { config: engineConfig, dropped } = toEngineConfig(snapshot);
 
     if (dropped.length > 0) {
       return res.status(400).json({
@@ -791,6 +831,9 @@ app.post('/api/migration-configurations/:id/run', requireRole('operator'), async
       tableWiseMode: false,
       // An explicit per-run override wins; otherwise use what the version saved.
       customDependencies: req.body?.customDependencies ?? engineConfig.customDependencies,
+      // Read from the snapshot, not from engineConfig: toEngineConfig returns
+      // only the executable mapping shape and does not carry mappingOrder.
+      mappingOrder: req.body?.mappingOrder ?? snapshot.mappingOrder,
       batchSize: req.body?.batchSize ?? 2000,
       useCopy,
       force,
@@ -816,7 +859,7 @@ app.post('/api/migration-configurations/:id/run', requireRole('operator'), async
 });
 
 app.post('/api/migrate/dry-run', requireRole('operator'), async (req, res) => {
-  const { mappingConfig, customDependencies, sourceDbType: reqSourceDbType, targetDbType: reqTargetDbType, encryptionKey: reqEncryptionKey } = req.body;
+  const { mappingConfig, customDependencies, mappingOrder, sourceDbType: reqSourceDbType, targetDbType: reqTargetDbType, encryptionKey: reqEncryptionKey } = req.body;
 
   if (!mappingConfig || !mappingConfig.tableMappings) {
     return res.status(400).json({ error: 'mappingConfig is required' });
@@ -835,6 +878,7 @@ app.post('/api/migrate/dry-run', requireRole('operator'), async (req, res) => {
       dryRun: true,
       tableWiseMode: false,
       customDependencies,
+      mappingOrder,
       encryptionKey: reqEncryptionKey || resolveEncryptionKey(),
     });
 

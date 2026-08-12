@@ -129,7 +129,7 @@ const steps = [
   },
 ];
 
-const stepColors = ['#3B82F6', '#8B5CF6', '#F59E0B', '#10B981', '#2F4157', '#EC4899', '#0EA5E9'];
+const stepColors = ['#2A4954', '#3D82A6', '#A85C13', '#356B43', '#2A4954', '#3D82A6', '#3D82A6'];
 
 export function HelpGuide({ open, onClose }: HelpGuideProps) {
   const [activeStep, setActiveStep] = useState(0);
@@ -156,7 +156,7 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: '#FFFFFF',
+          bgcolor: 'white.main',
           maxHeight: '90vh',
           borderRadius: 3,
           overflow: 'hidden',
@@ -168,7 +168,7 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-between',
-        background: 'linear-gradient(135deg, #2F4157 0%, #1F2D3E 100%)',
+        background: 'linear-gradient(135deg, #2A4954 0%, #1E353D 100%)',
         pb: 2,
         pt: 2,
       }}>
@@ -180,10 +180,10 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
             display: 'flex',
             alignItems: 'center',
           }}>
-            <HelpIcon sx={{ color: '#FFFFFF', fontSize: 28 }} />
+            <HelpIcon sx={{ color: 'white.main', fontSize: 28 }} />
           </Box>
           <Box>
-            <Typography variant="h3Bold" sx={{ color: '#FFFFFF' }}>
+            <Typography variant="h3Bold" sx={{ color: 'white.main' }}>
               How to Use ERP Data Migration
             </Typography>
             <Typography variant="caption1" sx={{ color: 'rgba(255,255,255,0.7)' }}>
@@ -191,7 +191,7 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
             </Typography>
           </Box>
         </Box>
-        <IconButton onClick={onClose} sx={{ color: 'rgba(255,255,255,0.7)', '&:hover': { color: '#FFFFFF' } }}>
+        <IconButton onClick={onClose} sx={{ color: 'rgba(255,255,255,0.7)', '&:hover': { color: 'white.main' } }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -202,13 +202,13 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
           <Box sx={{ 
             width: 260, 
             borderRight: 1, 
-            borderColor: '#E5E7EB', 
+            borderColor: 'neutral.200', 
             p: 2,
-            bgcolor: '#F9FAFB',
+            bgcolor: 'neutral.100',
             overflow: 'auto',
           }}>
             <Stepper activeStep={activeStep} orientation="vertical" sx={{ 
-              '& .MuiStepConnector-line': { borderColor: '#E5E7EB' },
+              '& .MuiStepConnector-line': { borderColor: 'neutral.200' },
             }}>
               {steps.map((step, index) => (
                 <Step key={step.label} completed={index < activeStep}>
@@ -217,13 +217,13 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
                     sx={{ 
                       cursor: 'pointer',
                       '& .MuiStepLabel-label': { 
-                        color: index === activeStep ? '#1F2937' : '#6B7280',
+                        color: index === activeStep ? 'neutral.800' : 'neutral.500',
                         fontWeight: index === activeStep ? 600 : 400,
                         fontSize: '13px',
                       },
                       '& .MuiStepIcon-root': {
-                        color: index < activeStep ? '#10B981' : (index === activeStep ? stepColors[index] : '#D1D5DB'),
-                        '&.Mui-completed': { color: '#10B981' },
+                        color: index < activeStep ? 'success.main' : (index === activeStep ? stepColors[index] : '#D2D2CF'),
+                        '&.Mui-completed': { color: 'success.main' },
                         '&.Mui-active': { color: stepColors[index] },
                       },
                     }}
@@ -234,30 +234,30 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
               ))}
             </Stepper>
             
-            <Divider sx={{ my: 2, borderColor: '#E5E7EB' }} />
+            <Divider sx={{ my: 2, borderColor: 'neutral.200' }} />
             
             {/* Quick Reference */}
-            <Typography variant="caption1Bold" sx={{ color: '#6B7280', mb: 1.5, display: 'block' }}>
+            <Typography variant="caption1Bold" sx={{ color: 'neutral.500', mb: 1.5, display: 'block' }}>
               Quick Reference
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1, bgcolor: '#FEF3C7', borderRadius: 1 }}>
-                <KeyIcon sx={{ fontSize: 16, color: '#D97706' }} />
-                <Typography variant="caption1" sx={{ color: '#92400E' }}>PK = Primary Key</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1, bgcolor: 'warning.100', borderRadius: 1 }}>
+                <KeyIcon sx={{ fontSize: 16, color: 'warning.main' }} />
+                <Typography variant="caption1" sx={{ color: 'warning.700' }}>PK = Primary Key</Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1, bgcolor: '#DBEAFE', borderRadius: 1 }}>
-                <LinkIcon sx={{ fontSize: 16, color: '#2563EB' }} />
-                <Typography variant="caption1" sx={{ color: '#1E40AF' }}>FK = Foreign Key</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1, bgcolor: 'info.100', borderRadius: 1 }}>
+                <LinkIcon sx={{ fontSize: 16, color: 'info.500' }} />
+                <Typography variant="caption1" sx={{ color: 'info.700' }}>FK = Foreign Key</Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1, bgcolor: '#D1FAE5', borderRadius: 1 }}>
-                <CheckIcon sx={{ fontSize: 16, color: '#059669' }} />
-                <Typography variant="caption1" sx={{ color: '#065F46' }}>NN = Not Nullable</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1, bgcolor: 'success.100', borderRadius: 1 }}>
+                <CheckIcon sx={{ fontSize: 16, color: 'success.main' }} />
+                <Typography variant="caption1" sx={{ color: '#2A5636' }}>NN = Not Nullable</Typography>
               </Box>
             </Box>
           </Box>
           
           {/* Right - Content */}
-          <Box sx={{ flex: 1, p: 3, overflow: 'auto', bgcolor: '#FFFFFF' }}>
+          <Box sx={{ flex: 1, p: 3, overflow: 'auto', bgcolor: 'white.main' }}>
             {steps.map((step, index) => (
               <Box
                 key={step.label}
@@ -271,7 +271,7 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
                     bgcolor: currentColor,
                     display: 'flex',
                     alignItems: 'center',
-                    color: '#FFFFFF',
+                    color: 'white.main',
                   }}>
                     {step.icon}
                   </Box>
@@ -279,28 +279,28 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
                     <Chip 
                       label={`Step ${index + 1} of ${steps.length}`}
                       size="small"
-                      sx={{ bgcolor: '#F3F4F6', color: '#6B7280', mb: 0.5, fontWeight: 500 }}
+                      sx={{ bgcolor: 'neutral.100', color: 'neutral.500', mb: 0.5, fontWeight: 500 }}
                     />
-                    <Typography variant="h2Bold" sx={{ color: '#1F2937' }}>
+                    <Typography variant="h2Bold" sx={{ color: 'neutral.800' }}>
                       {step.label}
                     </Typography>
                   </Box>
                 </Box>
                 
                 {/* Description */}
-                <Typography variant="body1" sx={{ color: '#4B5563', mb: 3, lineHeight: 1.6 }}>
+                <Typography variant="body1" sx={{ color: 'neutral.600', mb: 3, lineHeight: 1.6 }}>
                   {step.description}
                 </Typography>
                 
                 {/* Details */}
                 <Paper sx={{ 
                   p: 2.5, 
-                  bgcolor: '#F9FAFB', 
+                  bgcolor: 'neutral.100', 
                   borderRadius: 2,
                   mb: 2,
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid #E9E9E7',
                 }}>
-                  <Typography variant="body2Bold" sx={{ color: '#374151', mb: 1.5 }}>
+                  <Typography variant="body2Bold" sx={{ color: '#3A3938', mb: 1.5 }}>
                     📋 What to do:
                   </Typography>
                   <Box component="ol" sx={{ m: 0, pl: 2 }}>
@@ -309,13 +309,13 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
                         component="li" 
                         key={i}
                         sx={{ 
-                          color: '#4B5563', 
+                          color: 'neutral.600', 
                           mb: 1,
                           pl: 0.5,
                           '&::marker': { color: currentColor, fontWeight: 600 },
                         }}
                       >
-                        <Typography variant="body2" sx={{ color: '#4B5563' }}>{detail}</Typography>
+                        <Typography variant="body2" sx={{ color: 'neutral.600' }}>{detail}</Typography>
                       </Box>
                     ))}
                   </Box>
@@ -324,19 +324,19 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
                 {/* Tip */}
                 <Paper sx={{ 
                   p: 2, 
-                  bgcolor: '#FFFBEB', 
+                  bgcolor: '#FFF1E2', 
                   borderRadius: 2,
-                  border: '1px solid #FDE68A',
+                  border: '1px solid #FFDFC0',
                   display: 'flex',
                   gap: 1.5,
                   alignItems: 'flex-start',
                 }}>
-                  <TipIcon sx={{ color: '#D97706', fontSize: 20, mt: 0.25 }} />
+                  <TipIcon sx={{ color: 'warning.main', fontSize: 20, mt: 0.25 }} />
                   <Box>
-                    <Typography variant="body2Bold" sx={{ color: '#92400E', mb: 0.5 }}>
+                    <Typography variant="body2Bold" sx={{ color: 'warning.700', mb: 0.5 }}>
                       Tip
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#78350F', lineHeight: 1.5 }}>
+                    <Typography variant="body2" sx={{ color: '#75400C', lineHeight: 1.5 }}>
                       {step.tip}
                     </Typography>
                   </Box>
@@ -347,7 +347,7 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
                   <Button
                     disabled={activeStep === 0}
                     onClick={handleBack}
-                    sx={{ color: '#6B7280', '&:hover': { bgcolor: '#F3F4F6' } }}
+                    sx={{ color: 'neutral.500', '&:hover': { bgcolor: 'neutral.100' } }}
                   >
                     ← Back
                   </Button>
@@ -358,8 +358,8 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
                         onClick={onClose}
                         startIcon={<CheckIcon />}
                         sx={{ 
-                          bgcolor: '#10B981', 
-                          '&:hover': { bgcolor: '#059669' },
+                          bgcolor: 'success.main', 
+                          '&:hover': { bgcolor: 'success.main' },
                           textTransform: 'none',
                           fontWeight: 600,
                           px: 3,
@@ -395,44 +395,44 @@ export function HelpGuide({ open, onClose }: HelpGuideProps) {
           px: 3,
           py: 2, 
           borderTop: 1, 
-          borderColor: '#E5E7EB',
-          bgcolor: '#F9FAFB',
+          borderColor: 'neutral.200',
+          bgcolor: 'neutral.100',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           gap: 2,
           flexWrap: 'wrap',
         }}>
-          <Typography variant="caption1" sx={{ color: '#6B7280', mr: 1 }}>Workflow:</Typography>
+          <Typography variant="caption1" sx={{ color: 'neutral.500', mr: 1 }}>Workflow:</Typography>
           
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: '#DBEAFE', borderRadius: 1 }}>
-            <UploadIcon sx={{ fontSize: 14, color: '#2563EB' }} />
-            <Typography variant="caption1" sx={{ color: '#1E40AF', fontWeight: 500 }}>Schema</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: 'info.100', borderRadius: 1 }}>
+            <UploadIcon sx={{ fontSize: 14, color: 'info.500' }} />
+            <Typography variant="caption1" sx={{ color: 'info.700', fontWeight: 500 }}>Schema</Typography>
           </Box>
-          <ArrowIcon sx={{ fontSize: 14, color: '#9CA3AF' }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: '#E0F2FE', borderRadius: 1 }}>
-            <ReadSchemaIcon sx={{ fontSize: 14, color: '#0284C7' }} />
-            <Typography variant="caption1" sx={{ color: '#0369A1', fontWeight: 500 }}>Read Schema</Typography>
+          <ArrowIcon sx={{ fontSize: 14, color: 'neutral.400' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: 'primary.100', borderRadius: 1 }}>
+            <ReadSchemaIcon sx={{ fontSize: 14, color: '#2D6079' }} />
+            <Typography variant="caption1" sx={{ color: '#1F4657', fontWeight: 500 }}>Read Schema</Typography>
           </Box>
-          <ArrowIcon sx={{ fontSize: 14, color: '#9CA3AF' }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: '#D1FAE5', borderRadius: 1 }}>
-            <AutoMapIcon sx={{ fontSize: 14, color: '#059669' }} />
-            <Typography variant="caption1" sx={{ color: '#065F46', fontWeight: 500 }}>Map</Typography>
+          <ArrowIcon sx={{ fontSize: 14, color: 'neutral.400' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: 'success.100', borderRadius: 1 }}>
+            <AutoMapIcon sx={{ fontSize: 14, color: 'success.main' }} />
+            <Typography variant="caption1" sx={{ color: '#2A5636', fontWeight: 500 }}>Map</Typography>
           </Box>
-          <ArrowIcon sx={{ fontSize: 14, color: '#9CA3AF' }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: '#FEF3C7', borderRadius: 1 }}>
-            <MigrationIcon sx={{ fontSize: 14, color: '#D97706' }} />
-            <Typography variant="caption1" sx={{ color: '#92400E', fontWeight: 500 }}>Order</Typography>
+          <ArrowIcon sx={{ fontSize: 14, color: 'neutral.400' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: 'warning.100', borderRadius: 1 }}>
+            <MigrationIcon sx={{ fontSize: 14, color: 'warning.main' }} />
+            <Typography variant="caption1" sx={{ color: 'warning.700', fontWeight: 500 }}>Order</Typography>
           </Box>
-          <ArrowIcon sx={{ fontSize: 14, color: '#9CA3AF' }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: '#FCE7F3', borderRadius: 1 }}>
-            <TransformIcon sx={{ fontSize: 14, color: '#DB2777' }} />
-            <Typography variant="caption1" sx={{ color: '#9D174D', fontWeight: 500 }}>Transform</Typography>
+          <ArrowIcon sx={{ fontSize: 14, color: 'neutral.400' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: '#E7F1F7', borderRadius: 1 }}>
+            <TransformIcon sx={{ fontSize: 14, color: 'info.500' }} />
+            <Typography variant="caption1" sx={{ color: '#1F4657', fontWeight: 500 }}>Transform</Typography>
           </Box>
-          <ArrowIcon sx={{ fontSize: 14, color: '#9CA3AF' }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: '#E0F2FE', borderRadius: 1 }}>
-            <RunIcon sx={{ fontSize: 14, color: '#0284C7' }} />
-            <Typography variant="caption1" sx={{ color: '#0369A1', fontWeight: 500 }}>Run</Typography>
+          <ArrowIcon sx={{ fontSize: 14, color: 'neutral.400' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, bgcolor: 'primary.100', borderRadius: 1 }}>
+            <RunIcon sx={{ fontSize: 14, color: '#2D6079' }} />
+            <Typography variant="caption1" sx={{ color: '#1F4657', fontWeight: 500 }}>Run</Typography>
           </Box>
         </Box>
       </DialogContent>

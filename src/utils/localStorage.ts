@@ -27,7 +27,61 @@ const SIGN_OUT_KEYS: readonly string[] = [
   ...Object.values(STORAGE_KEYS),
   'erp_migration_connection_config',
   'erp_migration_active_configuration',
+  'erp_migration_data_owner',
 ];
+
+/**
+ * Who the cached data belongs to.
+ *
+ * Clearing on sign-out is not enough on its own: a session can also end by
+ * token expiry, a closed tab, or a crash, and none of those run the sign-out
+ * handler. When that happens the previous user's mappings, schemas, connection
+ * settings and active-configuration pointer are all still sitting here — and
+ * an admin, who is allowed to open anyone's configuration, would then load the
+ * previous user's work through that stale pointer.
+ *
+ * Stamping the cache with its owner turns that from "hope sign-out ran" into a
+ * check that cannot be skipped: whoever signs in next compares, and wipes if
+ * the name differs.
+ */
+const DATA_OWNER_KEY = 'erp_migration_data_owner';
+
+export function getDataOwner(): string | null {
+  try {
+    return localStorage.getItem(DATA_OWNER_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setDataOwner(username: string): void {
+  try {
+    localStorage.setItem(DATA_OWNER_KEY, username);
+  } catch {
+    // Losing the stamp is safe in one direction only: the next sign-in sees
+    // null, treats the cache as unowned, and clears it.
+  }
+}
+
+/**
+ * True when this browser holds data cached for somebody else.
+ *
+ * An absent stamp counts as a mismatch when data is actually present, so a
+ * cache written before this check existed is not silently trusted.
+ */
+export function isDataOwnedByAnotherUser(username: string): boolean {
+  const owner = getDataOwner();
+  if (owner === username) return false;
+  if (owner !== null) return true;
+  // No stamp: only a mismatch if there is something to inherit.
+  return SIGN_OUT_KEYS.some((key) => {
+    try {
+      return localStorage.getItem(key) !== null;
+    } catch {
+      return false;
+    }
+  });
+}
 
 /** Wipe every trace of the signed-in user's working data from this browser. */
 export function clearAllUserData(): string[] {

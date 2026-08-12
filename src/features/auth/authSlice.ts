@@ -17,7 +17,7 @@ import {
   type UserRole,
 } from '../../api/endpoints/auth';
 import { saveSession, clearSession, getSession } from '../../api/token';
-import { clearAllUserData } from '../../utils/localStorage';
+import { clearAllUserData, isDataOwnedByAnotherUser, setDataOwner } from '../../utils/localStorage';
 import { errorMessage, isApiError } from '../../api/errors';
 
 export const ROLE_RANK: Record<UserRole, number> = { viewer: 1, operator: 2, admin: 3 };
@@ -68,11 +68,29 @@ export const bootstrapAuth = createAsyncThunk('auth/bootstrap', async () => {
   };
 });
 
+/**
+ * A restored session must pass the same ownership check as a fresh sign-in.
+ *
+ * Reloading the page does not go through signIn, so without this a browser
+ * holding someone else's cache would hand it to whoever the stored token
+ * belongs to.
+ */
+export const claimCacheForUser = createAsyncThunk<void, string>(
+  'auth/claimCache',
+  async (username, { dispatch }) => {
+    if (isDataOwnedByAnotherUser(username)) {
+      clearAllUserData();
+      dispatch({ type: 'app/userDataCleared' });
+    }
+    setDataOwner(username);
+  },
+);
+
 export const signIn = createAsyncThunk<
   AuthUser,
   { username: string; password: string; remember: boolean },
   { rejectValue: string }
->('auth/signIn', async ({ username, password, remember }, { rejectWithValue }) => {
+>('auth/signIn', async ({ username, password, remember }, { dispatch, rejectWithValue }) => {
   try {
     const result = await loginRequest(username, password);
     saveSession(
@@ -84,6 +102,17 @@ export const signIn = createAsyncThunk<
       },
       remember,
     );
+
+    // Whoever signs in takes ownership of this browser's cache — and inherits
+    // nothing from whoever had it before. This runs on EVERY sign-in, not just
+    // after a clean sign-out, because a session can also end by token expiry, a
+    // closed tab or a crash, none of which reach the sign-out handler.
+    if (isDataOwnedByAnotherUser(result.user.username)) {
+      clearAllUserData();
+      dispatch({ type: 'app/userDataCleared' });
+    }
+    setDataOwner(result.user.username);
+
     return result.user;
   } catch (err) {
     // 401 here means bad credentials. Say that, rather than leaking whether

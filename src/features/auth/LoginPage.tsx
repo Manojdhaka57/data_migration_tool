@@ -68,7 +68,9 @@ export default function LoginPage() {
         alignItems: 'center',
         justifyContent: 'center',
         p: 3,
-        background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 55%, #0C4A6E 100%)',
+        // Raisin Black into Dark Slate Gray. Two stops collapsed onto the same
+        // value in the remap, which flattened the gradient to a near-solid.
+        background: 'linear-gradient(135deg, #272626 0%, #1E353D 55%, #2A4954 100%)',
       }}
     >
       <Paper

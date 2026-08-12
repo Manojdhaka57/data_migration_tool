@@ -1,5 +1,6 @@
 import { Worker, Job } from 'bullmq';
 import { redisConnection, MigrationJobData } from './queue';
+import { orderMappings, orderSummary } from './orderMappings';
 import { appendRejects } from '../state/rejects';
 import {
   recordRunStarted,
@@ -443,13 +444,27 @@ export function startWorkers(concurrency = 2): Worker[] {
             );
           }
 
-          // 2. Sort mappings by topological levels
+          // 2. Decide the migration order.
+          //
+          // Levels are always computed: they are the fallback order, and the
+          // per-table progress reporting below shows the level regardless.
+          //
+          // An explicit mappingOrder wins over them. Someone chose that
+          // sequence — usually because the foreign keys do not express a real
+          // ordering constraint — and regenerating from FKs would discard the
+          // choice without saying so. Tables the order does not name are not
+          // dropped: they follow, in dependency order, so adding a mapping and
+          // forgetting to re-order still migrates it.
           const levels = calculateMigrationLevels(tableMappings, targetSchema, data.customDependencies);
-          const sortedMappings = [...tableMappings].sort((a, b) => {
-            const lvlA = levels.get(a.targetTable) ?? 0;
-            const lvlB = levels.get(b.targetTable) ?? 0;
-            return lvlA - lvlB;
-          });
+          const sortedMappings = orderMappings(tableMappings, levels, data.mappingOrder);
+
+          if (data.mappingOrder && data.mappingOrder.length > 0) {
+            const { pinned, appended } = orderSummary(tableMappings, data.mappingOrder);
+            console.log(
+              `📋 Manual migration order in effect: ${pinned} table(s) in the chosen sequence` +
+                (appended > 0 ? `, ${appended} appended by dependency level` : ''),
+            );
+          }
 
           // 3. Ensure target tables (and their columns) exist
           if (!data.dryRun) {
@@ -800,9 +815,16 @@ export function startWorkers(concurrency = 2): Worker[] {
 
               let lastCheckpointAt = Date.now();
 
+              // Which batch of THIS table is being handled, counted from 1.
+              // Reported so the dashboard can say "batch 63" instead of
+              // inferring it from a row count and a configured batch size,
+              // which is wrong for the final short batch of every table.
+              let batchIndex = 0;
+
               // Stream handler
               const processBatch = async (batchRows: any[]) => {
                 if (batchRows.length === 0) return;
+                batchIndex++;
 
                 // Transform on-the-fly
                 const transformed = batchRows.map(row =>
@@ -884,6 +906,13 @@ export function startWorkers(concurrency = 2): Worker[] {
                   progress: Math.min(99, currentProgress),
                   currentTable: targetTable,
                   lastMigratedId: lastId,
+                  // Batch identity for this event. `batchRows` is what THIS
+                  // batch actually carried, which is smaller than batchSize for
+                  // the last batch of a table — the dashboard animates on the
+                  // real figure rather than assuming every batch is full.
+                  batchIndex,
+                  batchRows: batchRows.length,
+                  batchSize: data.batchSize || 1000,
                   results: [
                     ...results.filter(r => r.table !== targetTable),
                     {

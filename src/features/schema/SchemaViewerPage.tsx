@@ -134,8 +134,8 @@ function SchemaEditDialog({
   const [newTable, setNewTable] = useState({ name: '' });
 
   const colorScheme = schemaType === 'source' 
-    ? { main: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', light: '#dbeafe', dark: '#1e40af' }
-    : { main: '#8b5cf6', bg: '#f5f3ff', border: '#ddd6fe', light: '#ede9fe', dark: '#5b21b6' };
+    ? { main: '#2A4954', bg: '#F2F7FA', border: '#CFE4EF', light: '#E7F1F7', dark: '#1F4657' }
+    : { main: '#3D82A6', bg: '#F2F7FA', border: '#CFE4EF', light: '#E7F1F7', dark: '#2D6079' };
 
   // Filter tables by search query
   const filteredTables = useMemo(() => {
@@ -242,7 +242,7 @@ function SchemaEditDialog({
       onClose={onClose}
       maxWidth="xl" 
       fullWidth
-      PaperProps={{ sx: { height: '85vh', bgcolor: '#f8fafc' } }}
+      PaperProps={{ sx: { height: '85vh', bgcolor: '#F7F7F6' } }}
     >
       <DialogTitle sx={{ 
         borderBottom: 1, 
@@ -323,7 +323,7 @@ function SchemaEditDialog({
             flex: 1, 
             overflow: 'auto',
             '&::-webkit-scrollbar': { width: 6 },
-            '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(0,0,0,0.2)', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(39, 38, 38,0.08)', borderRadius: 3 },
           }}>
             {filteredTables.map((table) => (
               <Box

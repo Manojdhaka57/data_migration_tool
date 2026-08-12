@@ -48,9 +48,9 @@ function errorMessage(err: unknown, fallback: string): string {
 
 /** Where an effective value came from, rendered as a small colour-coded chip. */
 const SOURCE_CHIP: Record<ValueSource, { label: string; color: string; bg: string }> = {
-  ui: { label: 'from UI', color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)' },
-  env: { label: 'from .env', color: '#0284C7', bg: 'rgba(2, 132, 199, 0.12)' },
-  default: { label: 'default', color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.15)' },
+  ui: { label: 'from UI', color: 'success.main', bg: 'success.100' },
+  env: { label: 'from .env', color: '#2D6079', bg: 'primary.100' },
+  default: { label: 'default', color: 'neutral.500', bg: 'neutral.100' },
 };
 
 const FIELDS: { key: keyof DbConnectionForm; label: string; placeholder: string }[] = [
@@ -312,7 +312,7 @@ export default function ConnectionSettingsPage() {
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
         <ConnectionForm
           title="Source Database"
-          accent="#0284C7"
+          accent="#2D6079"
           form={settings.source}
           resolved={resolved?.source}
           probe={probes.source}
@@ -320,7 +320,7 @@ export default function ConnectionSettingsPage() {
         />
         <ConnectionForm
           title="Target Database"
-          accent="#10B981"
+          accent="#356B43"
           form={settings.target}
           resolved={resolved?.target}
           probe={probes.target}
@@ -392,9 +392,9 @@ export default function ConnectionSettingsPage() {
             sx={{
               height: 22,
               fontSize: '11px',
-              color: '#10B981',
-              bgcolor: 'rgba(16, 185, 129, 0.12)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              color: 'success.main',
+              bgcolor: 'success.100',
+              border: '1px solid #D3E9DA',
             }}
           />
         )}

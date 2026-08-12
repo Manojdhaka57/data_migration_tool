@@ -23,14 +23,13 @@ import { ReadSchemaPage } from './features/readSchema';
 import { SchemaDdlPage } from './features/schemaDdl';
 import { HelpGuide } from './components/shared';
 import { ConnectionSettingsPage, restoreConnectionSettings } from './features/connection';
-import { LoginPage, UserMenu, RequireAuth, bootstrapAuth } from './features/auth';
+import { LoginPage, UserMenu, RequireAuth, bootstrapAuth, claimCacheForUser } from './features/auth';
 import {
   ConfigurationsPage,
   SaveChangesBar,
   applyConfiguration,
   getActiveConfiguration,
 } from './features/configurations';
-import { listConfigurations } from './api/endpoints/configurations';
 import { selectAuth } from './features/auth';
 import { ErrorBoundary } from './components/feedback';
 import { Sidebar, NAV_ITEMS, TOTAL_STEPS, findNavItem, nextStep } from './components/layout';
@@ -207,23 +206,24 @@ function AppShell() {
 
     void (async () => {
       const pointer = getActiveConfiguration();
-      let configurationId = pointer?.configurationId ?? null;
+      const configurationId = pointer?.configurationId ?? null;
 
-      // No bookmark yet: fall back to the most recently updated configuration
-      // so a fresh browser opens something rather than nothing.
+      // No bookmark means a fresh sign-in, and a fresh sign-in must CHOOSE.
+      //
+      // This used to fall back to listConfigurations()[0], which guessed on the
+      // user's behalf — and for an admin, whose list is everyone's
+      // configurations, the guess could be another user's work. Opening the
+      // selection screen instead is both safer and what the flow asks for.
       if (configurationId === null) {
-        try {
-          const configurations = await listConfigurations();
-          configurationId = configurations[0]?.id ?? null;
-        } catch {
-          configurationId = null;
-        }
-      }
-
-      if (configurationId === null || cancelled) {
+        if (cancelled) return;
         setDataSource({ loaded: false, from: 'none' });
+        // `replace` so Back does not bounce between here and the last page.
+        // Navigating to the route already shown is a no-op, so no path check.
+        navigate('/configurations', { replace: true });
         return;
       }
+
+      if (cancelled) return;
 
       try {
         const summary = await dispatch(applyConfiguration({ configurationId })).unwrap();
@@ -248,7 +248,10 @@ function AppShell() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, appDbReachable]);
+    // location is deliberately NOT a dependency: this must run once per
+    // mount, not on every navigation, or it would re-apply the configuration
+    // each time the user changes page.
+  }, [dispatch, appDbReachable, navigate]);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'neutral.100' }}>
@@ -338,15 +341,15 @@ function AppShell() {
             sx={{
               px: 3,
               py: 1.25,
-              bgcolor: '#FEF3C7',
+              bgcolor: 'warning.100',
               borderBottom: 1,
-              borderColor: '#FCD34D',
+              borderColor: '#FFC28C',
               display: 'flex',
               alignItems: 'center',
               gap: 2,
             }}
           >
-            <Typography variant="caption1Medium" sx={{ color: '#92400E', flex: 1 }}>
+            <Typography variant="caption1Medium" sx={{ color: 'warning.700', flex: 1 }}>
               This browser has <strong>{draftMismatch.inBrowser}</strong> table mappings saved
               locally, but the configuration loaded from the database has{' '}
               <strong>{draftMismatch.loaded}</strong>. Your local copy has not been touched — save it
@@ -356,14 +359,14 @@ function AppShell() {
               label="Open Saved Configs"
               size="small"
               onClick={() => navigate('/configurations')}
-              sx={{ bgcolor: '#F59E0B', color: '#fff', cursor: 'pointer' }}
+              sx={{ bgcolor: 'warning.main', color: '#fff', cursor: 'pointer' }}
             />
             <Chip
               label="Dismiss"
               size="small"
               variant="outlined"
               onClick={() => setDraftMismatch(null)}
-              sx={{ cursor: 'pointer', borderColor: '#D97706', color: '#92400E' }}
+              sx={{ cursor: 'pointer', borderColor: 'warning.main', color: 'warning.700' }}
             />
           </Box>
         )}
@@ -412,7 +415,15 @@ function App() {
   // unguarded and safe with no metadata database, and failure is non-fatal —
   // every pre-existing page works without it.
   useEffect(() => {
-    void dispatch(bootstrapAuth());
+    void dispatch(bootstrapAuth())
+      .unwrap()
+      .then((result) => {
+        // A page reload does not go through signIn, so the restored session has
+        // to pass the same ownership check — otherwise a browser still holding
+        // the previous user's cache would quietly hand it over.
+        if (result.user) void dispatch(claimCacheForUser(result.user.username));
+      })
+      .catch(() => undefined);
   }, [dispatch]);
 
   return (

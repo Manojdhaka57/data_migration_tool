@@ -82,6 +82,22 @@ const migrationResultsSlice = createSlice({
       persistResults([]);
     },
   },
+  extraReducers: (builder) => {
+    /**
+     * Sign-out must actually empty this, not fall back to initialState.
+     *
+     * `initialState.results` is seeded by loadPersistedResults() ONCE, when this
+     * module is first imported. The store's reset works by handing each slice
+     * `undefined`, which makes RTK re-derive from that captured object — so the
+     * previous user's run history came straight back into memory even though
+     * localStorage had already been wiped. This is the only slice that reads
+     * storage at module scope, and therefore the only one with the problem.
+     */
+    builder.addCase('app/userDataCleared', () => ({
+      results: [],
+      selectedResult: null,
+    }));
+  },
 });
 
 export const { setResults, addResult, setSelectedResult, clearResults } = migrationResultsSlice.actions;

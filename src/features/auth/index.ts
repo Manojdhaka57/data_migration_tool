@@ -4,6 +4,7 @@ export { default as RequireAuth } from './RequireAuth';
 export {
   default as authReducer,
   bootstrapAuth,
+  claimCacheForUser,
   signIn,
   signOut,
   sessionExpired,

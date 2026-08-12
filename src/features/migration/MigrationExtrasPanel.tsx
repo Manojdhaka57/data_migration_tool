@@ -169,12 +169,12 @@ export default function MigrationExtrasPanel({
   const statusChip = (table: string) => {
     const rec = tableStatus[table];
     if (!rec) {
-      return <Chip size="small" label="Not transferred" sx={{ bgcolor: 'rgba(100,116,139,0.15)', color: colors.text.muted, fontWeight: 600 }} />;
+      return <Chip size="small" label="Not transferred" sx={{ bgcolor: colors.soft.neutral, color: colors.text.muted, fontWeight: 600 }} />;
     }
     const map = {
-      done: { label: `Done · ${rec.rows} rows`, color: colors.accent.success, bg: 'rgba(74,222,128,0.15)' },
-      partial: { label: 'Partial (will resume)', color: colors.accent.warning, bg: 'rgba(251,191,36,0.15)' },
-      failed: { label: 'Failed (will retry)', color: colors.accent.error, bg: 'rgba(248,113,113,0.15)' },
+      done: { label: `Done · ${rec.rows} rows`, color: colors.accent.success, bg: colors.soft.success },
+      partial: { label: 'Partial (will resume)', color: colors.accent.warning, bg: colors.soft.warning },
+      failed: { label: 'Failed (will retry)', color: colors.accent.error, bg: colors.soft.error },
     } as const;
     const c = map[rec.status];
     return <Chip size="small" label={c.label} sx={{ bgcolor: c.bg, color: c.color, fontWeight: 600 }} />;
@@ -263,7 +263,7 @@ export default function MigrationExtrasPanel({
             startIcon={resetting ? <CircularProgress size={16} sx={{ color: colors.accent.error }} /> : <ResetIcon />}
             onClick={resetAllStatus}
             disabled={resetting || running}
-            sx={{ borderColor: colors.accent.error, color: colors.accent.error, fontWeight: 600, '&:hover': { borderColor: colors.accent.error, bgcolor: 'rgba(248,113,113,0.1)' } }}
+            sx={{ borderColor: colors.accent.error, color: colors.accent.error, fontWeight: 600, '&:hover': { borderColor: colors.accent.error, bgcolor: colors.soft.error } }}
           >
             Reset all status
           </Button>
@@ -272,7 +272,7 @@ export default function MigrationExtrasPanel({
           <Chip
             size="small"
             label={`${doneCount} table(s) already transferred`}
-            sx={{ bgcolor: 'rgba(74,222,128,0.12)', color: colors.accent.success, fontWeight: 600 }}
+            sx={{ bgcolor: colors.soft.success, color: colors.accent.success, fontWeight: 600 }}
           />
           <Tooltip title="Refresh table status">
             <IconButton onClick={loadTableStatus} size="small" sx={{ color: colors.text.secondary }}>
@@ -315,14 +315,14 @@ export default function MigrationExtrasPanel({
                 <Chip
                   size="small"
                   label={`Running ${sequence.index}/${sequence.total}: ${sequence.currentTable}`}
-                  sx={{ bgcolor: 'rgba(56,189,248,0.15)', color: colors.accent.primary, fontWeight: 600 }}
+                  sx={{ bgcolor: colors.soft.primary, color: colors.accent.primary, fontWeight: 600 }}
                 />
                 <Button
                   size="small"
                   variant="contained"
                   startIcon={<StopIcon />}
                   onClick={onStopSequence}
-                  sx={{ bgcolor: colors.accent.error, color: '#fff', '&:hover': { bgcolor: '#ef4444' } }}
+                  sx={{ bgcolor: colors.accent.error, color: '#fff', '&:hover': { bgcolor: 'error.400' } }}
                 >
                   Stop
                 </Button>
@@ -337,7 +337,7 @@ export default function MigrationExtrasPanel({
                       startIcon={<SequenceIcon />}
                       onClick={onMigrateAllSequential}
                       disabled={running || !!migratingTable || tableMappings.length === 0}
-                      sx={{ bgcolor: colors.accent.secondary, color: colors.bg.primary, fontWeight: 600, '&:hover': { bgcolor: '#9171f0' } }}
+                      sx={{ bgcolor: colors.accent.secondary, color: colors.bg.primary, fontWeight: 600, '&:hover': { bgcolor: '#3D82A6' } }}
                     >
                       Migrate all in sequence
                     </Button>
@@ -351,7 +351,7 @@ export default function MigrationExtrasPanel({
                       startIcon={<SequenceIcon />}
                       onClick={onMigratePending}
                       disabled={running || !!migratingTable || tableMappings.length === 0}
-                      sx={{ borderColor: colors.accent.success, color: colors.accent.success, fontWeight: 600, '&:hover': { borderColor: colors.accent.success, bgcolor: 'rgba(74,222,128,0.1)' } }}
+                      sx={{ borderColor: colors.accent.success, color: colors.accent.success, fontWeight: 600, '&:hover': { borderColor: colors.accent.success, bgcolor: colors.soft.success } }}
                     >
                       Migrate not-transferred
                     </Button>
@@ -432,7 +432,7 @@ export default function MigrationExtrasPanel({
                         sx={{
                           borderColor: colors.accent.info,
                           color: colors.accent.info,
-                          '&:hover': { borderColor: colors.accent.info, bgcolor: 'rgba(96,165,250,0.1)' },
+                          '&:hover': { borderColor: colors.accent.info, bgcolor: colors.soft.info },
                         }}
                       >
                         Dry Run
@@ -446,7 +446,7 @@ export default function MigrationExtrasPanel({
                           onMigrateTable(targetTable, false);
                         }}
                         disabled={running || !!migratingTable || !!sequence?.running}
-                        sx={{ bgcolor: colors.accent.success, color: colors.bg.primary, '&:hover': { bgcolor: '#22c55e' } }}
+                        sx={{ bgcolor: colors.accent.success, color: colors.bg.primary, '&:hover': { bgcolor: '#73B682' } }}
                       >
                         Migrate
                       </Button>

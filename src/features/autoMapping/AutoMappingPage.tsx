@@ -298,6 +298,15 @@ export const AutoMappingPage = () => {
           overflow: 'hidden',
         }}
       >
+        {/* One scrolling column for the whole panel: upload, stats, search,
+            filters AND the mapping list.
+
+            Before this the list was a separate flex child, so the controls got
+            a hard cut at the list's top edge — the Medium/Low Confidence cards
+            were sliced in half. Putting everything in one scroller means the
+            controls are never clipped; the list keeps its own scrollbar so it
+            still shows exactly four cards at a time. */}
+        <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {/* Header */}
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'primary.500' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -665,8 +674,26 @@ export const AutoMappingPage = () => {
           </Box>
         )}
         
-        {/* Mapping List */}
-        <Box sx={{ flex: 1, overflow: 'auto', px: 2, pb: 2 }}>
+
+        {/* Mapping List — a four-card window with its own scrollbar, sitting
+            inside the same scrolling column as the controls above.
+
+            A card is ~76px (12px padding × 2, a 24px title line, a 20px chip
+            row, 8px margin), so 304px of content plus the 16px bottom padding
+            is exactly four. A fixed height rather than a flex rule, because
+            this is no longer a flex child — the whole panel is one scroller,
+            which is what stops the stat cards above being clipped mid-card. */}
+        <Box
+          sx={{
+            height: 320,
+            overflowY: 'auto',
+            px: 2,
+            pt: 1.5,
+            pb: 2,
+            borderTop: 1,
+            borderColor: 'primary.500',
+          }}
+        >
           {mappings.map((mapping) => {
             const colors = getConfidenceColor(mapping.confidence);
             return (
@@ -774,6 +801,7 @@ export const AutoMappingPage = () => {
               </Typography>
             </Box>
           )}
+        </Box>
         </Box>
       </Paper>
       

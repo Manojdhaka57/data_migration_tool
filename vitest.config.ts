@@ -9,7 +9,11 @@ import { defineConfig } from 'vitest/config';
  */
 export default defineConfig({
   test: {
-    include: ['scripts/**/*.test.ts'],
+    // src is included for PURE frontend logic only — reducers and helpers with
+    // no DOM. Component tests would need jsdom and a different environment;
+    // that is why the pipeline animation rule lives in a plain module rather
+    // than inside the component that renders it.
+    include: ['scripts/**/*.test.ts', 'src/**/*.test.ts'],
     environment: 'node',
   },
 });

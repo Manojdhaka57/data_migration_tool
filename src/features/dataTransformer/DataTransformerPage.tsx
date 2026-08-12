@@ -657,36 +657,36 @@ export const DataTransformerPage = () => {
     <Box sx={{ 
       height: '100%', 
       display: 'flex',
-      bgcolor: '#F9FAFB',
+      bgcolor: 'neutral.100',
     }}>
       {/* Left Panel */}
       <Box sx={{ 
         width: 320, 
-        borderRight: '1px solid #E5E7EB',
+        borderRight: '1px solid #E9E9E7',
         display: 'flex', 
         flexDirection: 'column',
-        bgcolor: '#FFFFFF',
+        bgcolor: 'white.main',
       }}>
         {/* Header */}
         <Box sx={{ 
           p: 2, 
-          bgcolor: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
+          bgcolor: 'white.main',
+          borderBottom: '1px solid #E9E9E7',
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Box sx={{ 
               p: 1, 
               borderRadius: 1.5, 
-              bgcolor: '#DBEAFE',
+              bgcolor: 'info.100',
               display: 'flex',
             }}>
-              <TransformIcon sx={{ color: '#2563EB', fontSize: 24 }} />
+              <TransformIcon sx={{ color: 'info.500', fontSize: 24 }} />
             </Box>
             <Box>
-              <Typography variant="h3Bold" sx={{ color: '#1F2937' }}>
+              <Typography variant="h3Bold" sx={{ color: 'neutral.800' }}>
                 Data Transformer
               </Typography>
-              <Typography variant="caption1" sx={{ color: '#6B7280' }}>
+              <Typography variant="caption1" sx={{ color: 'neutral.500' }}>
                 {isMultiTableMode 
                   ? `${detectedTables.length} tables detected`
                   : 'Transform CSV data'}
@@ -696,8 +696,8 @@ export const DataTransformerPage = () => {
         </Box>
         
         {/* Upload Section */}
-        <Box sx={{ p: 2, borderBottom: '1px solid #E5E7EB' }}>
-          <Typography variant="body2Bold" sx={{ color: '#1F2937', mb: 1.5 }}>
+        <Box sx={{ p: 2, borderBottom: '1px solid #E9E9E7' }}>
+          <Typography variant="body2Bold" sx={{ color: 'neutral.800', mb: 1.5 }}>
             📁 Upload CSV File
           </Typography>
           <Paper
@@ -708,13 +708,13 @@ export const DataTransformerPage = () => {
             sx={{
               p: 2.5,
               border: '2px dashed',
-              borderColor: dragActive ? '#3B82F6' : '#E5E7EB',
-              bgcolor: dragActive ? '#EFF6FF' : '#F9FAFB',
+              borderColor: dragActive ? 'info.500' : 'neutral.200',
+              bgcolor: dragActive ? 'info.100' : 'neutral.100',
               borderRadius: 2,
               cursor: 'pointer',
               textAlign: 'center',
               transition: 'all 0.2s ease',
-              '&:hover': { borderColor: '#3B82F6', bgcolor: '#EFF6FF' },
+              '&:hover': { borderColor: 'info.500', bgcolor: 'info.100' },
             }}
           >
             <input
@@ -724,11 +724,11 @@ export const DataTransformerPage = () => {
               hidden
               onChange={handleFileInput}
             />
-            <UploadIcon sx={{ fontSize: 36, color: '#3B82F6', mb: 1 }} />
-            <Typography variant="body2" sx={{ color: '#4B5563' }}>
+            <UploadIcon sx={{ fontSize: 36, color: 'info.500', mb: 1 }} />
+            <Typography variant="body2" sx={{ color: 'neutral.600' }}>
               {sourceFileName || 'Drop CSV file here'}
             </Typography>
-            <Typography variant="caption1" sx={{ color: '#9CA3AF', display: 'block', mt: 0.5 }}>
+            <Typography variant="caption1" sx={{ color: 'neutral.400', display: 'block', mt: 0.5 }}>
               or click to browse
             </Typography>
           </Paper>
@@ -738,13 +738,13 @@ export const DataTransformerPage = () => {
               <Chip
                 label={sourceFileName}
                 size="small"
-                sx={{ bgcolor: '#DBEAFE', color: '#1E40AF', fontWeight: 500 }}
+                sx={{ bgcolor: 'info.100', color: 'info.700', fontWeight: 500 }}
               />
               <Button
                 size="small"
                 startIcon={<DeleteIcon />}
                 onClick={handleClear}
-                sx={{ color: '#DC2626', '&:hover': { bgcolor: '#FEE2E2' } }}
+                sx={{ color: 'error.main', '&:hover': { bgcolor: 'error.100' } }}
               >
                 Clear
               </Button>
@@ -754,12 +754,12 @@ export const DataTransformerPage = () => {
         
         {/* Detected Headers Summary - Left Panel */}
         {showHeaderMapping && detectedHeaders.length > 0 && (
-          <Box sx={{ flex: 1, overflow: 'auto', borderBottom: '1px solid #E5E7EB' }}>
-            <Box sx={{ px: 2, py: 1.5, bgcolor: '#FFFBEB', borderBottom: '1px solid #FDE68A' }}>
-              <Typography variant="body2Bold" sx={{ color: '#92400E' }}>
+          <Box sx={{ flex: 1, overflow: 'auto', borderBottom: '1px solid #E9E9E7' }}>
+            <Box sx={{ px: 2, py: 1.5, bgcolor: 'warning.100', borderBottom: '1px solid #FFDFC0' }}>
+              <Typography variant="body2Bold" sx={{ color: 'warning.700' }}>
                 🔍 {detectedHeaders.length} Table{detectedHeaders.length > 1 ? 's' : ''} Detected
               </Typography>
-              <Typography variant="caption1" sx={{ color: '#78350F', display: 'block', mt: 0.5 }}>
+              <Typography variant="caption1" sx={{ color: '#75400C', display: 'block', mt: 0.5 }}>
                 Map tables in right panel
               </Typography>
             </Box>
@@ -775,9 +775,9 @@ export const DataTransformerPage = () => {
                     sx={{
                       borderRadius: 1,
                       border: '1px solid',
-                      borderColor: header.selected ? '#10B981' : (header.mappedTable ? '#E5E7EB' : '#FEE2E2'),
-                      bgcolor: header.selected ? '#ECFDF5' : '#FFFFFF',
-                      '&:hover': { bgcolor: header.selected ? '#D1FAE5' : '#F9FAFB' },
+                      borderColor: header.selected ? 'success.main' : (header.mappedTable ? 'neutral.200' : 'error.100'),
+                      bgcolor: header.selected ? 'success.100' : 'white.main',
+                      '&:hover': { bgcolor: header.selected ? 'success.100' : 'neutral.100' },
                       py: 1,
                     }}
                   >
@@ -786,7 +786,7 @@ export const DataTransformerPage = () => {
                         checked={header.selected}
                         disabled={!header.mappedTable}
                         size="small"
-                        sx={{ p: 0, color: '#D1D5DB', '&.Mui-checked': { color: '#10B981' } }}
+                        sx={{ p: 0, color: 'neutral.300', '&.Mui-checked': { color: 'success.main' } }}
                       />
                     </ListItemIcon>
                     <ListItemText 
@@ -798,18 +798,18 @@ export const DataTransformerPage = () => {
                             sx={{ 
                               height: 18, 
                               fontSize: '10px',
-                              bgcolor: header.rowIndex === 0 ? '#3B82F6' : '#F59E0B', 
-                              color: '#FFFFFF', 
+                              bgcolor: header.rowIndex === 0 ? 'info.500' : 'warning.main', 
+                              color: 'white.main', 
                               fontWeight: 600,
                             }}
                           />
-                          <Typography variant="body2" sx={{ color: '#1F2937', fontWeight: 500, fontSize: '12px' }}>
+                          <Typography variant="body2" sx={{ color: 'neutral.800', fontWeight: 500, fontSize: '12px' }}>
                             {header.mappedTable || 'Not mapped'}
                           </Typography>
                         </Box>
                       }
                       secondary={
-                        <Typography variant="caption" sx={{ color: '#6B7280', fontSize: '10px' }}>
+                        <Typography variant="caption" sx={{ color: 'neutral.500', fontSize: '10px' }}>
                           {header.dataRowCount} rows • {header.columns.length} cols
                         </Typography>
                       }
@@ -821,10 +821,10 @@ export const DataTransformerPage = () => {
                         sx={{ 
                           height: 18, 
                           fontSize: '9px',
-                          bgcolor: header.matchPercent >= 70 ? '#D1FAE5' : 
-                                   header.matchPercent >= 50 ? '#FEF3C7' : '#FEE2E2',
-                          color: header.matchPercent >= 70 ? '#065F46' : 
-                                 header.matchPercent >= 50 ? '#92400E' : '#991B1B',
+                          bgcolor: header.matchPercent >= 70 ? 'success.100' : 
+                                   header.matchPercent >= 50 ? '#FFF1E2' : '#FBEAE8',
+                          color: header.matchPercent >= 70 ? 'success.600' : 
+                                 header.matchPercent >= 50 ? '#75400C' : '#96332C',
                         }}
                       />
                     )}
@@ -837,7 +837,7 @@ export const DataTransformerPage = () => {
         
         {/* Transform Button - Header Mapping Mode */}
         {showHeaderMapping && detectedHeaders.length > 0 && (
-          <Box sx={{ p: 2, borderTop: '1px solid #E5E7EB' }}>
+          <Box sx={{ p: 2, borderTop: '1px solid #E9E9E7' }}>
             <Button
               fullWidth
               variant="contained"
@@ -845,9 +845,9 @@ export const DataTransformerPage = () => {
               disabled={detectedHeaders.filter(h => h.selected && h.mappedTable).length === 0}
               startIcon={<TransformIcon />}
               sx={{ 
-                bgcolor: '#10B981', 
-                '&:hover': { bgcolor: '#059669' },
-                '&.Mui-disabled': { bgcolor: '#E5E7EB', color: '#9CA3AF' },
+                bgcolor: 'success.main', 
+                '&:hover': { bgcolor: 'success.main' },
+                '&.Mui-disabled': { bgcolor: 'neutral.200', color: 'neutral.400' },
                 textTransform: 'none',
                 fontWeight: 600,
               }}
@@ -859,8 +859,8 @@ export const DataTransformerPage = () => {
         
         {/* Table Selection Header */}
         {!showHeaderMapping && (
-          <Box sx={{ px: 2, py: 1.5, bgcolor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-            <Typography variant="body2Bold" sx={{ color: '#1F2937' }}>
+          <Box sx={{ px: 2, py: 1.5, bgcolor: 'neutral.100', borderBottom: '1px solid #E9E9E7' }}>
+            <Typography variant="body2Bold" sx={{ color: 'neutral.800' }}>
               {isMultiTableMode ? '📋 Select Tables' : '🔗 Table Mapping'}
             </Typography>
           </Box>
@@ -879,34 +879,34 @@ export const DataTransformerPage = () => {
                     sx={{
                       borderRadius: 1,
                       border: '1px solid',
-                      borderColor: selectedTables.includes(tableName) ? '#8B5CF6' : '#E5E7EB',
-                      bgcolor: selectedTables.includes(tableName) ? '#F5F3FF' : '#FFFFFF',
-                      '&:hover': { bgcolor: selectedTables.includes(tableName) ? '#EDE9FE' : '#F9FAFB' },
+                      borderColor: selectedTables.includes(tableName) ? 'info.500' : 'neutral.200',
+                      bgcolor: selectedTables.includes(tableName) ? '#F2F7FA' : 'white.main',
+                      '&:hover': { bgcolor: selectedTables.includes(tableName) ? 'info.100' : 'neutral.100' },
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 32 }}>
                       <Checkbox
                         checked={selectedTables.includes(tableName)}
                         size="small"
-                        sx={{ p: 0, color: '#D1D5DB', '&.Mui-checked': { color: '#8B5CF6' } }}
+                        sx={{ p: 0, color: 'neutral.300', '&.Mui-checked': { color: 'info.500' } }}
                       />
                     </ListItemIcon>
                     <ListItemText 
                       primary={tableName}
-                      sx={{ '& .MuiListItemText-primary': { color: '#1F2937', fontSize: '13px', fontWeight: 500 } }}
+                      sx={{ '& .MuiListItemText-primary': { color: 'neutral.800', fontSize: '13px', fontWeight: 500 } }}
                     />
                     {tableResults[tableName] && (
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <Chip 
                           label={tableResults[tableName].successData.length} 
                           size="small" 
-                          sx={{ height: 18, fontSize: '10px', bgcolor: '#D1FAE5', color: '#065F46' }} 
+                          sx={{ height: 18, fontSize: '10px', bgcolor: 'success.100', color: 'success.600' }} 
                         />
                         {tableResults[tableName].failedData.length > 0 && (
                           <Chip 
                             label={tableResults[tableName].failedData.length} 
                             size="small" 
-                            sx={{ height: 18, fontSize: '10px', bgcolor: '#FEE2E2', color: '#991B1B' }} 
+                            sx={{ height: 18, fontSize: '10px', bgcolor: 'error.100', color: 'error.600' }} 
                           />
                         )}
                       </Box>
@@ -956,17 +956,17 @@ export const DataTransformerPage = () => {
               />
               
               {sourceTableName && targetTableName && (
-                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1, p: 1.5, bgcolor: '#F9FAFB', borderRadius: 1 }}>
+                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1, p: 1.5, bgcolor: 'neutral.100', borderRadius: 1 }}>
                   <Chip 
                     label={sourceTableName}
                     size="small"
-                    sx={{ bgcolor: '#DBEAFE', color: '#1E40AF' }}
+                    sx={{ bgcolor: 'info.100', color: 'info.700' }}
                   />
-                  <ArrowIcon sx={{ fontSize: 14, color: '#9CA3AF' }} />
+                  <ArrowIcon sx={{ fontSize: 14, color: 'neutral.400' }} />
                   <Chip 
                     label={targetTableName}
                     size="small"
-                    sx={{ bgcolor: '#F5F3FF', color: '#6D28D9' }}
+                    sx={{ bgcolor: '#F2F7FA', color: '#2D6079' }}
                   />
                 </Box>
               )}
@@ -977,7 +977,7 @@ export const DataTransformerPage = () => {
         
         {/* Action Button */}
         {!showHeaderMapping && (
-          <Box sx={{ p: 2, borderTop: '1px solid #E5E7EB' }}>
+          <Box sx={{ p: 2, borderTop: '1px solid #E9E9E7' }}>
             <Button
               fullWidth
               variant="contained"
@@ -985,9 +985,9 @@ export const DataTransformerPage = () => {
               onClick={handleTransform}
               disabled={isMultiTableMode ? selectedTables.length === 0 : !sourceTableName || sourceData.length === 0}
               sx={{ 
-                bgcolor: '#8B5CF6', 
-                '&:hover': { bgcolor: '#7C3AED' },
-                '&.Mui-disabled': { bgcolor: '#E5E7EB', color: '#9CA3AF' },
+                bgcolor: 'info.500', 
+                '&:hover': { bgcolor: 'info.500' },
+                '&.Mui-disabled': { bgcolor: 'neutral.200', color: 'neutral.400' },
                 textTransform: 'none',
                 fontWeight: 600,
               }}
@@ -999,46 +999,46 @@ export const DataTransformerPage = () => {
         
         {/* Stats */}
         {(stats || multiTableStats) && (
-          <Box sx={{ p: 2, borderTop: '1px solid #E5E7EB', bgcolor: '#F9FAFB' }}>
-            <Typography variant="body2Bold" sx={{ color: '#1F2937', mb: 1.5 }}>
+          <Box sx={{ p: 2, borderTop: '1px solid #E9E9E7', bgcolor: 'neutral.100' }}>
+            <Typography variant="body2Bold" sx={{ color: 'neutral.800', mb: 1.5 }}>
               📊 Results
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 2 }}>
-              <Box sx={{ bgcolor: '#FFFFFF', border: '1px solid #E5E7EB', p: 1.5, borderRadius: 1 }}>
-                <Typography variant="caption1" sx={{ color: '#6B7280' }}>Total</Typography>
-                <Typography variant="h3Bold" sx={{ color: '#1F2937' }}>
+              <Box sx={{ bgcolor: 'white.main', border: '1px solid #E9E9E7', p: 1.5, borderRadius: 1 }}>
+                <Typography variant="caption1" sx={{ color: 'neutral.500' }}>Total</Typography>
+                <Typography variant="h3Bold" sx={{ color: 'neutral.800' }}>
                   {isMultiTableMode ? multiTableStats?.totalRows : stats?.totalRows}
                 </Typography>
               </Box>
-              <Box sx={{ bgcolor: '#DBEAFE', border: '1px solid #BFDBFE', p: 1.5, borderRadius: 1 }}>
-                <Typography variant="caption1" sx={{ color: '#1E40AF' }}>
+              <Box sx={{ bgcolor: 'info.100', border: '1px solid #CFE4EF', p: 1.5, borderRadius: 1 }}>
+                <Typography variant="caption1" sx={{ color: 'info.700' }}>
                   {isMultiTableMode ? 'Tables' : 'Columns'}
                 </Typography>
-                <Typography variant="h3Bold" sx={{ color: '#1E40AF' }}>
+                <Typography variant="h3Bold" sx={{ color: 'info.700' }}>
                   {isMultiTableMode ? multiTableStats?.totalTables : stats?.columnsTransformed}
                 </Typography>
               </Box>
               <Box 
-                sx={{ bgcolor: '#D1FAE5', border: '1px solid #A7F3D0', p: 1.5, borderRadius: 1, cursor: 'pointer' }} 
+                sx={{ bgcolor: 'success.100', border: '1px solid #D3E9DA', p: 1.5, borderRadius: 1, cursor: 'pointer' }} 
                 onClick={() => setActiveTab(1)}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <SuccessIcon sx={{ fontSize: 12, color: '#059669' }} />
-                  <Typography variant="caption1" sx={{ color: '#065F46' }}>Success</Typography>
+                  <SuccessIcon sx={{ fontSize: 12, color: 'success.main' }} />
+                  <Typography variant="caption1" sx={{ color: 'success.600' }}>Success</Typography>
                 </Box>
-                <Typography variant="h3Bold" sx={{ color: '#059669' }}>
+                <Typography variant="h3Bold" sx={{ color: 'success.main' }}>
                   {totalSuccessCount}
                 </Typography>
               </Box>
               <Box 
-                sx={{ bgcolor: '#FEE2E2', border: '1px solid #FECACA', p: 1.5, borderRadius: 1, cursor: 'pointer' }} 
+                sx={{ bgcolor: 'error.100', border: '1px solid #F5CFCB', p: 1.5, borderRadius: 1, cursor: 'pointer' }} 
                 onClick={() => setActiveTab(2)}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <ErrorIcon sx={{ fontSize: 12, color: '#DC2626' }} />
-                  <Typography variant="caption1" sx={{ color: '#991B1B' }}>Failed</Typography>
+                  <ErrorIcon sx={{ fontSize: 12, color: 'error.main' }} />
+                  <Typography variant="caption1" sx={{ color: 'error.600' }}>Failed</Typography>
                 </Box>
-                <Typography variant="h3Bold" sx={{ color: '#DC2626' }}>
+                <Typography variant="h3Bold" sx={{ color: 'error.main' }}>
                   {totalFailedCount}
                 </Typography>
               </Box>
@@ -1054,7 +1054,7 @@ export const DataTransformerPage = () => {
                     size="small"
                     startIcon={<DownloadIcon />}
                     onClick={handleDownloadSuccess}
-                    sx={{ bgcolor: '#10B981', '&:hover': { bgcolor: '#059669' }, textTransform: 'none' }}
+                    sx={{ bgcolor: 'success.main', '&:hover': { bgcolor: 'success.main' }, textTransform: 'none' }}
                   >
                     Download Success ({totalSuccessCount})
                   </Button>
@@ -1066,7 +1066,7 @@ export const DataTransformerPage = () => {
                     size="small"
                     startIcon={<DownloadIcon />}
                     onClick={handleDownloadFailed}
-                    sx={{ color: '#DC2626', borderColor: '#DC2626', '&:hover': { bgcolor: '#FEE2E2' }, textTransform: 'none' }}
+                    sx={{ color: 'error.main', borderColor: 'error.main', '&:hover': { bgcolor: 'error.100' }, textTransform: 'none' }}
                   >
                     Download Failed ({totalFailedCount})
                   </Button>
@@ -1078,8 +1078,8 @@ export const DataTransformerPage = () => {
         
         {/* Per-Table Downloads (Multi-table mode) */}
         {isMultiTableMode && Object.keys(tableResults).length > 0 && (
-          <Box sx={{ p: 2, borderTop: '1px solid #E5E7EB', maxHeight: 180, overflow: 'auto' }}>
-            <Typography variant="body2Bold" sx={{ color: '#1F2937', mb: 1 }}>
+          <Box sx={{ p: 2, borderTop: '1px solid #E9E9E7', maxHeight: 180, overflow: 'auto' }}>
+            <Typography variant="body2Bold" sx={{ color: 'neutral.800', mb: 1 }}>
               📥 Per Table
             </Typography>
             
@@ -1090,16 +1090,16 @@ export const DataTransformerPage = () => {
                   sx={{
                     p: 1.5,
                     borderRadius: 1,
-                    bgcolor: selectedTableView === tableName ? '#F5F3FF' : '#FFFFFF',
+                    bgcolor: selectedTableView === tableName ? '#F2F7FA' : 'white.main',
                     border: '1px solid',
-                    borderColor: selectedTableView === tableName ? '#8B5CF6' : '#E5E7EB',
+                    borderColor: selectedTableView === tableName ? 'info.500' : 'neutral.200',
                     cursor: 'pointer',
-                    '&:hover': { bgcolor: selectedTableView === tableName ? '#EDE9FE' : '#F9FAFB' },
+                    '&:hover': { bgcolor: selectedTableView === tableName ? 'info.100' : 'neutral.100' },
                   }}
                   onClick={() => setSelectedTableView(tableName)}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography variant="body2Bold" sx={{ color: '#1F2937', fontSize: '12px' }}>
+                    <Typography variant="body2Bold" sx={{ color: 'neutral.800', fontSize: '12px' }}>
                       {tableName}
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -1108,7 +1108,7 @@ export const DataTransformerPage = () => {
                           label={`✓${result.successData.length}`}
                           size="small"
                           onClick={(e) => { e.stopPropagation(); handleDownloadTableSuccess(tableName); }}
-                          sx={{ height: 18, fontSize: '9px', bgcolor: '#D1FAE5', color: '#065F46', cursor: 'pointer', '&:hover': { bgcolor: '#A7F3D0' } }}
+                          sx={{ height: 18, fontSize: '9px', bgcolor: 'success.100', color: 'success.600', cursor: 'pointer', '&:hover': { bgcolor: '#D3E9DA' } }}
                         />
                       )}
                       {result.failedData.length > 0 && (
@@ -1116,7 +1116,7 @@ export const DataTransformerPage = () => {
                           label={`✗${result.failedData.length}`}
                           size="small"
                           onClick={(e) => { e.stopPropagation(); handleDownloadTableFailed(tableName); }}
-                          sx={{ height: 18, fontSize: '9px', bgcolor: '#FEE2E2', color: '#991B1B', cursor: 'pointer', '&:hover': { bgcolor: '#FECACA' } }}
+                          sx={{ height: 18, fontSize: '9px', bgcolor: 'error.100', color: 'error.600', cursor: 'pointer', '&:hover': { bgcolor: '#F5CFCB' } }}
                         />
                       )}
                     </Box>
@@ -1133,14 +1133,14 @@ export const DataTransformerPage = () => {
         
         {/* Header Mapping Table - Right Panel (when in header mapping mode) */}
         {showHeaderMapping && detectedHeaders.length > 0 && (
-          <Box sx={{ bgcolor: '#FFFFFF', borderBottom: '1px solid #E5E7EB' }}>
-            <Box sx={{ px: 3, py: 2, bgcolor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+          <Box sx={{ bgcolor: 'white.main', borderBottom: '1px solid #E9E9E7' }}>
+            <Box sx={{ px: 3, py: 2, bgcolor: 'neutral.100', borderBottom: '1px solid #E9E9E7' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box>
-                  <Typography variant="h3Bold" sx={{ color: '#1F2937' }}>
+                  <Typography variant="h3Bold" sx={{ color: 'neutral.800' }}>
                     📋 Table Mapping
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#6B7280', mt: 0.5 }}>
+                  <Typography variant="body2" sx={{ color: 'neutral.500', mt: 0.5 }}>
                     Map CSV headers to source schema tables. Select tables to include in transformation.
                   </Typography>
                 </Box>
@@ -1148,12 +1148,12 @@ export const DataTransformerPage = () => {
                   <Chip 
                     label={`${detectedHeaders.filter(h => h.selected).length} selected`}
                     size="small"
-                    sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 500 }}
+                    sx={{ bgcolor: 'success.main', color: 'white.main', fontWeight: 500 }}
                   />
                   <Chip 
                     label={`${detectedHeaders.filter(h => h.mappedTable).length}/${detectedHeaders.length} mapped`}
                     size="small"
-                    sx={{ bgcolor: '#DBEAFE', color: '#1E40AF', fontWeight: 500 }}
+                    sx={{ bgcolor: 'info.100', color: 'info.700', fontWeight: 500 }}
                   />
                 </Box>
               </Box>
@@ -1163,8 +1163,8 @@ export const DataTransformerPage = () => {
             <TableContainer sx={{ maxHeight: 'calc(100vh - 400px)' }}>
               <Table stickyHeader size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#F3F4F6' }}>
-                    <TableCell padding="checkbox" sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB' }}>
+                  <TableRow sx={{ bgcolor: 'neutral.100' }}>
+                    <TableCell padding="checkbox" sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7' }}>
                       <Checkbox
                         size="small"
                         indeterminate={
@@ -1177,28 +1177,28 @@ export const DataTransformerPage = () => {
                           detectedHeaders.filter(h => h.mappedTable).length
                         }
                         onChange={(e) => selectAllHeaders(e.target.checked)}
-                        sx={{ color: '#6B7280' }}
+                        sx={{ color: 'neutral.500' }}
                       />
                     </TableCell>
-                    <TableCell sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB', fontWeight: 600, color: '#374151', width: 70 }}>
+                    <TableCell sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7', fontWeight: 600, color: 'neutral.700', width: 70 }}>
                       Row #
                     </TableCell>
-                    <TableCell sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB', fontWeight: 600, color: '#374151', width: 100 }}>
+                    <TableCell sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7', fontWeight: 600, color: 'neutral.700', width: 100 }}>
                       Type
                     </TableCell>
-                    <TableCell sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB', fontWeight: 600, color: '#374151', minWidth: 250 }}>
+                    <TableCell sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7', fontWeight: 600, color: 'neutral.700', minWidth: 250 }}>
                       Columns (Header Content)
                     </TableCell>
-                    <TableCell sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB', fontWeight: 600, color: '#374151', width: 80 }}>
+                    <TableCell sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7', fontWeight: 600, color: 'neutral.700', width: 80 }}>
                       Rows
                     </TableCell>
-                    <TableCell sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB', fontWeight: 600, color: '#374151', minWidth: 200 }}>
+                    <TableCell sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7', fontWeight: 600, color: 'neutral.700', minWidth: 200 }}>
                       Map to Table
                     </TableCell>
-                    <TableCell sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB', fontWeight: 600, color: '#374151', textAlign: 'center', width: 80 }}>
+                    <TableCell sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7', fontWeight: 600, color: 'neutral.700', textAlign: 'center', width: 80 }}>
                       Match %
                     </TableCell>
-                    <TableCell sx={{ bgcolor: '#F3F4F6', borderBottom: '2px solid #E5E7EB', fontWeight: 600, color: '#374151', minWidth: 150 }}>
+                    <TableCell sx={{ bgcolor: 'neutral.100', borderBottom: '2px solid #E9E9E7', fontWeight: 600, color: 'neutral.700', minWidth: 150 }}>
                       Column Status
                     </TableCell>
                   </TableRow>
@@ -1208,10 +1208,10 @@ export const DataTransformerPage = () => {
                     <TableRow 
                       key={idx}
                       sx={{ 
-                        bgcolor: header.selected ? '#ECFDF5' : (header.mappedTable ? '#FFFFFF' : '#FEF2F2'),
-                        '&:hover': { bgcolor: header.selected ? '#D1FAE5' : '#F9FAFB' },
+                        bgcolor: header.selected ? 'success.100' : (header.mappedTable ? 'white.main' : 'error.100'),
+                        '&:hover': { bgcolor: header.selected ? 'success.100' : 'neutral.100' },
                         transition: 'background-color 0.2s',
-                        borderLeft: header.selected ? '4px solid #10B981' : '4px solid transparent',
+                        borderLeft: header.selected ? '4px solid #356B43' : '4px solid transparent',
                       }}
                     >
                       <TableCell padding="checkbox">
@@ -1221,8 +1221,8 @@ export const DataTransformerPage = () => {
                           disabled={!header.mappedTable}
                           onChange={() => toggleHeaderSelection(idx)}
                           sx={{ 
-                            color: header.mappedTable ? '#10B981' : '#D1D5DB',
-                            '&.Mui-checked': { color: '#10B981' },
+                            color: header.mappedTable ? 'success.main' : 'neutral.300',
+                            '&.Mui-checked': { color: 'success.main' },
                           }}
                         />
                       </TableCell>
@@ -1233,8 +1233,8 @@ export const DataTransformerPage = () => {
                           sx={{ 
                             height: 26, 
                             minWidth: 40,
-                            bgcolor: header.rowIndex === 0 ? '#3B82F6' : '#F59E0B', 
-                            color: '#FFFFFF', 
+                            bgcolor: header.rowIndex === 0 ? 'info.500' : 'warning.main', 
+                            color: 'white.main', 
                             fontWeight: 700,
                             fontSize: '13px',
                           }}
@@ -1246,8 +1246,8 @@ export const DataTransformerPage = () => {
                           size="small"
                           sx={{ 
                             height: 24, 
-                            bgcolor: header.rowIndex === 0 ? '#DBEAFE' : '#FEF3C7', 
-                            color: header.rowIndex === 0 ? '#1E40AF' : '#92400E', 
+                            bgcolor: header.rowIndex === 0 ? 'info.100' : 'warning.100', 
+                            color: header.rowIndex === 0 ? 'info.700' : 'warning.700', 
                             fontWeight: 600,
                             fontSize: '11px',
                           }}
@@ -1284,8 +1284,8 @@ export const DataTransformerPage = () => {
                                 sx={{ 
                                   height: 22, 
                                   fontSize: '11px', 
-                                  bgcolor: '#DBEAFE', 
-                                  color: '#1E40AF',
+                                  bgcolor: 'info.100', 
+                                  color: 'info.700',
                                   fontWeight: 500,
                                 }}
                               />
@@ -1294,14 +1294,14 @@ export const DataTransformerPage = () => {
                               <Chip 
                                 label={`+${header.columns.length - 5}`}
                                 size="small"
-                                sx={{ height: 22, fontSize: '11px', bgcolor: '#E5E7EB', color: '#6B7280', fontWeight: 600 }}
+                                sx={{ height: 22, fontSize: '11px', bgcolor: 'neutral.200', color: 'neutral.500', fontWeight: 600 }}
                               />
                             )}
                           </Box>
                         </Tooltip>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ color: '#4B5563', fontWeight: 600 }}>
+                        <Typography variant="body2" sx={{ color: 'neutral.600', fontWeight: 600 }}>
                           {header.dataRowCount}
                         </Typography>
                       </TableCell>
@@ -1312,21 +1312,21 @@ export const DataTransformerPage = () => {
                             onChange={(e) => updateHeaderMapping(idx, e.target.value || null)}
                             displayEmpty
                             sx={{
-                              bgcolor: '#FFFFFF',
+                              bgcolor: 'white.main',
                               fontSize: '13px',
                               '& .MuiOutlinedInput-notchedOutline': { 
-                                borderColor: header.mappedTable ? '#10B981' : '#EF4444',
+                                borderColor: header.mappedTable ? 'success.main' : 'error.400',
                                 borderWidth: 2,
                               },
                               '&:hover .MuiOutlinedInput-notchedOutline': { 
-                                borderColor: header.mappedTable ? '#059669' : '#DC2626',
+                                borderColor: header.mappedTable ? 'success.main' : 'error.main',
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline': { 
-                                borderColor: '#3B82F6',
+                                borderColor: 'info.500',
                               },
                             }}
                           >
-                            <MenuItem value="" sx={{ color: '#9CA3AF', fontSize: '12px' }}>
+                            <MenuItem value="" sx={{ color: 'neutral.400', fontSize: '12px' }}>
                               <em>Select table...</em>
                             </MenuItem>
                             {sourceSchemaTableNames.map((tableName) => (
@@ -1335,12 +1335,12 @@ export const DataTransformerPage = () => {
                                 value={tableName}
                                 sx={{ 
                                   fontSize: '12px',
-                                  '&:hover': { bgcolor: '#DBEAFE' },
-                                  '&.Mui-selected': { bgcolor: '#D1FAE5', '&:hover': { bgcolor: '#A7F3D0' } },
+                                  '&:hover': { bgcolor: 'info.100' },
+                                  '&.Mui-selected': { bgcolor: 'success.100', '&:hover': { bgcolor: '#D3E9DA' } },
                                 }}
                               >
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                                  <TableIcon sx={{ fontSize: 16, color: '#6B7280' }} />
+                                  <TableIcon sx={{ fontSize: 16, color: 'neutral.500' }} />
                                   <Typography variant="body2" sx={{ flex: 1, fontWeight: 500 }}>{tableName}</Typography>
                                   <Chip 
                                     label={`${calculateMatchPercent(header.columns, tableName)}%`}
@@ -1349,10 +1349,10 @@ export const DataTransformerPage = () => {
                                       height: 20, 
                                       fontSize: '10px',
                                       fontWeight: 600,
-                                      bgcolor: calculateMatchPercent(header.columns, tableName) >= 70 ? '#D1FAE5' : 
-                                               calculateMatchPercent(header.columns, tableName) >= 50 ? '#FEF3C7' : '#FEE2E2',
-                                      color: calculateMatchPercent(header.columns, tableName) >= 70 ? '#065F46' : 
-                                             calculateMatchPercent(header.columns, tableName) >= 50 ? '#92400E' : '#991B1B',
+                                      bgcolor: calculateMatchPercent(header.columns, tableName) >= 70 ? 'success.100' : 
+                                               calculateMatchPercent(header.columns, tableName) >= 50 ? '#FFF1E2' : '#FBEAE8',
+                                      color: calculateMatchPercent(header.columns, tableName) >= 70 ? 'success.600' : 
+                                             calculateMatchPercent(header.columns, tableName) >= 50 ? '#75400C' : '#96332C',
                                     }}
                                   />
                                 </Box>
@@ -1370,17 +1370,17 @@ export const DataTransformerPage = () => {
                               height: 26,
                               fontWeight: 700,
                               fontSize: '12px',
-                              bgcolor: header.matchPercent >= 70 ? '#D1FAE5' : 
-                                       header.matchPercent >= 50 ? '#FEF3C7' : '#FEE2E2',
-                              color: header.matchPercent >= 70 ? '#065F46' : 
-                                     header.matchPercent >= 50 ? '#92400E' : '#991B1B',
+                              bgcolor: header.matchPercent >= 70 ? 'success.100' : 
+                                       header.matchPercent >= 50 ? '#FFF1E2' : '#FBEAE8',
+                              color: header.matchPercent >= 70 ? 'success.600' : 
+                                     header.matchPercent >= 50 ? '#75400C' : '#96332C',
                               border: '2px solid',
-                              borderColor: header.matchPercent >= 70 ? '#10B981' : 
-                                           header.matchPercent >= 50 ? '#F59E0B' : '#EF4444',
+                              borderColor: header.matchPercent >= 70 ? 'success.main' : 
+                                           header.matchPercent >= 50 ? '#A85C13' : '#D25F53',
                             }}
                           />
                         ) : (
-                          <Chip label="—" size="small" sx={{ height: 26, bgcolor: '#FEE2E2', color: '#991B1B' }} />
+                          <Chip label="—" size="small" sx={{ height: 26, bgcolor: 'error.100', color: 'error.600' }} />
                         )}
                       </TableCell>
                       <TableCell>
@@ -1393,23 +1393,23 @@ export const DataTransformerPage = () => {
                               <Tooltip
                                 title={
                                   <Box sx={{ p: 1 }}>
-                                    <Typography variant="body2Bold" sx={{ color: '#10B981', mb: 1 }}>
+                                    <Typography variant="body2Bold" sx={{ color: 'success.main', mb: 1 }}>
                                       ✓ Mapped ({colInfo.mapped.length}):
                                     </Typography>
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
                                       {colInfo.mapped.length > 0 ? colInfo.mapped.map((col, i) => (
-                                        <Chip key={i} label={col} size="small" sx={{ height: 16, fontSize: '9px', bgcolor: '#D1FAE5', color: '#065F46' }} />
-                                      )) : <Typography variant="caption" sx={{ color: '#9CA3AF' }}>None</Typography>}
+                                        <Chip key={i} label={col} size="small" sx={{ height: 16, fontSize: '9px', bgcolor: 'success.100', color: 'success.600' }} />
+                                      )) : <Typography variant="caption" sx={{ color: 'neutral.400' }}>None</Typography>}
                                     </Box>
                                     
                                     {colInfo.unmapped.length > 0 && (
                                       <>
-                                        <Typography variant="body2Bold" sx={{ color: '#F59E0B', mb: 1 }}>
+                                        <Typography variant="body2Bold" sx={{ color: 'warning.main', mb: 1 }}>
                                           ⚠ Not Migrated ({colInfo.unmapped.length}):
                                         </Typography>
                                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
                                           {colInfo.unmapped.map((col, i) => (
-                                            <Chip key={i} label={col} size="small" sx={{ height: 16, fontSize: '9px', bgcolor: '#FEF3C7', color: '#92400E' }} />
+                                            <Chip key={i} label={col} size="small" sx={{ height: 16, fontSize: '9px', bgcolor: 'warning.100', color: 'warning.700' }} />
                                           ))}
                                         </Box>
                                       </>
@@ -1417,12 +1417,12 @@ export const DataTransformerPage = () => {
                                     
                                     {colInfo.missingInSource.length > 0 && (
                                       <>
-                                        <Typography variant="body2Bold" sx={{ color: '#EF4444', mb: 1 }}>
+                                        <Typography variant="body2Bold" sx={{ color: 'error.400', mb: 1 }}>
                                           ✗ Missing in Source ({colInfo.missingInSource.length}):
                                         </Typography>
                                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                           {colInfo.missingInSource.map((col, i) => (
-                                            <Chip key={i} label={col} size="small" sx={{ height: 16, fontSize: '9px', bgcolor: '#FEE2E2', color: '#991B1B' }} />
+                                            <Chip key={i} label={col} size="small" sx={{ height: 16, fontSize: '9px', bgcolor: 'error.100', color: 'error.600' }} />
                                           ))}
                                         </Box>
                                       </>
@@ -1436,20 +1436,20 @@ export const DataTransformerPage = () => {
                                   <Chip 
                                     label={`${colInfo.mapped.length}✓`}
                                     size="small"
-                                    sx={{ height: 22, fontSize: '10px', bgcolor: '#D1FAE5', color: '#065F46', fontWeight: 600 }}
+                                    sx={{ height: 22, fontSize: '10px', bgcolor: 'success.100', color: 'success.600', fontWeight: 600 }}
                                   />
                                   {hasUnmapped && (
                                     <Chip 
                                       label={`${colInfo.unmapped.length}⚠`}
                                       size="small"
-                                      sx={{ height: 22, fontSize: '10px', bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 600 }}
+                                      sx={{ height: 22, fontSize: '10px', bgcolor: 'warning.100', color: 'warning.700', fontWeight: 600 }}
                                     />
                                   )}
                                   {hasMissing && (
                                     <Chip 
                                       label={`${colInfo.missingInSource.length}✗`}
                                       size="small"
-                                      sx={{ height: 22, fontSize: '10px', bgcolor: '#FEE2E2', color: '#991B1B', fontWeight: 600 }}
+                                      sx={{ height: 22, fontSize: '10px', bgcolor: 'error.100', color: 'error.600', fontWeight: 600 }}
                                     />
                                   )}
                                 </Box>
@@ -1457,7 +1457,7 @@ export const DataTransformerPage = () => {
                             );
                           })()
                         ) : (
-                          <Typography variant="caption" sx={{ color: '#9CA3AF' }}>—</Typography>
+                          <Typography variant="caption" sx={{ color: 'neutral.400' }}>—</Typography>
                         )}
                       </TableCell>
                     </TableRow>
@@ -1467,14 +1467,14 @@ export const DataTransformerPage = () => {
             </TableContainer>
             
             {/* Match Legend */}
-            <Box sx={{ p: 2, bgcolor: '#F9FAFB', borderTop: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="body2" sx={{ color: '#6B7280' }}>
+            <Box sx={{ p: 2, bgcolor: 'neutral.100', borderTop: '1px solid #E9E9E7', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="body2" sx={{ color: 'neutral.500' }}>
                 Match: 
-                <Chip label="≥70% Good" size="small" sx={{ height: 20, fontSize: '10px', bgcolor: '#D1FAE5', color: '#065F46', mx: 0.5 }} />
-                <Chip label="50-69% Fair" size="small" sx={{ height: 20, fontSize: '10px', bgcolor: '#FEF3C7', color: '#92400E', mx: 0.5 }} />
-                <Chip label="&lt;50% Low" size="small" sx={{ height: 20, fontSize: '10px', bgcolor: '#FEE2E2', color: '#991B1B', mx: 0.5 }} />
+                <Chip label="≥70% Good" size="small" sx={{ height: 20, fontSize: '10px', bgcolor: 'success.100', color: 'success.600', mx: 0.5 }} />
+                <Chip label="50-69% Fair" size="small" sx={{ height: 20, fontSize: '10px', bgcolor: 'warning.100', color: 'warning.700', mx: 0.5 }} />
+                <Chip label="&lt;50% Low" size="small" sx={{ height: 20, fontSize: '10px', bgcolor: 'error.100', color: 'error.600', mx: 0.5 }} />
               </Typography>
-              <Typography variant="body2" sx={{ color: '#4B5563', fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ color: 'neutral.600', fontWeight: 500 }}>
                 Total: {detectedHeaders.reduce((sum, h) => sum + h.dataRowCount, 0)} data rows
               </Typography>
             </Box>
@@ -1482,14 +1482,14 @@ export const DataTransformerPage = () => {
         )}
         
         {/* Tabs Header */}
-        <Box sx={{ borderBottom: '1px solid #E5E7EB', bgcolor: '#FFFFFF' }}>
+        <Box sx={{ borderBottom: '1px solid #E9E9E7', bgcolor: 'white.main' }}>
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
             sx={{
-              '& .MuiTab-root': { color: '#6B7280', minHeight: 48, textTransform: 'none' },
-              '& .Mui-selected': { color: '#1F2937 !important', fontWeight: 600 },
-              '& .MuiTabs-indicator': { bgcolor: '#8B5CF6' },
+              '& .MuiTab-root': { color: 'neutral.500', minHeight: 48, textTransform: 'none' },
+              '& .Mui-selected': { color: '#272626 !important', fontWeight: 600 },
+              '& .MuiTabs-indicator': { bgcolor: 'info.500' },
             }}
           >
             <Tab
@@ -1498,7 +1498,7 @@ export const DataTransformerPage = () => {
                   <TableIcon sx={{ fontSize: 18 }} />
                   Source Data
                   {sourceData.length > 0 && (
-                    <Chip label={sourceData.length} size="small" sx={{ height: 18, fontSize: '10px', bgcolor: '#DBEAFE', color: '#1E40AF' }} />
+                    <Chip label={sourceData.length} size="small" sx={{ height: 18, fontSize: '10px', bgcolor: 'info.100', color: 'info.700' }} />
                   )}
                 </Box>
               }
@@ -1506,10 +1506,10 @@ export const DataTransformerPage = () => {
             <Tab
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <SuccessIcon sx={{ fontSize: 18, color: totalSuccessCount > 0 ? '#10B981' : 'inherit' }} />
+                  <SuccessIcon sx={{ fontSize: 18, color: totalSuccessCount > 0 ? 'success.main' : 'inherit' }} />
                   Success
                   {totalSuccessCount > 0 && (
-                    <Chip label={totalSuccessCount} size="small" sx={{ height: 18, fontSize: '10px', bgcolor: '#D1FAE5', color: '#065F46' }} />
+                    <Chip label={totalSuccessCount} size="small" sx={{ height: 18, fontSize: '10px', bgcolor: 'success.100', color: 'success.600' }} />
                   )}
                 </Box>
               }
@@ -1518,10 +1518,10 @@ export const DataTransformerPage = () => {
             <Tab
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <ErrorIcon sx={{ fontSize: 18, color: totalFailedCount > 0 ? '#DC2626' : 'inherit' }} />
+                  <ErrorIcon sx={{ fontSize: 18, color: totalFailedCount > 0 ? 'error.main' : 'inherit' }} />
                   Failed
                   {totalFailedCount > 0 && (
-                    <Chip label={totalFailedCount} size="small" sx={{ height: 18, fontSize: '10px', bgcolor: '#FEE2E2', color: '#991B1B' }} />
+                    <Chip label={totalFailedCount} size="small" sx={{ height: 18, fontSize: '10px', bgcolor: 'error.100', color: 'error.600' }} />
                   )}
                 </Box>
               }
@@ -1532,8 +1532,8 @@ export const DataTransformerPage = () => {
         
         {/* Multi-table selector */}
         {isMultiTableMode && hasTransformedData && activeTab > 0 && (
-          <Box sx={{ p: 1.5, bgcolor: '#F5F3FF', borderBottom: '1px solid #DDD6FE', display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="caption1Bold" sx={{ color: '#6D28D9' }}>
+          <Box sx={{ p: 1.5, bgcolor: '#F2F7FA', borderBottom: '1px solid #CFE4EF', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="caption1Bold" sx={{ color: '#2D6079' }}>
               Viewing:
             </Typography>
             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
@@ -1544,10 +1544,10 @@ export const DataTransformerPage = () => {
                   size="small"
                   onClick={() => setSelectedTableView(tableName)}
                   sx={{
-                    bgcolor: selectedTableView === tableName ? '#8B5CF6' : '#FFFFFF',
-                    color: selectedTableView === tableName ? '#FFFFFF' : '#6D28D9',
-                    border: '1px solid #8B5CF6',
-                    '&:hover': { bgcolor: selectedTableView === tableName ? '#7C3AED' : '#EDE9FE' },
+                    bgcolor: selectedTableView === tableName ? 'info.500' : 'white.main',
+                    color: selectedTableView === tableName ? 'white.main' : '#2D6079',
+                    border: '1px solid #3D82A6',
+                    '&:hover': { bgcolor: selectedTableView === tableName ? 'info.500' : 'info.100' },
                   }}
                 />
               ))}
@@ -1556,14 +1556,14 @@ export const DataTransformerPage = () => {
         )}
         
         {/* Tab Content */}
-        <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', bgcolor: '#FFFFFF' }}>
+        <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', bgcolor: 'white.main' }}>
           {/* Source Data Tab */}
           {activeTab === 0 && (
             <>
               {sourceData.length === 0 ? (
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 2, bgcolor: '#F9FAFB' }}>
-                  <TableIcon sx={{ fontSize: 64, color: '#D1D5DB' }} />
-                  <Typography variant="body1" sx={{ color: '#6B7280' }}>
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 2, bgcolor: 'neutral.100' }}>
+                  <TableIcon sx={{ fontSize: 64, color: 'neutral.300' }} />
+                  <Typography variant="body1" sx={{ color: 'neutral.500' }}>
                     Upload a CSV file to preview data
                   </Typography>
                 </Box>
@@ -1573,8 +1573,8 @@ export const DataTransformerPage = () => {
                   {headerRowCount > 0 && (
                     <Box sx={{ 
                       p: 1.5, 
-                      bgcolor: '#FFFBEB', 
-                      borderBottom: '1px solid #FDE68A', 
+                      bgcolor: 'warning.100', 
+                      borderBottom: '1px solid #FFDFC0', 
                       display: 'flex', 
                       alignItems: 'center', 
                       gap: 2 
@@ -1582,9 +1582,9 @@ export const DataTransformerPage = () => {
                       <Chip 
                         label={`${headerRowCount} Table Header${headerRowCount > 1 ? 's' : ''}`}
                         size="small"
-                        sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 600 }}
+                        sx={{ bgcolor: 'warning.100', color: 'warning.700', fontWeight: 600 }}
                       />
-                      <Typography variant="caption1" sx={{ color: '#92400E' }}>
+                      <Typography variant="caption1" sx={{ color: 'warning.700' }}>
                         Rows with "id" in first column indicate table headers (highlighted in yellow)
                       </Typography>
                     </Box>
@@ -1593,10 +1593,10 @@ export const DataTransformerPage = () => {
                     <Table stickyHeader size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell sx={{ bgcolor: '#3B82F6', color: '#FFFFFF', fontWeight: 600, width: 60 }}>#</TableCell>
-                          <TableCell sx={{ bgcolor: '#3B82F6', color: '#FFFFFF', fontWeight: 600, width: 80 }}>Type</TableCell>
+                          <TableCell sx={{ bgcolor: 'info.500', color: 'white.main', fontWeight: 600, width: 60 }}>#</TableCell>
+                          <TableCell sx={{ bgcolor: 'info.500', color: 'white.main', fontWeight: 600, width: 80 }}>Type</TableCell>
                           {sourceColumns.map((col) => (
-                            <TableCell key={col} sx={{ bgcolor: '#3B82F6', color: '#FFFFFF', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            <TableCell key={col} sx={{ bgcolor: 'info.500', color: 'white.main', fontWeight: 600, whiteSpace: 'nowrap' }}>
                               {col}
                             </TableCell>
                           ))}
@@ -1610,12 +1610,12 @@ export const DataTransformerPage = () => {
                             <TableRow 
                               key={idx} 
                               sx={{ 
-                                '&:hover': { bgcolor: isHeader ? '#FEF3C7' : '#EFF6FF' }, 
-                                bgcolor: isHeader ? '#FFFBEB' : (idx % 2 === 0 ? '#FFFFFF' : '#F9FAFB'),
-                                borderLeft: isHeader ? '4px solid #F59E0B' : 'none',
+                                '&:hover': { bgcolor: isHeader ? 'warning.100' : 'info.100' }, 
+                                bgcolor: isHeader ? 'warning.100' : (idx % 2 === 0 ? 'white.main' : 'neutral.100'),
+                                borderLeft: isHeader ? '4px solid #A85C13' : 'none',
                               }}
                             >
-                              <TableCell sx={{ color: isHeader ? '#92400E' : '#6B7280', fontWeight: isHeader ? 600 : 400 }}>
+                              <TableCell sx={{ color: isHeader ? 'warning.700' : 'neutral.500', fontWeight: isHeader ? 600 : 400 }}>
                                 {rowNum}
                               </TableCell>
                               <TableCell>
@@ -1626,13 +1626,13 @@ export const DataTransformerPage = () => {
                                     sx={{ 
                                       height: 20, 
                                       fontSize: '10px', 
-                                      bgcolor: '#F59E0B', 
-                                      color: '#FFFFFF',
+                                      bgcolor: 'warning.main', 
+                                      color: 'white.main',
                                       fontWeight: 700,
                                     }} 
                                   />
                                 ) : (
-                                  <Typography variant="caption1" sx={{ color: '#9CA3AF' }}>
+                                  <Typography variant="caption1" sx={{ color: 'neutral.400' }}>
                                     Data
                                   </Typography>
                                 )}
@@ -1641,13 +1641,13 @@ export const DataTransformerPage = () => {
                                 <TableCell 
                                   key={col} 
                                   sx={{ 
-                                    color: isHeader ? '#92400E' : '#1F2937', 
+                                    color: isHeader ? 'warning.700' : 'neutral.800', 
                                     fontWeight: isHeader ? 600 : 400,
                                     maxWidth: 200, 
                                     overflow: 'hidden', 
                                     textOverflow: 'ellipsis', 
                                     whiteSpace: 'nowrap',
-                                    bgcolor: isHeader ? '#FEF3C7' : 'inherit',
+                                    bgcolor: isHeader ? 'warning.100' : 'inherit',
                                   }}
                                 >
                                   {row[col] !== null && row[col] !== undefined ? String(row[col]) : '-'}
@@ -1666,7 +1666,7 @@ export const DataTransformerPage = () => {
                     onPageChange={(_, p) => setSourcePage(p)}
                     rowsPerPage={sourceRowsPerPage}
                     onRowsPerPageChange={(e) => { setSourceRowsPerPage(parseInt(e.target.value, 10)); setSourcePage(0); }}
-                    sx={{ color: '#4B5563', borderTop: '1px solid #E5E7EB', bgcolor: '#F9FAFB' }}
+                    sx={{ color: 'neutral.600', borderTop: '1px solid #E9E9E7', bgcolor: 'neutral.100' }}
                   />
                 </>
               )}
@@ -1676,32 +1676,32 @@ export const DataTransformerPage = () => {
           {/* Success Data Tab */}
           {activeTab === 1 && (
             <>
-              <Box sx={{ p: 1.5, bgcolor: '#D1FAE5', borderBottom: '1px solid #A7F3D0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2Bold" sx={{ color: '#065F46' }}>
+              <Box sx={{ p: 1.5, bgcolor: 'success.100', borderBottom: '1px solid #D3E9DA', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body2Bold" sx={{ color: 'success.600' }}>
                   ✓ {currentSuccessData.length} rows passed validation
                   {isMultiTableMode && selectedTableView && ` (${selectedTableView})`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button size="small" startIcon={<CopyIcon />} onClick={handleCopySuccess} sx={{ color: '#059669', '&:hover': { bgcolor: '#A7F3D0' } }}>Copy</Button>
-                  <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={handleDownloadSuccess} sx={{ bgcolor: '#10B981', '&:hover': { bgcolor: '#059669' }, textTransform: 'none' }}>Download</Button>
+                  <Button size="small" startIcon={<CopyIcon />} onClick={handleCopySuccess} sx={{ color: 'success.main', '&:hover': { bgcolor: '#D3E9DA' } }}>Copy</Button>
+                  <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={handleDownloadSuccess} sx={{ bgcolor: 'success.main', '&:hover': { bgcolor: 'success.main' }, textTransform: 'none' }}>Download</Button>
                 </Box>
               </Box>
               <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
                 <Table stickyHeader size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 600, width: 60 }}>#</TableCell>
+                      <TableCell sx={{ bgcolor: 'success.main', color: 'white.main', fontWeight: 600, width: 60 }}>#</TableCell>
                       {successColumns.map((col) => (
-                        <TableCell key={col} sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 600, whiteSpace: 'nowrap' }}>{col}</TableCell>
+                        <TableCell key={col} sx={{ bgcolor: 'success.main', color: 'white.main', fontWeight: 600, whiteSpace: 'nowrap' }}>{col}</TableCell>
                       ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {currentSuccessData.slice(successPage * successRowsPerPage, (successPage + 1) * successRowsPerPage).map((row, idx) => (
-                      <TableRow key={idx} sx={{ '&:hover': { bgcolor: '#ECFDF5' }, bgcolor: idx % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }}>
-                        <TableCell sx={{ color: '#059669' }}>{successPage * successRowsPerPage + idx + 1}</TableCell>
+                      <TableRow key={idx} sx={{ '&:hover': { bgcolor: 'success.100' }, bgcolor: idx % 2 === 0 ? 'white.main' : 'neutral.100' }}>
+                        <TableCell sx={{ color: 'success.main' }}>{successPage * successRowsPerPage + idx + 1}</TableCell>
                         {successColumns.map((col) => (
-                          <TableCell key={col} sx={{ color: '#1F2937', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <TableCell key={col} sx={{ color: 'neutral.800', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {row[col] !== null && row[col] !== undefined ? String(row[col]) : '-'}
                           </TableCell>
                         ))}
@@ -1717,7 +1717,7 @@ export const DataTransformerPage = () => {
                 onPageChange={(_, p) => setSuccessPage(p)}
                 rowsPerPage={successRowsPerPage}
                 onRowsPerPageChange={(e) => { setSuccessRowsPerPage(parseInt(e.target.value, 10)); setSuccessPage(0); }}
-                sx={{ color: '#4B5563', borderTop: '1px solid #E5E7EB', bgcolor: '#ECFDF5' }}
+                sx={{ color: 'neutral.600', borderTop: '1px solid #E9E9E7', bgcolor: 'success.100' }}
               />
             </>
           )}
@@ -1725,23 +1725,23 @@ export const DataTransformerPage = () => {
           {/* Failed Data Tab */}
           {activeTab === 2 && (
             <>
-              <Box sx={{ p: 1.5, bgcolor: '#FEE2E2', borderBottom: '1px solid #FECACA', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2Bold" sx={{ color: '#991B1B' }}>
+              <Box sx={{ p: 1.5, bgcolor: 'error.100', borderBottom: '1px solid #F5CFCB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body2Bold" sx={{ color: 'error.600' }}>
                   ✗ {currentFailedData.length} rows failed validation
                   {isMultiTableMode && selectedTableView && ` (${selectedTableView})`}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button size="small" startIcon={<CopyIcon />} onClick={handleCopyFailed} sx={{ color: '#DC2626', '&:hover': { bgcolor: '#FECACA' } }}>Copy</Button>
-                  <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={handleDownloadFailed} sx={{ bgcolor: '#DC2626', '&:hover': { bgcolor: '#B91C1C' }, textTransform: 'none' }}>Download</Button>
+                  <Button size="small" startIcon={<CopyIcon />} onClick={handleCopyFailed} sx={{ color: 'error.main', '&:hover': { bgcolor: '#F5CFCB' } }}>Copy</Button>
+                  <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={handleDownloadFailed} sx={{ bgcolor: 'error.main', '&:hover': { bgcolor: 'error.600' }, textTransform: 'none' }}>Download</Button>
                 </Box>
               </Box>
               <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
                 <Table stickyHeader size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ bgcolor: '#DC2626', color: '#FFFFFF', fontWeight: 600, width: 60 }}>Row</TableCell>
+                      <TableCell sx={{ bgcolor: 'error.main', color: 'white.main', fontWeight: 600, width: 60 }}>Row</TableCell>
                       {failedColumns.map((col) => (
-                        <TableCell key={col} sx={{ bgcolor: col === '_error' ? '#B91C1C' : '#DC2626', color: '#FFFFFF', fontWeight: 600, whiteSpace: 'nowrap', minWidth: col === '_error' ? 300 : 'auto' }}>
+                        <TableCell key={col} sx={{ bgcolor: col === '_error' ? 'error.600' : 'error.main', color: 'white.main', fontWeight: 600, whiteSpace: 'nowrap', minWidth: col === '_error' ? 300 : 'auto' }}>
                           {col === '_error' ? 'Error Details' : col}
                         </TableCell>
                       ))}
@@ -1749,10 +1749,10 @@ export const DataTransformerPage = () => {
                   </TableHead>
                   <TableBody>
                     {currentFailedData.slice(failedPage * failedRowsPerPage, (failedPage + 1) * failedRowsPerPage).map((row, idx) => (
-                      <TableRow key={idx} sx={{ '&:hover': { bgcolor: '#FEF2F2' }, bgcolor: idx % 2 === 0 ? '#FFFFFF' : '#F9FAFB' }}>
-                        <TableCell sx={{ color: '#DC2626' }}>{row['_original_row'] as number || failedPage * failedRowsPerPage + idx + 1}</TableCell>
+                      <TableRow key={idx} sx={{ '&:hover': { bgcolor: 'error.100' }, bgcolor: idx % 2 === 0 ? 'white.main' : 'neutral.100' }}>
+                        <TableCell sx={{ color: 'error.main' }}>{row['_original_row'] as number || failedPage * failedRowsPerPage + idx + 1}</TableCell>
                         {failedColumns.map((col) => (
-                          <TableCell key={col} sx={{ color: col === '_error' ? '#991B1B' : '#1F2937', bgcolor: col === '_error' ? '#FEF2F2' : 'inherit', maxWidth: col === '_error' ? 400 : 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: col === '_error' ? 'normal' : 'nowrap', fontSize: col === '_error' ? '11px' : 'inherit' }}>
+                          <TableCell key={col} sx={{ color: col === '_error' ? 'error.600' : 'neutral.800', bgcolor: col === '_error' ? 'error.100' : 'inherit', maxWidth: col === '_error' ? 400 : 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: col === '_error' ? 'normal' : 'nowrap', fontSize: col === '_error' ? '11px' : 'inherit' }}>
                             <Tooltip title={row[col] !== null ? String(row[col]) : ''} arrow>
                               <span>{row[col] !== null && row[col] !== undefined ? String(row[col]) : '-'}</span>
                             </Tooltip>
@@ -1770,7 +1770,7 @@ export const DataTransformerPage = () => {
                 onPageChange={(_, p) => setFailedPage(p)}
                 rowsPerPage={failedRowsPerPage}
                 onRowsPerPageChange={(e) => { setFailedRowsPerPage(parseInt(e.target.value, 10)); setFailedPage(0); }}
-                sx={{ color: '#4B5563', borderTop: '1px solid #E5E7EB', bgcolor: '#FEF2F2' }}
+                sx={{ color: 'neutral.600', borderTop: '1px solid #E9E9E7', bgcolor: 'error.100' }}
               />
             </>
           )}

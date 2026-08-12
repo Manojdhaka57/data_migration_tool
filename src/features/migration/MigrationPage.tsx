@@ -62,6 +62,11 @@ import {
 import { useAppSelector, useAppDispatch } from '../../store';
 import { selectTableMappings } from '../mapping/mappingSlice';
 import { selectCustomDependencies } from '../migrationOrder/migrationOrderSlice';
+import { selectMappingOrder } from './runOptionsSlice';
+import { SOCKET_URL } from '../../api/config';
+import { selectSourceSchema } from '../sourceSchema/sourceSchemaSlice';
+import { selectTargetSchema } from '../targetSchema/targetSchemaSlice';
+import { MigrationFlowView, migrationColors, type FlowTable } from './pipeline';
 import { 
   selectMigrationResults, 
   selectSelectedResult,
@@ -85,6 +90,12 @@ interface MigrationStatus {
   progress: number;
   currentTable: string;
   results: TableResult[];
+  /** Batch identity for the event that produced this state, when reported. */
+  batchIndex: number | null;
+  batchRows: number | null;
+  batchSize: number | null;
+  /** Rows counted so far across the run — grows as each table starts. */
+  runTotalRows: number | null;
 }
 
 interface DBTable {
@@ -210,7 +221,40 @@ export default function MigrationPage() {
     return Array.from(byPair.values());
   }, [tableMappings]);
   const customDependencies = useAppSelector(selectCustomDependencies);
+  const mappingOrder = useAppSelector(selectMappingOrder);
   const recentResults = useAppSelector(selectMigrationResults);
+  const sourceSchemaForFlow = useAppSelector(selectSourceSchema);
+  const targetSchemaForFlow = useAppSelector(selectTargetSchema);
+
+  /**
+   * The tables this run covers, in the order they will be attempted — so the
+   * pipeline view can show queued tables before the worker reaches them.
+   * Mirrors the worker's rule (orderMappings): the chosen sequence first, then
+   * everything else.
+   */
+  const plannedFlowTables = useMemo<FlowTable[]>(() => {
+    const byTarget = new Map<string, FlowTable>();
+    for (const mapping of migrationMappings) {
+      const target = mapping.targetTables[0];
+      const source = mapping.sourceTables[0];
+      if (target && !byTarget.has(target)) byTarget.set(target, { target, sourceTable: source ?? target });
+    }
+    const pinned = mappingOrder.filter((name) => byTarget.has(name));
+    const rest = [...byTarget.keys()].filter((name) => !pinned.includes(name));
+    return [...pinned, ...rest].map((name) => byTarget.get(name)!);
+  }, [migrationMappings, mappingOrder]);
+
+  /** Column mappings that do something other than copy a value across. */
+  const transformRuleCount = useMemo(
+    () =>
+      migrationMappings.reduce(
+        (total, mapping) =>
+          total +
+          mapping.columnMappings.filter((cm) => cm.mappingType && cm.mappingType !== 'DIRECT').length,
+        0,
+      ),
+    [migrationMappings],
+  );
   const selectedResult = useAppSelector(selectSelectedResult);
   
   const [activeTab, setActiveTab] = useState(0);
@@ -270,8 +314,10 @@ export default function MigrationPage() {
 
   // WebSockets Live Listener
   useEffect(() => {
-    const socket = io('http://localhost:9005');
-    
+    // Was hardcoded to localhost:9005, which meant a production build could
+    // only ever reach a developer's own machine.
+    const socket = io(SOCKET_URL);
+
     socket.on('connect', () => {
       console.log('🔌 Connected to migration WebSocket server');
       setServerOnline(true);
@@ -290,6 +336,12 @@ export default function MigrationPage() {
         progress: data.progress,
         currentTable: data.currentTable,
         results: data.results,
+        // Null on an older server that does not send these; the pipeline view
+        // omits the batch line rather than inventing a number.
+        batchIndex: data.batchIndex ?? null,
+        batchRows: data.batchRows ?? null,
+        batchSize: data.batchSize ?? null,
+        runTotalRows: data.runTotalRows ?? null,
       });
       setThroughput(data.throughput || 0);
       setEta(data.eta || 0);
@@ -526,6 +578,11 @@ export default function MigrationPage() {
       if (customDependencies.length > 0) {
         requestBody.customDependencies = customDependencies;
       }
+      // A chosen order only means something if it reaches the worker. Empty
+      // means "derive from foreign keys", which is what omitting it does.
+      if (mappingOrder.length > 0) {
+        requestBody.mappingOrder = mappingOrder;
+      }
       
       const res = await fetch(`${API_BASE}${endpoint}`, { 
         method: 'POST',
@@ -550,6 +607,10 @@ export default function MigrationPage() {
         progress: 0,
         currentTable: 'Initializing queue...',
         results: [],
+        batchIndex: null,
+        batchRows: null,
+        batchSize: null,
+        runTotalRows: null,
       });
       
       wasRunning.current = true;
@@ -599,6 +660,10 @@ export default function MigrationPage() {
         progress: 0,
         currentTable: `${dryRun ? 'Dry run' : 'Migrating'}: ${targetTable}`,
         results: [],
+        batchIndex: null,
+        batchRows: null,
+        batchSize: null,
+        runTotalRows: null,
       });
       wasRunning.current = true;
       setActiveTab(0);
@@ -873,28 +938,8 @@ export default function MigrationPage() {
   };
 
   // Color palette for consistent styling
-  const colors = {
-    bg: {
-      primary: '#0f172a',      // Dark blue-gray
-      secondary: '#1e293b',    // Lighter blue-gray
-      card: '#1e3a5f',         // Card background
-      cardHover: '#234b73',    // Card hover
-    },
-    accent: {
-      primary: '#38bdf8',      // Sky blue
-      secondary: '#a78bfa',    // Purple
-      success: '#4ade80',      // Green
-      warning: '#fbbf24',      // Amber
-      error: '#f87171',        // Red
-      info: '#60a5fa',         // Blue
-    },
-    text: {
-      primary: '#f1f5f9',      // Almost white
-      secondary: '#94a3b8',    // Gray
-      muted: '#64748b',        // Darker gray
-    },
-    border: '#334155',         // Border color
-  };
+  // Shared with the pipeline view so the two cannot drift apart.
+  const colors = migrationColors;
 
   if (!serverOnline) {
     return (
@@ -940,7 +985,7 @@ export default function MigrationPage() {
                 bgcolor: colors.accent.primary,
                 color: colors.bg.primary,
                 fontWeight: 600,
-                '&:hover': { bgcolor: '#0ea5e9' },
+                '&:hover': { bgcolor: colors.accent.primary },
               }}
             >
               Check Connection
@@ -981,7 +1026,7 @@ export default function MigrationPage() {
           icon={<ConnectedIcon sx={{ color: `${colors.accent.success} !important` }} />} 
           label="Server Online" 
           sx={{
-            bgcolor: 'rgba(74, 222, 128, 0.15)',
+            bgcolor: 'colors.soft.success',
             color: colors.accent.success,
             border: `1px solid ${colors.accent.success}`,
             fontWeight: 600,
@@ -1005,7 +1050,7 @@ export default function MigrationPage() {
             severity="error" 
             sx={{ 
               mb: 3, 
-              bgcolor: 'rgba(248, 113, 113, 0.15)',
+              bgcolor: 'colors.soft.error',
               color: colors.accent.error,
               border: `1px solid ${colors.accent.error}`,
               '& .MuiAlert-icon': { color: colors.accent.error },
@@ -1029,7 +1074,7 @@ export default function MigrationPage() {
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
                 <Box sx={{ 
-                  bgcolor: 'rgba(56, 189, 248, 0.15)', 
+                  bgcolor: 'colors.soft.primary', 
                   p: 1.5, 
                   borderRadius: 2,
                   display: 'flex',
@@ -1049,12 +1094,12 @@ export default function MigrationPage() {
                           label={`${sourceConnection.tables} tables`} 
                           size="small"
                           sx={{ 
-                            bgcolor: 'rgba(56, 189, 248, 0.2)', 
+                            bgcolor: 'colors.soft.primary', 
                             color: colors.accent.primary,
                             fontWeight: 600,
                             ml: 1,
                             cursor: 'pointer',
-                            '&:hover': { bgcolor: 'rgba(56, 189, 248, 0.3)' },
+                            '&:hover': { bgcolor: 'colors.soft.primary' },
                           }}
                           onClick={() => fetchTables('source')}
                           icon={<ViewIcon sx={{ fontSize: 16 }} />}
@@ -1076,8 +1121,8 @@ export default function MigrationPage() {
                       onClick={() => fetchTables('source')}
                       sx={{ 
                         color: colors.accent.primary,
-                        bgcolor: 'rgba(56, 189, 248, 0.1)',
-                        '&:hover': { bgcolor: 'rgba(56, 189, 248, 0.2)' },
+                        bgcolor: 'colors.soft.primary',
+                        '&:hover': { bgcolor: 'colors.soft.primary' },
                       }}
                     >
                       <ViewIcon />
@@ -1099,7 +1144,7 @@ export default function MigrationPage() {
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
                 <Box sx={{ 
-                  bgcolor: 'rgba(167, 139, 250, 0.15)', 
+                  bgcolor: 'colors.soft.secondary', 
                   p: 1.5, 
                   borderRadius: 2,
                   display: 'flex',
@@ -1119,12 +1164,12 @@ export default function MigrationPage() {
                           label={`${targetConnection.tables} tables`} 
                           size="small"
                           sx={{ 
-                            bgcolor: 'rgba(167, 139, 250, 0.2)', 
+                            bgcolor: 'colors.soft.secondary', 
                             color: colors.accent.secondary,
                             fontWeight: 600,
                             ml: 1,
                             cursor: 'pointer',
-                            '&:hover': { bgcolor: 'rgba(167, 139, 250, 0.3)' },
+                            '&:hover': { bgcolor: 'colors.soft.secondary' },
                           }}
                           onClick={() => fetchTables('target')}
                           icon={<ViewIcon sx={{ fontSize: 16 }} />}
@@ -1146,8 +1191,8 @@ export default function MigrationPage() {
                       onClick={() => fetchTables('target')}
                       sx={{ 
                         color: colors.accent.secondary,
-                        bgcolor: 'rgba(167, 139, 250, 0.1)',
-                        '&:hover': { bgcolor: 'rgba(167, 139, 250, 0.2)' },
+                        bgcolor: 'colors.soft.secondary',
+                        '&:hover': { bgcolor: 'colors.soft.secondary' },
                       }}
                     >
                       <ViewIcon />
@@ -1167,7 +1212,7 @@ export default function MigrationPage() {
             <Card sx={{ bgcolor: colors.bg.secondary, border: `1px solid ${colors.border}`, borderRadius: 2 }}>
               <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ bgcolor: 'rgba(56, 189, 248, 0.15)', p: 1, borderRadius: 2, display: 'flex' }}>
+                  <Box sx={{ bgcolor: 'colors.soft.primary', p: 1, borderRadius: 2, display: 'flex' }}>
                     <SpeedIcon sx={{ color: colors.accent.primary, fontSize: 24 }} />
                   </Box>
                   <Box>
@@ -1184,7 +1229,7 @@ export default function MigrationPage() {
             <Card sx={{ bgcolor: colors.bg.secondary, border: `1px solid ${colors.border}`, borderRadius: 2 }}>
               <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ bgcolor: 'rgba(251, 191, 36, 0.15)', p: 1, borderRadius: 2, display: 'flex' }}>
+                  <Box sx={{ bgcolor: 'colors.soft.warning', p: 1, borderRadius: 2, display: 'flex' }}>
                     <TimeIcon sx={{ color: colors.accent.warning, fontSize: 24 }} />
                   </Box>
                   <Box>
@@ -1201,7 +1246,7 @@ export default function MigrationPage() {
             <Card sx={{ bgcolor: colors.bg.secondary, border: `1px solid ${colors.border}`, borderRadius: 2 }}>
               <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ bgcolor: 'rgba(248, 113, 113, 0.15)', p: 1, borderRadius: 2, display: 'flex' }}>
+                  <Box sx={{ bgcolor: 'colors.soft.error', p: 1, borderRadius: 2, display: 'flex' }}>
                     <ErrorIcon sx={{ color: colors.accent.error, fontSize: 24 }} />
                   </Box>
                   <Box>
@@ -1218,7 +1263,7 @@ export default function MigrationPage() {
             <Card sx={{ bgcolor: colors.bg.secondary, border: `1px solid ${colors.border}`, borderRadius: 2 }}>
               <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ bgcolor: 'rgba(167, 139, 250, 0.15)', p: 1, borderRadius: 2, display: 'flex' }}>
+                  <Box sx={{ bgcolor: 'colors.soft.secondary', p: 1, borderRadius: 2, display: 'flex' }}>
                     <DatabaseIcon sx={{ color: colors.accent.secondary, fontSize: 24 }} />
                   </Box>
                   <Box>
@@ -1316,7 +1361,7 @@ export default function MigrationPage() {
                       label={`${selectedTables.size} of ${tableMappings.length} selected`}
                       size="small"
                       sx={{
-                        bgcolor: selectedTables.size > 0 ? 'rgba(56, 189, 248, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                        bgcolor: selectedTables.size > 0 ? 'colors.soft.primary' : 'colors.soft.neutral',
                         color: selectedTables.size > 0 ? colors.accent.primary : colors.text.muted,
                         border: `1px solid ${selectedTables.size > 0 ? colors.accent.primary : colors.border}`,
                         fontWeight: 600,
@@ -1337,7 +1382,7 @@ export default function MigrationPage() {
                         fontWeight: 600,
                         '&:hover': {
                           borderColor: colors.accent.primary,
-                          bgcolor: 'rgba(56, 189, 248, 0.1)',
+                          bgcolor: 'colors.soft.primary',
                         },
                       }}
                     >
@@ -1349,7 +1394,7 @@ export default function MigrationPage() {
                           variant="text"
                           size="small"
                           onClick={handleSelectAllTables}
-                          sx={{ color: colors.text.secondary, fontWeight: 500, '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.1)' } }}
+                          sx={{ color: colors.text.secondary, fontWeight: 500, '&:hover': { bgcolor: 'colors.soft.neutral' } }}
                         >
                           Select All
                         </Button>
@@ -1357,7 +1402,7 @@ export default function MigrationPage() {
                           variant="text"
                           size="small"
                           onClick={handleDeselectAllTables}
-                          sx={{ color: colors.text.secondary, fontWeight: 500, '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.1)' } }}
+                          sx={{ color: colors.text.secondary, fontWeight: 500, '&:hover': { bgcolor: 'colors.soft.neutral' } }}
                         >
                           Clear All
                         </Button>
@@ -1411,7 +1456,7 @@ export default function MigrationPage() {
                         color: colors.accent.secondary,
                         fontWeight: 600,
                         px: 3,
-                        '&:hover': { borderColor: colors.accent.secondary, bgcolor: 'rgba(167, 139, 250, 0.1)' },
+                        '&:hover': { borderColor: colors.accent.secondary, bgcolor: 'colors.soft.secondary' },
                         '&:disabled': { borderColor: colors.text.muted, color: colors.text.muted },
                       }}
                     >
@@ -1428,11 +1473,11 @@ export default function MigrationPage() {
                       onClick={runDdlCheck}
                       disabled={ddlCheckLoading || !sourceConnection?.success || !targetConnection?.success || tableMappings.length === 0 || (tableWiseMode && selectedTables.size === 0)}
                       sx={{
-                        borderColor: colors.accent.warning ?? '#f59e0b',
-                        color: colors.accent.warning ?? '#f59e0b',
+                        borderColor: colors.accent.warning ?? colors.accent.warning,
+                        color: colors.accent.warning ?? colors.accent.warning,
                         fontWeight: 600,
                         px: 3,
-                        '&:hover': { borderColor: colors.accent.warning ?? '#f59e0b', bgcolor: 'rgba(245, 158, 11, 0.1)' },
+                        '&:hover': { borderColor: colors.accent.warning, bgcolor: colors.soft.warning },
                         '&:disabled': { borderColor: colors.text.muted, color: colors.text.muted },
                       }}
                     >
@@ -1451,7 +1496,7 @@ export default function MigrationPage() {
                     color: colors.accent.info,
                     fontWeight: 600,
                     px: 3,
-                    '&:hover': { borderColor: colors.accent.info, bgcolor: 'rgba(96, 165, 250, 0.1)' },
+                    '&:hover': { borderColor: colors.accent.info, bgcolor: 'colors.soft.info' },
                     '&:disabled': { borderColor: colors.text.muted, color: colors.text.muted },
                   }}
                 >
@@ -1468,7 +1513,7 @@ export default function MigrationPage() {
                     color: colors.bg.primary,
                     fontWeight: 600,
                     px: 3,
-                    '&:hover': { bgcolor: '#22c55e' },
+                    '&:hover': { bgcolor: colors.accent.success },
                     '&:disabled': { bgcolor: colors.text.muted, color: colors.bg.primary },
                   }}
                 >
@@ -1487,7 +1532,7 @@ export default function MigrationPage() {
                     color: colors.accent.warning,
                     fontWeight: 600,
                     px: 3,
-                    '&:hover': { borderColor: colors.accent.warning, bgcolor: 'rgba(251, 191, 36, 0.1)' },
+                    '&:hover': { borderColor: colors.accent.warning, bgcolor: 'colors.soft.warning' },
                   }}
                 >
                   {isPaused ? 'Resume' : 'Pause'}
@@ -1502,7 +1547,7 @@ export default function MigrationPage() {
                     color: 'white',
                     fontWeight: 600,
                     px: 3,
-                    '&:hover': { bgcolor: '#ef4444' },
+                    '&:hover': { bgcolor: colors.accent.error },
                   }}
                 >
                   Cancel
@@ -1521,7 +1566,7 @@ export default function MigrationPage() {
                   color: colors.accent.primary,
                   fontWeight: 600,
                   px: 3,
-                  '&:hover': { borderColor: colors.accent.primary, bgcolor: 'rgba(56, 189, 248, 0.1)' },
+                  '&:hover': { borderColor: colors.accent.primary, bgcolor: 'colors.soft.primary' },
                 }}
               >
                 Export CSV Report
@@ -1533,7 +1578,7 @@ export default function MigrationPage() {
                 onClick={() => { testConnections(true); getResults(); }} 
                 sx={{ 
                   color: colors.text.secondary,
-                  '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.1)' },
+                  '&:hover': { bgcolor: 'colors.soft.neutral' },
                 }}
               >
                 <RefreshIcon />
@@ -1574,7 +1619,7 @@ export default function MigrationPage() {
                 sx={{ 
                   height: 10, 
                   borderRadius: 5,
-                  bgcolor: 'rgba(56, 189, 248, 0.2)',
+                  bgcolor: 'colors.soft.primary',
                   '& .MuiLinearProgress-bar': { 
                     bgcolor: migrationStatus?.running 
                       ? colors.accent.primary 
@@ -1602,11 +1647,11 @@ export default function MigrationPage() {
           onChange={(_, v) => {
             setActiveTab(v);
             // Refresh data when switching tabs
-            if (v === 1) {
+            if (v === 2) {
               // History tab - refresh results
               getResults();
             } else {
-              // Run tab - refresh status
+              // Pipeline / Live Results - refresh status
               getStatus();
             }
           }}
@@ -1621,13 +1666,48 @@ export default function MigrationPage() {
             '& .MuiTabs-indicator': { bgcolor: colors.accent.primary, height: 3, borderRadius: 2 },
           }}
         >
+          <Tab label="Pipeline" />
           <Tab label="Live Results" />
           <Tab label="History" />
         </Tabs>
       </Box>
 
-      {/* Live Results Tab */}
+      {/* Pipeline Tab — the ETL flow, animated from real batch events */}
       {activeTab === 0 && (
+        <MigrationFlowView
+          running={migrationStatus?.running ?? false}
+          jobId={activeJobId}
+          progress={migrationStatus?.progress ?? 0}
+          currentTable={migrationStatus?.currentTable ?? ''}
+          processedRows={processedRows}
+          failedRows={failedRows}
+          throughput={throughput}
+          eta={eta}
+          batchIndex={migrationStatus?.batchIndex ?? null}
+          batchRows={migrationStatus?.batchRows ?? null}
+          batchSize={migrationStatus?.batchSize ?? null}
+          runTotalRows={migrationStatus?.runTotalRows ?? null}
+          // Live results while running; the last completed run otherwise, so
+          // the tab is not blank between migrations.
+          results={
+            migrationStatus?.results && migrationStatus.results.length > 0
+              ? migrationStatus.results
+              : recentResults[0]?.results ?? []
+          }
+          // Full history, so the stat cards can compare with the previous run.
+          history={recentResults}
+          plannedTables={plannedFlowTables}
+          sourceDbType={sourceDbType}
+          targetDbType={targetDbType}
+          sourceDatabase={sourceSchemaForFlow?.database ?? ''}
+          targetDatabase={targetSchemaForFlow?.database ?? ''}
+          transformRuleCount={transformRuleCount}
+          mappedTableCount={plannedFlowTables.length}
+        />
+      )}
+
+      {/* Live Results Tab */}
+      {activeTab === 1 && (
         <Box>
           {/* Show current migration results OR last migration results */}
           {(migrationStatus?.results && migrationStatus.results.length > 0) || (recentResults.length > 0 && recentResults[0]?.results) ? (
@@ -1688,7 +1768,7 @@ export default function MigrationPage() {
                           label={recentResults[0]?.dryRun ? 'Dry Run' : 'Migration'}
                           size="small"
                           sx={{ 
-                            bgcolor: recentResults[0]?.dryRun ? 'rgba(96, 165, 250, 0.15)' : 'rgba(74, 222, 128, 0.15)',
+                            bgcolor: recentResults[0]?.dryRun ? 'colors.soft.info' : 'colors.soft.success',
                             color: recentResults[0]?.dryRun ? colors.accent.info : colors.accent.success,
                             border: `1px solid ${recentResults[0]?.dryRun ? colors.accent.info : colors.accent.success}`,
                             fontWeight: 600,
@@ -1727,16 +1807,16 @@ export default function MigrationPage() {
                               px: 3,
                               py: 2,
                               bgcolor: stats.hasErrors 
-                                ? 'rgba(248, 113, 113, 0.1)' 
+                                ? 'colors.soft.error' 
                                 : stats.allSuccess 
-                                  ? 'rgba(74, 222, 128, 0.1)' 
+                                  ? 'colors.soft.success' 
                                   : colors.bg.card,
                               borderBottom: `1px solid ${colors.border}`,
                               '&:hover': {
                                 bgcolor: stats.hasErrors 
-                                  ? 'rgba(248, 113, 113, 0.15)' 
+                                  ? 'colors.soft.error' 
                                   : stats.allSuccess 
-                                    ? 'rgba(74, 222, 128, 0.15)' 
+                                    ? 'colors.soft.success' 
                                     : colors.bg.cardHover,
                               },
                               '&.Mui-expanded': {
@@ -1817,8 +1897,8 @@ export default function MigrationPage() {
                                     <TableRow 
                                       key={idx}
                                       sx={{ 
-                                        '&:hover': { bgcolor: 'rgba(56, 189, 248, 0.05)' },
-                                        bgcolor: result.status === 'failed' ? 'rgba(248, 113, 113, 0.08)' : 'transparent',
+                                        '&:hover': { bgcolor: 'colors.soft.primary' },
+                                        bgcolor: result.status === 'failed' ? 'colors.soft.error' : 'transparent',
                                         borderBottom: `1px solid ${colors.border}`,
                                       }}
                                     >
@@ -1828,10 +1908,10 @@ export default function MigrationPage() {
                                           label={result.status}
                                           size="small"
                                           sx={{
-                                            bgcolor: result.status === 'success' ? 'rgba(74, 222, 128, 0.15)' :
-                                                     result.status === 'partial' ? 'rgba(251, 191, 36, 0.15)' :
-                                                     result.status === 'failed' ? 'rgba(248, 113, 113, 0.15)' :
-                                                     result.status === 'skipped' ? 'rgba(148, 163, 184, 0.15)' : 'transparent',
+                                            bgcolor: result.status === 'success' ? 'colors.soft.success' :
+                                                     result.status === 'partial' ? 'colors.soft.warning' :
+                                                     result.status === 'failed' ? 'colors.soft.error' :
+                                                     result.status === 'skipped' ? 'colors.soft.neutral' : 'transparent',
                                             color: result.status === 'success' ? colors.accent.success :
                                                    result.status === 'partial' ? colors.accent.warning :
                                                    result.status === 'failed' ? colors.accent.error : colors.text.muted,
@@ -1904,7 +1984,7 @@ export default function MigrationPage() {
                                                   label={`View ${result.skippedRowsDetails.length} skipped row${result.skippedRowsDetails.length !== 1 ? 's' : ''}`}
                                                   size="small"
                                                   sx={{
-                                                    bgcolor: 'rgba(251, 191, 36, 0.15)',
+                                                    bgcolor: 'colors.soft.warning',
                                                     color: colors.accent.warning,
                                                     border: `1px solid ${colors.accent.warning}`,
                                                     fontWeight: 600,
@@ -1957,8 +2037,8 @@ export default function MigrationPage() {
                                                   size="small"
                                                   sx={{
                                                     bgcolor: result.status === 'failed' 
-                                                      ? 'rgba(248, 113, 113, 0.2)' 
-                                                      : 'rgba(251, 191, 36, 0.15)',
+                                                      ? 'colors.soft.error' 
+                                                      : 'colors.soft.warning',
                                                     color: result.status === 'failed' 
                                                       ? colors.accent.error 
                                                       : colors.accent.warning,
@@ -1996,7 +2076,7 @@ export default function MigrationPage() {
             })()
           ) : (
             <Card sx={{ 
-              bgcolor: 'rgba(56, 189, 248, 0.1)', 
+              bgcolor: 'colors.soft.primary', 
               border: `1px solid ${colors.accent.primary}`,
               borderRadius: 3,
             }}>
@@ -2017,7 +2097,7 @@ export default function MigrationPage() {
       )}
 
       {/* History Tab */}
-      {activeTab === 1 && (
+      {activeTab === 2 && (
         <Grid container spacing={3} sx={{ }}>
           <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="subtitle1" sx={{ color: colors.text.secondary, mb: 2, fontWeight: 600, flexShrink: 0 }}>
@@ -2067,7 +2147,7 @@ export default function MigrationPage() {
                         size="small"
                         sx={{ 
                           mb: 1,
-                          bgcolor: result.dryRun ? 'rgba(96, 165, 250, 0.15)' : 'rgba(74, 222, 128, 0.15)',
+                          bgcolor: result.dryRun ? 'colors.soft.info' : 'colors.soft.success',
                           color: result.dryRun ? colors.accent.info : colors.accent.success,
                           fontWeight: 600,
                           border: `1px solid ${result.dryRun ? colors.accent.info : colors.accent.success}`,
@@ -2111,7 +2191,7 @@ export default function MigrationPage() {
                       borderRadius: 2,
                     }}>
                       <CardContent sx={{ textAlign: 'center', py: 2.5 }}>
-                        <Box sx={{ bgcolor: 'rgba(56, 189, 248, 0.15)', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
+                        <Box sx={{ bgcolor: 'colors.soft.primary', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
                           <TableIcon sx={{ color: colors.accent.primary, fontSize: 28 }} />
                         </Box>
                         <Typography variant="h4" sx={{ color: colors.text.primary, fontWeight: 700 }}>
@@ -2130,7 +2210,7 @@ export default function MigrationPage() {
                       borderRadius: 2,
                     }}>
                       <CardContent sx={{ textAlign: 'center', py: 2.5 }}>
-                        <Box sx={{ bgcolor: 'rgba(74, 222, 128, 0.15)', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
+                        <Box sx={{ bgcolor: 'colors.soft.success', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
                           <SuccessIcon sx={{ color: colors.accent.success, fontSize: 28 }} />
                         </Box>
                         <Typography variant="h4" sx={{ color: colors.accent.success, fontWeight: 700 }}>
@@ -2149,7 +2229,7 @@ export default function MigrationPage() {
                       borderRadius: 2,
                     }}>
                       <CardContent sx={{ textAlign: 'center', py: 2.5 }}>
-                        <Box sx={{ bgcolor: 'rgba(167, 139, 250, 0.15)', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
+                        <Box sx={{ bgcolor: 'colors.soft.secondary', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
                           <RowIcon sx={{ color: colors.accent.secondary, fontSize: 28 }} />
                         </Box>
                         <Typography variant="h5" sx={{ color: colors.text.primary, fontWeight: 700, lineHeight: 1.2, mb: 0.5 }}>
@@ -2175,7 +2255,7 @@ export default function MigrationPage() {
                       borderRadius: 2,
                     }}>
                       <CardContent sx={{ textAlign: 'center', py: 2.5 }}>
-                        <Box sx={{ bgcolor: 'rgba(251, 191, 36, 0.15)', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
+                        <Box sx={{ bgcolor: 'colors.soft.warning', p: 1, borderRadius: 2, display: 'inline-flex', mb: 1 }}>
                           <TimeIcon sx={{ color: colors.accent.warning, fontSize: 28 }} />
                         </Box>
                         <Typography variant="h4" sx={{ color: colors.text.primary, fontWeight: 700 }}>
@@ -2226,8 +2306,8 @@ export default function MigrationPage() {
                             <TableRow 
                               key={idx}
                               sx={{ 
-                                bgcolor: result.status === 'failed' ? 'rgba(248, 113, 113, 0.08)' : 'transparent',
-                                '&:hover': { bgcolor: 'rgba(56, 189, 248, 0.05)' },
+                                bgcolor: result.status === 'failed' ? 'colors.soft.error' : 'transparent',
+                                '&:hover': { bgcolor: 'colors.soft.primary' },
                                 borderBottom: `1px solid ${colors.border}`,
                               }}
                             >
@@ -2290,7 +2370,7 @@ export default function MigrationPage() {
                                           label={`View ${result.skippedRowsDetails.length} skipped row${result.skippedRowsDetails.length !== 1 ? 's' : ''}`}
                                           size="small"
                                           sx={{
-                                            bgcolor: 'rgba(251, 191, 36, 0.15)',
+                                            bgcolor: 'colors.soft.warning',
                                             color: colors.accent.warning,
                                             border: `1px solid ${colors.accent.warning}`,
                                             fontWeight: 600,
@@ -2343,8 +2423,8 @@ export default function MigrationPage() {
                                           size="small"
                                           sx={{
                                             bgcolor: result.status === 'failed' 
-                                              ? 'rgba(248, 113, 113, 0.2)' 
-                                              : 'rgba(251, 191, 36, 0.15)',
+                                              ? 'colors.soft.error' 
+                                              : 'colors.soft.warning',
                                             color: result.status === 'failed' 
                                               ? colors.accent.error 
                                               : colors.accent.warning,
@@ -2405,7 +2485,7 @@ export default function MigrationPage() {
           py: 2,
         }}>
           <Box sx={{ 
-            bgcolor: tablesModal.type === 'source' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(167, 139, 250, 0.15)',
+            bgcolor: tablesModal.type === 'source' ? 'colors.soft.primary' : 'colors.soft.secondary',
             p: 1,
             borderRadius: 2,
             display: 'flex',
@@ -2498,7 +2578,7 @@ export default function MigrationPage() {
                         <TableRow 
                           key={table.name}
                           sx={{ 
-                            '&:hover': { bgcolor: 'rgba(56, 189, 248, 0.05)' },
+                            '&:hover': { bgcolor: 'colors.soft.primary' },
                             borderBottom: `1px solid ${colors.border}`,
                           }}
                         >
@@ -2526,8 +2606,8 @@ export default function MigrationPage() {
                               size="small"
                               sx={{
                                 bgcolor: table.rowCount > 0 
-                                  ? 'rgba(74, 222, 128, 0.15)' 
-                                  : 'rgba(148, 163, 184, 0.15)',
+                                  ? 'colors.soft.success' 
+                                  : 'colors.soft.neutral',
                                 color: table.rowCount > 0 
                                   ? colors.accent.success 
                                   : colors.text.muted,
@@ -2591,7 +2671,7 @@ export default function MigrationPage() {
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ 
-              bgcolor: 'rgba(56, 189, 248, 0.15)',
+              bgcolor: 'colors.soft.primary',
               p: 1,
               borderRadius: 2,
               display: 'flex',
@@ -2611,7 +2691,7 @@ export default function MigrationPage() {
             onClick={() => setTableSelectionDialog(false)}
             sx={{
               color: colors.text.secondary,
-              '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.1)' },
+              '&:hover': { bgcolor: 'colors.soft.neutral' },
             }}
           >
             <CloseIcon />
@@ -2651,7 +2731,7 @@ export default function MigrationPage() {
                 sx={{
                   color: colors.accent.primary,
                   fontWeight: 600,
-                  '&:hover': { bgcolor: 'rgba(56, 189, 248, 0.1)' },
+                  '&:hover': { bgcolor: 'colors.soft.primary' },
                 }}
               >
                 Select All
@@ -2663,7 +2743,7 @@ export default function MigrationPage() {
                 sx={{
                   color: colors.text.secondary,
                   fontWeight: 500,
-                  '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.1)' },
+                  '&:hover': { bgcolor: 'colors.soft.neutral' },
                 }}
               >
                 Clear All
@@ -2673,7 +2753,7 @@ export default function MigrationPage() {
                 label={`${selectedTables.size} selected`}
                 size="small"
                 sx={{
-                  bgcolor: selectedTables.size > 0 ? 'rgba(56, 189, 248, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                  bgcolor: selectedTables.size > 0 ? 'colors.soft.primary' : 'colors.soft.neutral',
                   color: selectedTables.size > 0 ? colors.accent.primary : colors.text.muted,
                   border: `1px solid ${selectedTables.size > 0 ? colors.accent.primary : colors.border}`,
                   fontWeight: 600,
@@ -2753,8 +2833,8 @@ export default function MigrationPage() {
                         }}
                         sx={{
                           cursor: 'pointer',
-                          bgcolor: isSelected ? 'rgba(56, 189, 248, 0.08)' : 'transparent',
-                          '&:hover': { bgcolor: isSelected ? 'rgba(56, 189, 248, 0.12)' : 'rgba(56, 189, 248, 0.05)' },
+                          bgcolor: isSelected ? 'colors.soft.primary' : 'transparent',
+                          '&:hover': { bgcolor: isSelected ? 'colors.soft.primary' : 'colors.soft.primary' },
                           borderBottom: `1px solid ${colors.border}`,
                         }}
                       >
@@ -2821,7 +2901,7 @@ export default function MigrationPage() {
                             label={mapping.columnMappings.length}
                             size="small"
                             sx={{
-                              bgcolor: 'rgba(148, 163, 184, 0.15)',
+                              bgcolor: 'colors.soft.neutral',
                               color: colors.text.secondary,
                               fontWeight: 600,
                             }}
@@ -2855,7 +2935,7 @@ export default function MigrationPage() {
               onClick={() => setTableSelectionDialog(false)}
               sx={{ 
                 color: colors.text.secondary,
-                '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.1)' },
+                '&:hover': { bgcolor: 'colors.soft.neutral' },
               }}
             >
               Cancel
@@ -2873,7 +2953,7 @@ export default function MigrationPage() {
                 bgcolor: colors.accent.primary,
                 color: colors.bg.primary,
                 fontWeight: 600,
-                '&:hover': { bgcolor: '#0ea5e9' },
+                '&:hover': { bgcolor: colors.accent.primary },
               }}
             >
               Confirm ({selectedTables.size})
@@ -2890,14 +2970,14 @@ export default function MigrationPage() {
         fullWidth
         PaperProps={{
           sx: {
-            bgcolor: colors.bg?.secondary ?? '#1e293b',
-            color: colors.text?.primary ?? '#f1f5f9',
+            bgcolor: colors.bg.secondary,
+            color: colors.text.primary,
             borderRadius: 3,
           },
         }}
       >
         <DialogTitle sx={{ borderBottom: 1, borderColor: colors.border ?? 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CompareArrowsIcon sx={{ color: colors.accent?.warning ?? '#f59e0b' }} />
+          <CompareArrowsIcon sx={{ color: colors.accent?.warning ?? colors.accent.warning }} />
           DDL Check Results
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
@@ -2914,7 +2994,7 @@ export default function MigrationPage() {
                   sx={{
                     bgcolor: colors.bg?.primary ?? 'background.paper',
                     border: 1,
-                    borderColor: r.match ? (colors.accent?.success ?? '#22c55e') : (colors.accent?.warning ?? '#f59e0b'),
+                    borderColor: r.match ? (colors.accent?.success ?? colors.accent.success) : (colors.accent?.warning ?? colors.accent.warning),
                     borderRadius: 2,
                     '&:before': { display: 'none' },
                     '& .MuiAccordionSummary-content': { my: 1 },
@@ -2934,7 +3014,7 @@ export default function MigrationPage() {
                           label={r.match ? 'Match' : `${r.differences?.length ?? 0} difference(s)`}
                           size="small"
                           sx={{
-                            bgcolor: r.match ? (colors.accent?.success ?? '#22c55e') : (colors.accent?.warning ?? '#f59e0b'),
+                            bgcolor: r.match ? (colors.accent?.success ?? colors.accent.success) : (colors.accent?.warning ?? colors.accent.warning),
                             color: '#fff',
                             fontWeight: 600,
                           }}
@@ -2953,13 +3033,13 @@ export default function MigrationPage() {
                     {r.differences && r.differences.length > 0 ? (
                       <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
                         {r.differences.map((diff, i) => (
-                          <Typography key={i} component="li" variant="body2" sx={{ color: colors.accent?.warning ?? '#f59e0b', mb: 0.5 }}>
+                          <Typography key={i} component="li" variant="body2" sx={{ color: colors.accent?.warning ?? colors.accent.warning, mb: 0.5 }}>
                             {diff}
                           </Typography>
                         ))}
                       </Box>
                     ) : r.source.exists && r.target.exists && r.match ? (
-                      <Typography variant="body2" sx={{ color: colors.accent?.success ?? '#22c55e' }}>
+                      <Typography variant="body2" sx={{ color: colors.accent?.success ?? colors.accent.success }}>
                         Source and target structures match (columns, primary key, foreign keys).
                       </Typography>
                     ) : null}

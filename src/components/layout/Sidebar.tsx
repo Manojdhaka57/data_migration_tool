@@ -35,8 +35,30 @@ import { useNavStatus, type ConfigLoadState, type NavStatus } from './useNavStat
 export const SIDEBAR_WIDTH_EXPANDED = 260;
 export const SIDEBAR_WIDTH_COLLAPSED = 64;
 
-const ACCENT = '#10B981';
-const MUTED = '#94A3B8';
+/**
+ * Sidebar palette — Dark Slate Gray, from the brand set.
+ *
+ * A white sidebar barely used the palette; this puts its strongest colour where
+ * it carries the whole frame. Every pairing below is measured against the
+ * #2A4954 ground:
+ *
+ *   Deep Saffron active   4.52:1   text
+ *   Label (primary.200)   6.66:1   text
+ *   Muted (primary.300)   4.78:1   text
+ *   Iguana Green tick     4.01:1   icon (needs 3:1, not 4.5:1)
+ *
+ * primary.400 (#6494A3) is deliberately NOT used for text here — it lands at
+ * 2.89:1 on this ground and would be unreadable.
+ */
+const SURFACE = '#2A4954'; // Dark Slate Gray
+const ACCENT = '#FF9933'; // Deep Saffron — the active item
+const TICK = '#73B682'; // Iguana Green — a completed step
+const LABEL = '#C7DADF'; // nav labels
+const MUTED = '#9CBCC6'; // section headers, secondary detail
+const BORDER = 'rgba(255, 255, 255, 0.10)';
+const ACTIVE_BG = 'rgba(255, 255, 255, 0.10)';
+const HOVER_BG = 'rgba(255, 255, 255, 0.06)';
+const TEXT = '#FFFFFF';
 
 /**
  * Which section headers are folded shut.
@@ -80,9 +102,9 @@ function StepBadge({ step, done }: { step: number; done: boolean }) {
         justifyContent: 'center',
         fontSize: 10,
         fontWeight: 700,
-        bgcolor: done ? 'rgba(16, 185, 129, 0.2)' : 'rgba(148, 163, 184, 0.12)',
-        color: done ? ACCENT : MUTED,
-        border: `1px solid ${done ? 'rgba(16, 185, 129, 0.45)' : 'rgba(148, 163, 184, 0.3)'}`,
+        bgcolor: done ? 'rgba(115, 182, 130, 0.18)' : 'rgba(255, 255, 255, 0.08)',
+        color: done ? TICK : MUTED,
+        border: `1px solid ${done ? 'rgba(115, 182, 130, 0.45)' : BORDER}`,
       }}
     >
       {done ? <DoneIcon sx={{ fontSize: 13 }} /> : step}
@@ -91,9 +113,9 @@ function StepBadge({ step, done }: { step: number; done: boolean }) {
 }
 
 function detailColor(tone: NavStatus['tone']): string {
-  if (tone === 'ok') return ACCENT;
-  if (tone === 'warn') return '#F59E0B';
-  return '#64748B';
+  if (tone === 'ok') return TICK;
+  if (tone === 'warn') return ACCENT;
+  return MUTED;
 }
 
 export default function Sidebar({
@@ -151,10 +173,10 @@ export default function Sidebar({
               justifyContent: collapsed ? 'center' : 'flex-start',
               px: 1.5,
               gap: collapsed ? 0 : 1,
-              bgcolor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-              border: isActive ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
+              bgcolor: isActive ? ACTIVE_BG : 'transparent',
+              border: '1px solid transparent',
               '&:hover': {
-                bgcolor: isActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(148, 163, 184, 0.08)',
+                bgcolor: isActive ? ACTIVE_BG : HOVER_BG,
               },
             }}
           >
@@ -187,8 +209,8 @@ export default function Sidebar({
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    bgcolor: done ? ACCENT : 'rgba(148, 163, 184, 0.5)',
-                    border: '1.5px solid #16243B',
+                    bgcolor: done ? TICK : 'rgba(255, 255, 255, 0.35)',
+                    border: `1.5px solid ${SURFACE}`,
                   }}
                 />
               )}
@@ -203,7 +225,7 @@ export default function Sidebar({
                   variant: 'body2',
                   noWrap: true,
                   fontWeight: isActive ? 600 : 500,
-                  color: isActive ? '#F8FAFC' : '#CBD5E1',
+                  color: isActive ? ACCENT : LABEL,
                 }}
                 secondaryTypographyProps={{
                   variant: 'caption',
@@ -224,12 +246,13 @@ export default function Sidebar({
       sx={{
         width: collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED,
         flexShrink: 0,
-        background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
+        bgcolor: SURFACE,
+        borderRight: `1px solid ${BORDER}`,
+        boxShadow: '2px 0 12px rgba(39, 38, 38, 0.10)',
         display: 'flex',
         flexDirection: 'column',
         transition: 'width 0.3s ease',
         overflow: 'hidden',
-        boxShadow: '4px 0 20px rgba(0,0,0,0.15)',
       }}
     >
       {/* Logo Header */}
@@ -239,22 +262,15 @@ export default function Sidebar({
           display: 'flex',
           alignItems: 'center',
           justifyContent: collapsed ? 'center' : 'space-between',
-          borderBottom: '1px solid rgba(148, 163, 184, 0.15)',
+          borderBottom: `1px solid ${BORDER}`,
           minHeight: 64,
-          background: 'rgba(255,255,255,0.02)',
         }}
       >
         {!collapsed ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography
               variant="h3Bold"
-              sx={{
-                color: '#F8FAFC',
-                background: 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
+              sx={{ color: TEXT }}
             >
               ⬡ DataMigrate
             </Typography>
@@ -262,23 +278,17 @@ export default function Sidebar({
               label="v1.0"
               size="small"
               sx={{
-                bgcolor: 'rgba(16, 185, 129, 0.2)',
+                bgcolor: 'rgba(255, 153, 51, 0.18)',
                 color: ACCENT,
                 fontSize: '10px',
                 height: '18px',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
               }}
             />
           </Box>
         ) : (
           <Typography
             variant="h2Bold"
-            sx={{
-              background: 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
+            sx={{ color: ACCENT }}
           >
             ⬡
           </Typography>
@@ -303,7 +313,7 @@ export default function Sidebar({
                 // No room for a heading at 64px; a rule keeps the grouping
                 // legible without one.
                 index > 0 && (
-                  <Divider sx={{ borderColor: 'rgba(148, 163, 184, 0.12)', mx: 1.5, my: 1 }} />
+                  <Divider sx={{ borderColor: BORDER, mx: 1.5, my: 1 }} />
                 )
               ) : (
                 <ListItemButton
@@ -315,13 +325,13 @@ export default function Sidebar({
                     mb: 0.75,
                     gap: 0.75,
                     borderRadius: 0,
-                    '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.06)' },
+                    '&:hover': { bgcolor: HOVER_BG },
                   }}
                 >
                   <Typography
                     sx={{
                       flex: 1,
-                      color: '#64748B',
+                      color: MUTED,
                       fontSize: '10px',
                       fontWeight: 700,
                       letterSpacing: '0.08em',
@@ -338,7 +348,7 @@ export default function Sidebar({
                       sx={{
                         fontSize: '10px',
                         fontWeight: 700,
-                        color: doneSteps === steps.length ? ACCENT : '#64748B',
+                        color: doneSteps === steps.length ? TICK : MUTED,
                       }}
                     >
                       {doneSteps}/{steps.length}
@@ -348,7 +358,7 @@ export default function Sidebar({
                   <SectionChevron
                     sx={{
                       fontSize: 16,
-                      color: '#64748B',
+                      color: MUTED,
                       transform: folded ? 'rotate(-90deg)' : 'none',
                       transition: 'transform 0.2s ease',
                     }}
@@ -364,7 +374,7 @@ export default function Sidebar({
         })}
       </Box>
 
-      <Divider sx={{ borderColor: 'rgba(148, 163, 184, 0.1)', mx: 1.5 }} />
+      <Divider sx={{ borderColor: BORDER, mx: 1.5 }} />
 
       {/* Bottom Actions */}
       <Box sx={{ p: 1.5 }}>
@@ -377,7 +387,7 @@ export default function Sidebar({
                 minHeight: 44,
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 px: collapsed ? 1.5 : 2,
-                '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.08)' },
+                '&:hover': { bgcolor: HOVER_BG },
               }}
             >
               <ListItemIcon
@@ -388,7 +398,7 @@ export default function Sidebar({
               {!collapsed && (
                 <ListItemText
                   primary="Help Guide"
-                  primaryTypographyProps={{ variant: 'body2', color: '#CBD5E1' }}
+                  primaryTypographyProps={{ variant: 'body2', color: LABEL }}
                 />
               )}
             </ListItemButton>
@@ -405,18 +415,18 @@ export default function Sidebar({
                   minHeight: 44,
                   justifyContent: collapsed ? 'center' : 'flex-start',
                   px: collapsed ? 1.5 : 2,
-                  '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)' },
+                  '&:hover': { bgcolor: 'rgba(192, 69, 60, 0.20)' },
                 }}
               >
                 <ListItemIcon
-                  sx={{ minWidth: collapsed ? 0 : 40, color: '#F87171', justifyContent: 'center' }}
+                  sx={{ minWidth: collapsed ? 0 : 40, color: '#E5978F', justifyContent: 'center' }}
                 >
                   <ResetIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
                 {!collapsed && (
                   <ListItemText
                     primary="Reset Data"
-                    primaryTypographyProps={{ variant: 'body2', color: '#F87171' }}
+                    primaryTypographyProps={{ variant: 'body2', color: '#E5978F' }}
                   />
                 )}
               </ListItemButton>
@@ -433,7 +443,7 @@ export default function Sidebar({
                 minHeight: 44,
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 px: collapsed ? 1.5 : 2,
-                '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.08)' },
+                '&:hover': { bgcolor: HOVER_BG },
               }}
             >
               <ListItemIcon
@@ -444,7 +454,7 @@ export default function Sidebar({
               {!collapsed && (
                 <ListItemText
                   primary="Collapse"
-                  primaryTypographyProps={{ variant: 'body2', color: '#CBD5E1' }}
+                  primaryTypographyProps={{ variant: 'body2', color: LABEL }}
                 />
               )}
             </ListItemButton>
