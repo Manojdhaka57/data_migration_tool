@@ -97,8 +97,18 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "pan_number",
+          "target": "pan_number",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "remark",
           "target": "remark",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "student_display_name",
+          "target": "student_display_name",
           "mappingType": "DIRECT"
         },
         {
@@ -125,15 +135,191 @@
           "source": "opportunity_id",
           "target": "opportunity_id",
           "mappingType": "DIRECT"
-        },
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "admission_portal_field_mappings",
+      "targetTable": "admission_portal_field_mappings",
+      "columnMappings": [
         {
-          "source": "student_display_name",
-          "target": "student_display_name",
+          "source": "id",
+          "target": "id",
           "mappingType": "DIRECT"
         },
         {
-          "source": "pan_number",
-          "target": "pan_number",
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "erp_field_name",
+          "target": "erp_field_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "portal_field_key",
+          "target": "portal_field_key",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "admissionportal_api_configs",
+      "targetTable": "admissionportal_api_configs",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "base_url",
+          "target": "base_url",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "client_id",
+          "target": "client_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "token",
+          "target": "token",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "subentity_id",
+          "target": "subentity_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "timeout_in_sec",
+          "target": "timeout_in_sec",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "tenant_api_key",
+          "target": "tenant_api_key",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "x_api_key",
+          "target": "x_api_key",
+          "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "admissionportal_api_logs",
+      "targetTable": "admissionportal_api_logs",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "api_call_status",
+          "target": "api_call_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "endpoint",
+          "target": "endpoint",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "opportunity_id",
+          "target": "opportunity_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "request_payload",
+          "target": "request_payload",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "response_payload",
+          "target": "response_payload",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "status_code",
+          "target": "status_code",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "subentity_id",
+          "target": "subentity_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
           "mappingType": "DIRECT"
         }
       ],
@@ -246,6 +432,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "allocation_type",
+          "target": "allocation_type",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "match_score",
           "target": "match_score",
           "mappingType": "DIRECT"
@@ -298,11 +489,6 @@
         {
           "source": "previous_owner_id",
           "target": "previous_owner_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "allocation_type",
-          "target": "allocation_type",
           "mappingType": "DIRECT"
         }
       ],
@@ -780,8 +966,23 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "api_path",
+          "target": "api_path",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "base_url",
+          "target": "base_url",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "ai_provider",
           "target": "ai_provider",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "http_method",
+          "target": "http_method",
           "mappingType": "DIRECT"
         },
         {
@@ -812,21 +1013,6 @@
         {
           "source": "call_recording_id",
           "target": "call_recording_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "api_path",
-          "target": "api_path",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "base_url",
-          "target": "base_url",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "http_method",
-          "target": "http_method",
           "mappingType": "DIRECT"
         }
       ],
@@ -959,6 +1145,16 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "missing_user_reason",
+          "target": "missing_user_reason",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "opportunity_mobile_number",
+          "target": "opportunity_mobile_number",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "provider_call_id",
           "target": "provider_call_id",
           "mappingType": "DIRECT"
@@ -979,6 +1175,16 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "system_user_extension_number",
+          "target": "system_user_extension_number",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "system_user_phone_number",
+          "target": "system_user_phone_number",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "created_by",
           "target": "created_by",
           "mappingType": "DIRECT"
@@ -991,26 +1197,6 @@
         {
           "source": "system_user_id",
           "target": "system_user_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "opportunity_mobile_number",
-          "target": "opportunity_mobile_number",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "system_user_extension_number",
-          "target": "system_user_extension_number",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "system_user_phone_number",
-          "target": "system_user_phone_number",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "missing_user_reason",
-          "target": "missing_user_reason",
           "mappingType": "DIRECT"
         }
       ],
@@ -1051,6 +1237,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "is_referral_applicable",
+          "target": "is_referral_applicable",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "campaign_name",
           "target": "campaign_name",
           "mappingType": "DIRECT"
@@ -1063,11 +1254,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "is_referral_applicable",
-          "target": "is_referral_applicable",
           "mappingType": "DIRECT"
         }
       ],
@@ -1115,6 +1301,83 @@
         {
           "source": "updated_by",
           "target": "updated_by",
+          "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "churn_run",
+      "targetTable": "churn_run",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "churned_count",
+          "target": "churned_count",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "processed_count",
+          "target": "processed_count",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "remark",
+          "target": "remark",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "run_at",
+          "target": "run_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "skipped_count",
+          "target": "skipped_count",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "trigger_type",
+          "target": "trigger_type",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "churning_rule_id",
+          "target": "churning_rule_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -1253,6 +1516,11 @@
           "source": "target_user_level_id",
           "target": "target_user_level_id",
           "mappingType": "DIRECT"
+        },
+        {
+          "source": "min_opportunity_id",
+          "target": "min_opportunity_id",
+          "mappingType": "DIRECT"
         }
       ],
       "conflictStrategy": "skip"
@@ -1367,6 +1635,11 @@
           "source": "sub_entity_id",
           "target": "sub_entity_id",
           "mappingType": "DIRECT"
+        },
+        {
+          "source": "clevertap_university_name",
+          "target": "clevertap_university_name",
+          "mappingType": "DIRECT"
         }
       ],
       "conflictStrategy": "skip"
@@ -1411,6 +1684,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "phone_region",
+          "target": "phone_region",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "short_code",
           "target": "short_code",
           "mappingType": "DIRECT"
@@ -1423,11 +1701,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "phone_region",
-          "target": "phone_region",
           "mappingType": "DIRECT"
         }
       ],
@@ -1677,6 +1950,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "for_learner",
+          "target": "for_learner",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "is_internal",
           "target": "is_internal",
           "mappingType": "DIRECT"
@@ -1704,11 +1982,6 @@
         {
           "source": "document_check_items_id",
           "target": "document_check_items_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "for_learner",
-          "target": "for_learner",
           "mappingType": "DIRECT"
         }
       ],
@@ -1929,6 +2202,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "is_sales",
+          "target": "is_sales",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "level",
           "target": "level",
           "mappingType": "DIRECT"
@@ -1956,11 +2234,6 @@
         {
           "source": "parent_department",
           "target": "parent_department",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "is_sales",
-          "target": "is_sales",
           "mappingType": "DIRECT"
         }
       ],
@@ -2100,6 +2373,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "document_storage_name",
+          "target": "document_storage_name",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "is_government_issued",
           "target": "is_government_issued",
           "mappingType": "DIRECT"
@@ -2117,11 +2395,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "document_storage_name",
-          "target": "document_storage_name",
           "mappingType": "DIRECT"
         }
       ],
@@ -2144,6 +2417,11 @@
         {
           "source": "attachment_count",
           "target": "attachment_count",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "body",
+          "target": "body",
           "mappingType": "DIRECT"
         },
         {
@@ -2177,6 +2455,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "opportunity_id",
+          "target": "opportunity_id",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "provider_message_id",
           "target": "provider_message_id",
           "mappingType": "DIRECT"
@@ -2202,23 +2485,13 @@
           "mappingType": "DIRECT"
         },
         {
-          "source": "created_by",
-          "target": "created_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "body",
-          "target": "body",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "opportunity_id",
-          "target": "opportunity_id",
-          "mappingType": "DIRECT"
-        },
-        {
           "source": "subject",
           "target": "subject",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
           "mappingType": "DIRECT"
         }
       ],
@@ -2356,6 +2629,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "email_provider_id",
+          "target": "email_provider_id",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "primary_status_id",
           "target": "primary_status_id",
           "mappingType": "DIRECT"
@@ -2368,11 +2646,6 @@
         {
           "source": "sub_entity_id",
           "target": "sub_entity_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "email_provider_id",
-          "target": "email_provider_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -2888,6 +3161,73 @@
       "conflictStrategy": "skip"
     },
     {
+      "sourceTable": "erlang_configs",
+      "targetTable": "erlang_configs",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "call_provider",
+          "target": "call_provider",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "call_start_date",
+          "target": "call_start_date",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "filter",
+          "target": "filter",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "min_call_duration_in_seconds",
+          "target": "min_call_duration_in_seconds",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "subentity_id",
+          "target": "subentity_id",
+          "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
       "sourceTable": "external_service_tokens",
       "targetTable": "external_service_tokens",
       "columnMappings": [
@@ -3120,6 +3460,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "application_fees",
+          "target": "application_fees",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "end_date",
           "target": "end_date",
           "mappingType": "DIRECT"
@@ -3167,11 +3512,6 @@
         {
           "source": "course_batch_mapping_id",
           "target": "course_batch_mapping_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "application_fees",
-          "target": "application_fees",
           "mappingType": "DIRECT"
         }
       ],
@@ -3780,6 +4120,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "follow_up_time_slots",
+          "target": "follow_up_time_slots",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "max_active_opportunities",
           "target": "max_active_opportunities",
           "mappingType": "DIRECT"
@@ -3803,10 +4148,157 @@
           "source": "updated_by",
           "target": "updated_by",
           "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "leads",
+      "targetTable": "leads",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
         },
         {
-          "source": "follow_up_time_slots",
-          "target": "follow_up_time_slots",
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "alternate_email",
+          "target": "alternate_email",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "alternate_mobile_number",
+          "target": "alternate_mobile_number",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "annual_income",
+          "target": "annual_income",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "date_of_birth",
+          "target": "date_of_birth",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "email",
+          "target": "email",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "experience_in_months",
+          "target": "experience_in_months",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "father_name",
+          "target": "father_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "first_name",
+          "target": "first_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "full_name",
+          "target": "full_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "gender",
+          "target": "gender",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "last_name",
+          "target": "last_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "locality",
+          "target": "locality",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "marital_status",
+          "target": "marital_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "middle_name",
+          "target": "middle_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "mobile_number",
+          "target": "mobile_number",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "mother_name",
+          "target": "mother_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "physically_handicapped",
+          "target": "physically_handicapped",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "city_id",
+          "target": "city_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "country_id",
+          "target": "country_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "highest_qualification_id",
+          "target": "highest_qualification_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "state_id",
+          "target": "state_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "pincode",
+          "target": "pincode",
           "mappingType": "DIRECT"
         }
       ],
@@ -3976,6 +4468,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "is_referral_applicable",
+          "target": "is_referral_applicable",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "media_name",
           "target": "media_name",
           "mappingType": "DIRECT"
@@ -3996,8 +4493,8 @@
           "mappingType": "DIRECT"
         },
         {
-          "source": "is_referral_applicable",
-          "target": "is_referral_applicable",
+          "source": "user_id",
+          "target": "user_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -4075,6 +4572,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "fee_plan_id",
+          "target": "fee_plan_id",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "opportunity_id",
           "target": "opportunity_id",
           "mappingType": "DIRECT"
@@ -4102,11 +4604,6 @@
         {
           "source": "url",
           "target": "url",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "fee_plan_id",
-          "target": "fee_plan_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -4242,6 +4739,11 @@
           "source": "module_menu_id",
           "target": "module_menu_id",
           "mappingType": "DIRECT"
+        },
+        {
+          "source": "force_show_module_group",
+          "target": "force_show_module_group",
+          "mappingType": "DIRECT"
         }
       ],
       "conflictStrategy": "skip"
@@ -4281,6 +4783,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "skip_module_group",
+          "target": "skip_module_group",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "title",
           "target": "title",
           "mappingType": "DIRECT"
@@ -4298,11 +4805,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "skip_module_group",
-          "target": "skip_module_group",
           "mappingType": "DIRECT"
         }
       ],
@@ -4482,6 +4984,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "redis_lock_ttl_seconds",
+          "target": "redis_lock_ttl_seconds",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "created_by",
           "target": "created_by",
           "mappingType": "DIRECT"
@@ -4489,11 +4996,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "redis_lock_ttl_seconds",
-          "target": "redis_lock_ttl_seconds",
           "mappingType": "DIRECT"
         }
       ],
@@ -4544,6 +5046,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "locked_till",
+          "target": "locked_till",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "metadata",
           "target": "metadata",
           "mappingType": "DIRECT"
@@ -4567,10 +5074,207 @@
           "source": "notification_type_id",
           "target": "notification_type_id",
           "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "opportunities",
+      "targetTable": "opportunities",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
         },
         {
-          "source": "locked_till",
-          "target": "locked_till",
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "custom_data",
+          "target": "custom_data",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "enquiry_date",
+          "target": "enquiry_date",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "enrollment_number",
+          "target": "enrollment_number",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "expected_payment_date",
+          "target": "expected_payment_date",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "follow_up_date",
+          "target": "follow_up_date",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "ip_generation_date",
+          "target": "ip_generation_date",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_first",
+          "target": "is_first",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_ips",
+          "target": "is_ips",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "re_enquire_date",
+          "target": "re_enquire_date",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "remark",
+          "target": "remark",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "sales_tertiary_status_value",
+          "target": "sales_tertiary_status_value",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "student_category",
+          "target": "student_category",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "year_of_graduation",
+          "target": "year_of_graduation",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "admission_officer_user_id",
+          "target": "admission_officer_user_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "admission_primary_status_id",
+          "target": "admission_primary_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "batch_id",
+          "target": "batch_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "campaign_id",
+          "target": "campaign_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "course_id",
+          "target": "course_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "course_type_id",
+          "target": "course_type_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "document_primary_status_id",
+          "target": "document_primary_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "lead_id",
+          "target": "lead_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "media_id",
+          "target": "media_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "owner_user_id",
+          "target": "owner_user_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "payment_primary_status_id",
+          "target": "payment_primary_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "referral_id",
+          "target": "referral_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "sales_primary_status_id",
+          "target": "sales_primary_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "sales_secondary_status_id",
+          "target": "sales_secondary_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "sales_tertiary_status_id",
+          "target": "sales_tertiary_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "shared_user_id",
+          "target": "shared_user_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "source_id",
+          "target": "source_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "specialization_id",
+          "target": "specialization_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "sub_entity_id",
+          "target": "sub_entity_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -4626,6 +5330,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "same_as_communication_address",
+          "target": "same_as_communication_address",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "created_by",
           "target": "created_by",
           "mappingType": "DIRECT"
@@ -4668,11 +5377,6 @@
         {
           "source": "perma_state_id",
           "target": "perma_state_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "same_as_communication_address",
-          "target": "same_as_communication_address",
           "mappingType": "DIRECT"
         },
         {
@@ -4797,6 +5501,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "sales_date",
+          "target": "sales_date",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "total_applicable_fee",
           "target": "total_applicable_fee",
           "mappingType": "DIRECT"
@@ -4819,11 +5528,6 @@
         {
           "source": "opportunity_id",
           "target": "opportunity_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "sales_date",
-          "target": "sales_date",
           "mappingType": "DIRECT"
         }
       ],
@@ -4948,6 +5652,73 @@
         {
           "source": "opportunity_id",
           "target": "opportunity_id",
+          "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "opportunity_referral_details",
+      "targetTable": "opportunity_referral_details",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "referral_code",
+          "target": "referral_code",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "refferal_name",
+          "target": "refferal_name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "refferal_source",
+          "target": "refferal_source",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "opportunity_id",
+          "target": "opportunity_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "referrer_opportunity_id",
+          "target": "referrer_opportunity_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -5204,6 +5975,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "approved_at",
+          "target": "approved_at",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "fee_breakdown",
           "target": "fee_breakdown",
           "mappingType": "DIRECT"
@@ -5256,11 +6032,6 @@
         {
           "source": "payment_primary_status_id",
           "target": "payment_primary_status_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "approved_at",
-          "target": "approved_at",
           "mappingType": "DIRECT"
         }
       ],
@@ -5446,6 +6217,108 @@
       "conflictStrategy": "skip"
     },
     {
+      "sourceTable": "opportunitywise_churning_log",
+      "targetTable": "opportunitywise_churning_log",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "churned_at",
+          "target": "churned_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "churning_rule_id",
+          "target": "churning_rule_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "counter",
+          "target": "counter",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "new_status_id",
+          "target": "new_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "new_sub_status_id",
+          "target": "new_sub_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "new_user_id",
+          "target": "new_user_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "old_status_id",
+          "target": "old_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "old_sub_status_id",
+          "target": "old_sub_status_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "old_user_id",
+          "target": "old_user_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "opportunity_id",
+          "target": "opportunity_id",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "transfer_type",
+          "target": "transfer_type",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "churn_run_id",
+          "target": "churn_run_id",
+          "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
       "sourceTable": "opportunitywise_transfer_log",
       "targetTable": "opportunitywise_transfer_log",
       "columnMappings": [
@@ -5619,6 +6492,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "mis_payment_head",
+          "target": "mis_payment_head",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "name",
           "target": "name",
           "mappingType": "DIRECT"
@@ -5631,11 +6509,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "mis_payment_head",
-          "target": "mis_payment_head",
           "mappingType": "DIRECT"
         }
       ],
@@ -5751,8 +6624,8 @@
       "conflictStrategy": "skip"
     },
     {
-      "sourceTable": "qualifications",
-      "targetTable": "qualification",
+      "sourceTable": "qualification",
+      "targetTable": "qualifications",
       "columnMappings": [
         {
           "source": "id",
@@ -5832,8 +6705,18 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "styles",
+          "target": "styles",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "name",
           "target": "name",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "quick_filter_context",
+          "target": "quick_filter_context",
           "mappingType": "DIRECT"
         },
         {
@@ -5844,16 +6727,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "styles",
-          "target": "styles",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "quick_filter_context",
-          "target": "quick_filter_context",
           "mappingType": "DIRECT"
         }
       ],
@@ -6075,6 +6948,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "status_json",
+          "target": "status_json",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "created_by",
           "target": "created_by",
           "mappingType": "DIRECT"
@@ -6092,11 +6970,6 @@
         {
           "source": "role_level_id",
           "target": "role_level_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "status_json",
-          "target": "status_json",
           "mappingType": "DIRECT"
         }
       ],
@@ -6251,6 +7124,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "parameter_key",
+          "target": "parameter_key",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "parameter_name",
           "target": "parameter_name",
           "mappingType": "DIRECT"
@@ -6263,11 +7141,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "parameter_key",
-          "target": "parameter_key",
           "mappingType": "DIRECT"
         }
       ],
@@ -6303,6 +7176,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "filter_context",
+          "target": "filter_context",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "filter_criteria",
           "target": "filter_criteria",
           "mappingType": "DIRECT"
@@ -6320,11 +7198,6 @@
         {
           "source": "updated_by",
           "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "filter_context",
-          "target": "filter_context",
           "mappingType": "DIRECT"
         }
       ],
@@ -6707,13 +7580,8 @@
           "mappingType": "DIRECT"
         },
         {
-          "source": "created_by",
-          "target": "created_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "updated_by",
-          "target": "updated_by",
+          "source": "short_code",
+          "target": "short_code",
           "mappingType": "DIRECT"
         },
         {
@@ -6722,8 +7590,13 @@
           "mappingType": "DIRECT"
         },
         {
-          "source": "short_code",
-          "target": "short_code",
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
           "mappingType": "DIRECT"
         }
       ],
@@ -6759,6 +7632,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "is_system",
+          "target": "is_system",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "name",
           "target": "name",
           "mappingType": "DIRECT"
@@ -6766,6 +7644,16 @@
         {
           "source": "position",
           "target": "position",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "short_code",
+          "target": "short_code",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "styles",
+          "target": "styles",
           "mappingType": "DIRECT"
         },
         {
@@ -6781,21 +7669,6 @@
         {
           "source": "status_type_id",
           "target": "status_type_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "styles",
-          "target": "styles",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "is_system",
-          "target": "is_system",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "short_code",
-          "target": "short_code",
           "mappingType": "DIRECT"
         }
       ],
@@ -7344,6 +8217,11 @@
           "source": "pincode",
           "target": "pincode",
           "mappingType": "DIRECT"
+        },
+        {
+          "source": "source_code",
+          "target": "source_code",
+          "mappingType": "DIRECT"
         }
       ],
       "conflictStrategy": "skip"
@@ -7427,6 +8305,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "styles",
+          "target": "styles",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "created_by",
           "target": "created_by",
           "mappingType": "DIRECT"
@@ -7439,11 +8322,6 @@
         {
           "source": "status_id",
           "target": "status_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "styles",
-          "target": "styles",
           "mappingType": "DIRECT"
         }
       ],
@@ -7484,6 +8362,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "icon",
+          "target": "icon",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "name",
           "target": "name",
           "mappingType": "DIRECT"
@@ -7521,11 +8404,6 @@
         {
           "source": "module_id",
           "target": "module_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "icon",
-          "target": "icon",
           "mappingType": "DIRECT"
         }
       ],
@@ -7591,13 +8469,13 @@
           "mappingType": "DIRECT"
         },
         {
-          "source": "opportunity_id",
-          "target": "opportunity_id",
+          "source": "assigned_to_user_id",
+          "target": "assigned_to_user_id",
           "mappingType": "DIRECT"
         },
         {
-          "source": "assigned_to_user_id",
-          "target": "assigned_to_user_id",
+          "source": "opportunity_id",
+          "target": "opportunity_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -7643,6 +8521,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "styles",
+          "target": "styles",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "created_by",
           "target": "created_by",
           "mappingType": "DIRECT"
@@ -7656,10 +8539,57 @@
           "source": "secondary_status_id",
           "target": "secondary_status_id",
           "mappingType": "DIRECT"
+        }
+      ],
+      "conflictStrategy": "skip"
+    },
+    {
+      "sourceTable": "university_portal_configs",
+      "targetTable": "university_portal_configs",
+      "columnMappings": [
+        {
+          "source": "id",
+          "target": "id",
+          "mappingType": "DIRECT"
         },
         {
-          "source": "styles",
-          "target": "styles",
+          "source": "active_status",
+          "target": "active_status",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_at",
+          "target": "created_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "is_deleted",
+          "target": "is_deleted",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_at",
+          "target": "updated_at",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "levels",
+          "target": "levels",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "created_by",
+          "target": "created_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "updated_by",
+          "target": "updated_by",
+          "mappingType": "DIRECT"
+        },
+        {
+          "source": "sub_entity_id",
+          "target": "sub_entity_id",
           "mappingType": "DIRECT"
         }
       ],
@@ -7824,6 +8754,11 @@
           "mappingType": "DIRECT"
         },
         {
+          "source": "for_parallel_payment_cu_access",
+          "target": "for_parallel_payment_cu_access",
+          "mappingType": "DIRECT"
+        },
+        {
           "source": "level_id",
           "target": "level_id",
           "mappingType": "DIRECT"
@@ -7856,11 +8791,6 @@
         {
           "source": "reports_to",
           "target": "reports_to",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "for_parallel_payment_cu_access",
-          "target": "for_parallel_payment_cu_access",
           "mappingType": "DIRECT"
         }
       ],
@@ -8254,566 +9184,8 @@
       "conflictStrategy": "skip"
     },
     {
-      "sourceTable": "students",
-      "targetTable": "leads",
-      "columnMappings": [
-        {
-          "source": "students.lead_id",
-          "target": "id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "",
-          "target": "active_status",
-          "mappingType": "CONSTANT",
-          "constantValue": "ACTIVE"
-        },
-        {
-          "source": "__expr_created_at",
-          "target": "created_at",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.created_at IS NOT NULL\n         AND students.created_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.created_at)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "__expr_updated_at",
-          "target": "updated_at",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.modified_at IS NOT NULL\n         AND students.modified_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.modified_at)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "students.is_deleted",
-          "target": "is_deleted",
-          "mappingType": "DIRECT",
-          "convertTinyintToBoolean": true
-        },
-        {
-          "source": "__expr_gender",
-          "target": "gender",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN UPPER(TRIM(gender)) IN ('M', 'MALE') THEN 'MALE'\n    WHEN UPPER(TRIM(gender)) IN ('F', 'FEMALE') THEN 'FEMALE'\n    WHEN UPPER(TRIM(gender)) IN ('O', 'OTHER', 'OTHERS') THEN 'OTHERS'\n    ELSE NULL\nEND"
-            }
-          }
-        },
-        {
-          "source": "students.alternate_contact",
-          "target": "alternate_mobile_number",
-          "mappingType": "DIRECT",
-          "encrypt": true
-        },
-        {
-          "source": "students.alternet_email",
-          "target": "alternate_email",
-          "mappingType": "DIRECT",
-          "encrypt": true
-        },
-        {
-          "source": "students.annual_income",
-          "target": "annual_income",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.dob",
-          "target": "date_of_birth",
-          "mappingType": "DIRECT",
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "students.email",
-          "target": "email",
-          "mappingType": "DIRECT",
-          "encrypt": true
-        },
-        {
-          "source": "__expr_experience_in_months",
-          "target": "experience_in_months",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "(COALESCE(exp_year, 0) * 12) + COALESCE(exp_month, 0)"
-            }
-          }
-        },
-        {
-          "source": "students.first_name",
-          "target": "first_name",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.name",
-          "target": "full_name",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.last_name",
-          "target": "last_name",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.mobile",
-          "target": "mobile_number",
-          "mappingType": "DIRECT",
-          "encrypt": true
-        },
-        {
-          "source": "students.middle_name",
-          "target": "middle_name",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "__expr_physically_handicapped",
-          "target": "physically_handicapped",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN physically_handicapped IS NULL THEN NULL\n    WHEN UPPER(TRIM(physically_handicapped)) = 'YES' THEN TRUE\n    WHEN UPPER(TRIM(physically_handicapped)) IN ('NO', '0') THEN FALSE\n    ELSE NULL\nEND"
-            }
-          }
-        },
-        {
-          "source": "students.city",
-          "target": "city_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "students.country",
-          "target": "country_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "students.highest_qualification",
-          "target": "highest_qualification_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "students.created_by",
-          "target": "created_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.modified_by",
-          "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.state",
-          "target": "state_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "__expr_marital_status",
-          "target": "marital_status",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN marital_status IS NULL THEN NULL\n    WHEN TRIM(marital_status) = '0' THEN NULL\n    WHEN TRIM(marital_status) = '----' THEN 'OTHER'\n    WHEN UPPER(TRIM(marital_status)) IN ('MARRIED') THEN 'MARRIED'\n    WHEN UPPER(TRIM(marital_status)) IN ('UNMARRIED', 'SINGLE') THEN 'UNMARRIED'\n    ELSE 'OTHER'\nEND"
-            }
-          }
-        },
-        {
-          "source": "students.pincode",
-          "target": "pincode",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "student_enrollment_details.father_name",
-          "target": "father_name",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "student_enrollment_details.mother_name",
-          "target": "mother_name",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "__expr_locality",
-          "target": "locality",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN UPPER(TRIM(student_enrollment_details.locality)) = 'URBAN' THEN 'URBAN'\n    WHEN UPPER(TRIM(student_enrollment_details.locality)) = 'RURAL' THEN 'RURAL'\n    ELSE NULL\nEND"
-            }
-          }
-        }
-      ],
-      "conflictStrategy": "upsert",
-      "rowFilters": [
-        {
-          "column": "students.university_id",
-          "operator": "=",
-          "value": "34"
-        }
-      ],
-      "joins": [
-        {
-          "table": "student_enrollment_details",
-          "type": "LEFT",
-          "leftColumn": "students.lead_id",
-          "rightColumn": "student_id"
-        }
-      ]
-    },
-    {
-      "sourceTable": "students",
-      "targetTable": "opportunities",
-      "columnMappings": [
-        {
-          "source": "students.lead_id",
-          "target": "id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "",
-          "target": "active_status",
-          "mappingType": "CONSTANT",
-          "constantValue": "ACTIVE"
-        },
-        {
-          "source": "__expr_created_at",
-          "target": "created_at",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.created_at IS NOT NULL\n         AND students.created_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.created_at)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "__expr_updated_at",
-          "target": "updated_at",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.modified_at IS NOT NULL\n         AND students.modified_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.modified_at)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "students.created_by",
-          "target": "created_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.modified_by",
-          "target": "updated_by",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.is_deleted",
-          "target": "is_deleted",
-          "mappingType": "DIRECT",
-          "convertTinyintToBoolean": true
-        },
-        {
-          "source": "students.lead_id",
-          "target": "lead_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "__expr_batch_id",
-          "target": "batch_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.batch_id = 154 THEN 152\n    WHEN students.batch_id = 176 THEN 174\n    ELSE students.batch_id\nEND"
-            }
-          },
-          "zeroToNull": true
-        },
-        {
-          "source": "__expr_campaign_id",
-          "target": "campaign_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.campaign_id = 7695 THEN 7574\n    WHEN students.campaign_id = 7702 THEN 7568\n    WHEN students.campaign_id = 7745 THEN 7579\n    WHEN students.campaign_id = 7746 THEN 7580\n    WHEN students.campaign_id = 7781 THEN 7577\n    ELSE students.campaign_id\nEND"
-            }
-          },
-          "zeroToNull": true
-        },
-        {
-          "source": "students.source_id",
-          "target": "source_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "",
-          "target": "is_first",
-          "mappingType": "CONSTANT",
-          "constantValue": true
-        },
-        {
-          "source": "__expr_course_id",
-          "target": "course_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.course_id IN (679) THEN 5\n    WHEN students.course_id IN (680) THEN 6\n    WHEN students.course_id = 681 THEN 8\n    WHEN students.course_id = 682 THEN 7\n    ELSE students.course_id\nEND"
-            }
-          },
-          "zeroToNull": true
-        },
-        {
-          "source": "__expr_sales_primary_status_id",
-          "target": "sales_primary_status_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.call_status IN (29, 31) THEN 58\n    ELSE students.call_status\nEND"
-            }
-          },
-          "zeroToNull": true
-        },
-        {
-          "source": "__expr_sales_secondary_status_id",
-          "target": "sales_secondary_status_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE students.call_sub_status\n    WHEN 36 THEN 72\n    WHEN 37 THEN 73\n    WHEN 38 THEN 74\n    WHEN 39 THEN 75\n    WHEN 41 THEN 76\n    WHEN 42 THEN 77\n    WHEN 43 THEN 78\n    WHEN 52 THEN 79\n    WHEN 53 THEN 80\n    WHEN 54 THEN 81\n    ELSE students.call_sub_status\nEND"
-            }
-          },
-          "zeroToNull": true
-        },
-        {
-          "source": "__expr_enquiry_date",
-          "target": "enquiry_date",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.enquire_date IS NOT NULL\n         AND students.enquire_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.enquire_date)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "__expr_re_enquire_date",
-          "target": "re_enquire_date",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.reenquire_date IS NOT NULL\n         AND students.reenquire_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.reenquire_date)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "students.is_ips",
-          "target": "is_ips",
-          "mappingType": "DIRECT",
-          "convertTinyintToBoolean": true
-        },
-        {
-          "source": "__expr_ip_generation_date",
-          "target": "ip_generation_date",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.ip_generation_date IS NOT NULL\n         AND students.ip_generation_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.ip_generation_date)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "",
-          "target": "sub_entity_id",
-          "mappingType": "CONSTANT",
-          "constantValue": 32,
-          "zeroToNull": true
-        },
-        {
-          "source": "students.shared_user_id",
-          "target": "shared_user_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "students.user_id",
-          "target": "owner_user_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "students.media_id",
-          "target": "media_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "students.tertiary_status_decs",
-          "target": "sales_tertiary_status_value",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "students.tertiary_status_id",
-          "target": "sales_tertiary_status_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "student_other_details.payment_status",
-          "target": "payment_primary_status_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "student_other_details.admission_status",
-          "target": "admission_primary_status_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "student_other_details.document_upload_status",
-          "target": "document_primary_status_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "student_enrollment_details.enrollment_no",
-          "target": "enrollment_number",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "student_other_details.ao_id",
-          "target": "admission_officer_user_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "__expr_year_of_graduation",
-          "target": "year_of_graduation",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN TRIM(students_extra_fields.year_of_graduation) REGEXP '^[0-9]+$'\n    THEN CAST(TRIM(students_extra_fields.year_of_graduation) AS UNSIGNED)\n    ELSE NULL\nEND"
-            }
-          }
-        },
-        {
-          "source": "__expr_follow_up_date",
-          "target": "follow_up_date",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.expected_date IS NOT NULL\n         AND students.expected_date <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.expected_date)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "__expr_student_category",
-          "target": "student_category",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.currency IS NULL THEN NULL\n    WHEN TRIM(students.currency) = '0' THEN NULL\n    WHEN UPPER(TRIM(students.currency)) = 'INR' THEN 'Domestic'\n    WHEN UPPER(TRIM(students.currency)) = 'USD' THEN 'International/NRI'\n    ELSE NULL\nEND"
-            }
-          }
-        },
-        {
-          "source": "__expr_specialization_id",
-          "target": "specialization_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.course_id = 625 THEN 2\n    WHEN students.course_id = 626 THEN 3\n    WHEN students.course_id = 627 THEN 1\n    WHEN students.course_id = 628 THEN 5\n    WHEN students.course_id = 674 THEN 4\n    WHEN students.course_id = 750 THEN NULL\n    WHEN students.course_id = 751 THEN 6\n    ELSE NULL\nEND"
-            }
-          }
-        },
-        {
-          "source": "__expr_course_type_id",
-          "target": "course_type_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.course_id IN (625, 626, 627) THEN 2\n    WHEN students.course_id IN (628, 674) THEN 1\n    WHEN students.course_id = 750 THEN 2\n    WHEN students.course_id = 751 THEN 2\n    ELSE NULL\nEND"
-            }
-          }
-        },
-        {
-          "source": "__expr_referral_id",
-          "target": "referral_id",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.refer_lead_id REGEXP '^[0-9]+$'\n         AND CAST(students.refer_lead_id AS UNSIGNED) > 0\n    THEN students.refer_lead_id\n    ELSE NULL\nEND"
-            }
-          },
-          "zeroToNull": true
-        }
-      ],
-      "conflictStrategy": "upsert",
-      "rowFilters": [
-        {
-          "column": "students.university_id",
-          "operator": "=",
-          "value": "34"
-        }
-      ],
-      "joins": [
-        {
-          "table": "student_other_details",
-          "type": "LEFT",
-          "leftColumn": "students.lead_id",
-          "rightColumn": "student_id"
-        },
-        {
-          "table": "students_extra_fields",
-          "type": "LEFT",
-          "leftColumn": "students.lead_id",
-          "rightColumn": "student_id"
-        },
-        {
-          "table": "student_enrollment_details",
-          "type": "LEFT",
-          "leftColumn": "students.lead_id",
-          "rightColumn": "student_id"
-        }
-      ]
-    },
-    {
-      "sourceTable": "students",
-      "targetTable": "opportunity_referral_details",
+      "sourceTable": "report_schedules",
+      "targetTable": "exported_file",
       "columnMappings": [
         {
           "source": "id",
@@ -8821,88 +9193,17 @@
           "mappingType": "DIRECT"
         },
         {
-          "source": "",
-          "target": "active_status",
-          "mappingType": "CONSTANT",
-          "constantValue": "ACTIVE"
-        },
-        {
-          "source": "referred_by",
-          "target": "refferal_name",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "",
-          "target": "is_deleted",
-          "mappingType": "CONSTANT",
-          "constantValue": false
-        },
-        {
-          "source": "created_by",
-          "target": "created_by",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "modified_by",
-          "target": "updated_by",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "lead_id",
-          "target": "opportunity_id",
-          "mappingType": "DIRECT"
-        },
-        {
-          "source": "__expr_created_at",
+          "source": "created_at",
           "target": "created_at",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.created_at IS NOT NULL\n         AND students.created_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.created_at)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
+          "mappingType": "DIRECT"
         },
         {
-          "source": "__expr_updated_at",
+          "source": "updated_at",
           "target": "updated_at",
-          "mappingType": "TRANSFORM",
-          "transformation": {
-            "type": "CUSTOM",
-            "params": {
-              "expression": "CASE\n    WHEN students.modified_at IS NOT NULL\n         AND students.modified_at <> '0000-00-00 00:00:00'\n    THEN UNIX_TIMESTAMP(students.modified_at)\nEND"
-            }
-          },
-          "convertDateToEpoch": true
-        },
-        {
-          "source": "refer_lead_id",
-          "target": "referrer_opportunity_id",
-          "mappingType": "DIRECT",
-          "zeroToNull": true
-        },
-        {
-          "source": "c5",
-          "target": "refferal_source",
           "mappingType": "DIRECT"
         }
       ],
-      "conflictStrategy": "upsert",
-      "rowFilters": [
-        {
-          "column": "students.university_id",
-          "operator": "=",
-          "value": "34"
-        },
-        {
-          "column": "students.refer_lead_id",
-          "operator": ">",
-          "value": "0"
-        }
-      ]
+      "conflictStrategy": "skip"
     }
   ]
 }

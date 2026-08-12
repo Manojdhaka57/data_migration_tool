@@ -21,7 +21,9 @@
     "migrate:server": "npx tsx scripts/migration-server.ts",
     "migrate:server:mysql": "npx tsx scripts/migration-server-mysql.ts",
     "sync:data": "npx tsx scripts/sync-data.ts",
-    "sync:data:dry-run": "npx tsx scripts/sync-data.ts --dry-run"
+    "sync:data:dry-run": "npx tsx scripts/sync-data.ts --dry-run",
+    "appdb:seedusers": "npx tsx scripts/metadata/cli/seedUsers.ts",
+    "appdb:import-local": "npx tsx scripts/metadata/cli/importLocalData.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

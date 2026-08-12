@@ -46,9 +46,25 @@ import {
   archiveConfiguration,
   restoreConfiguration,
   ConfigValidationError,
+  type ConfigurationRecord,
 } from '../repositories/configurations';
 import { listRuns, getRun, listRunTables, listCheckpoints } from '../repositories/runs';
-import { validateConfigJson, applyConfigDefaults } from '../configShape';
+import {
+  validateConfigJson,
+  applyConfigDefaults,
+  toEngineConfig,
+  detectConfigShape,
+  engineConfigChecksum,
+} from '../configShape';
+import {
+  captureSnapshot,
+  getSnapshot,
+  listSnapshots,
+  deleteSnapshot,
+  versionsPinning,
+  SchemaValidationError,
+  type SchemaRole,
+} from '../repositories/schemaSnapshots';
 
 /** Wrap an async handler so thrown errors become clean HTTP responses. */
 function handle(fn: (req: Request, res: Response) => Promise<unknown>) {
@@ -65,14 +81,74 @@ function handle(fn: (req: Request, res: Response) => Promise<unknown>) {
       if (err instanceof ConfigValidationError) {
         return res.status(400).json({ success: false, error: err.message, errors: err.errors });
       }
+      if (err instanceof SchemaValidationError) {
+        return res.status(400).json({ success: false, error: err.message, errors: err.errors });
+      }
       const message = err instanceof Error ? err.message : String(err);
       // Unique-violation: a duplicate name is a client error, not a server one.
       if ((err as { code?: string })?.code === '23505') {
         return res.status(409).json({ success: false, error: message });
       }
+      // Foreign-key violation: deleting a schema snapshot that a configuration
+      // version pins. Refusing keeps that version reproducible.
+      if ((err as { code?: string })?.code === '23503') {
+        return res.status(409).json({ success: false, error: message });
+      }
       next(err);
     }
   };
+}
+
+/* ==========================================================================
+ * Configuration ownership.
+ *
+ * A user sees only the configurations they saved. Enforced here on the server
+ * rather than by filtering in the browser — a UI-only filter is a curtain, not
+ * a permission, and every one of these routes is reachable directly.
+ *
+ * Two deliberate exemptions:
+ *  - admins see everything, because somebody has to be able to;
+ *  - with AUTH_ENABLED off nobody is identified, so ownership is meaningless
+ *    and filtering would simply hide every configuration from everyone.
+ * ==========================================================================
+ */
+
+/** True when this request may see configurations it does not own. */
+function seesAllConfigurations(req: Request): boolean {
+  if (!isAuthEnabled()) return true;
+  return req.user?.role === 'admin';
+}
+
+/** The owner to filter by, or null for "no restriction". */
+function ownerFilter(req: Request): string | null {
+  return seesAllConfigurations(req) ? null : (req.user?.username ?? req.actor ?? null);
+}
+
+/**
+ * Fetch a configuration the caller is allowed to touch.
+ *
+ * Returns the reason instead of the record when it is not theirs, so callers
+ * respond consistently rather than each inventing a message.
+ */
+async function getOwnedConfiguration(
+  req: Request,
+  id: number,
+): Promise<
+  | { ok: true; configuration: ConfigurationRecord }
+  | { ok: false; status: 404 | 403; error: string }
+> {
+  const configuration = await getConfiguration(id);
+  if (!configuration) return { ok: false, status: 404, error: 'configuration not found' };
+
+  const owner = ownerFilter(req);
+  if (owner && configuration.created_by !== owner) {
+    return {
+      ok: false,
+      status: 403,
+      error: `This configuration belongs to ${configuration.created_by ?? 'another user'}. You can only open configurations you saved.`,
+    };
+  }
+  return { ok: true, configuration };
 }
 
 /** Guard for routes that cannot work at all without the metadata database. */
@@ -87,11 +163,15 @@ function requireAppDb(_req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-/** Express 5 types route params as string | string[]; normalize and validate. */
-const intParam = (value: string | string[] | undefined): number | null => {
+/**
+ * Express 5 types route params as string | string[], and query values wider
+ * still, so this takes unknown and narrows. Returns null for anything that is
+ * not a usable integer — callers treat null as "absent or invalid".
+ */
+const intParam = (value: unknown): number | null => {
   const raw = Array.isArray(value) ? value[0] : value;
-  if (raw === undefined) return null;
-  const n = parseInt(raw, 10);
+  if (typeof raw !== 'string' && typeof raw !== 'number') return null;
+  const n = parseInt(String(raw), 10);
   return Number.isFinite(n) ? n : null;
 };
 
@@ -298,7 +378,13 @@ export function createMetadataRouter(): Router {
     requireAuth,
     handle(async (req, res) => {
       const includeArchived = String(req.query.includeArchived) === 'true';
-      res.json({ success: true, configurations: await listConfigurations(includeArchived) });
+      res.json({
+        success: true,
+        configurations: await listConfigurations(includeArchived, ownerFilter(req)),
+        // The UI needs to know whether it is seeing everything or just this
+        // user's, so it can label the list honestly.
+        scope: seesAllConfigurations(req) ? 'all' : 'own',
+      });
     }),
   );
 
@@ -310,8 +396,9 @@ export function createMetadataRouter(): Router {
       const id = intParam(req.params.id);
       if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
 
-      const configuration = await getConfiguration(id);
-      if (!configuration) return res.status(404).json({ success: false, error: 'configuration not found' });
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
+      const configuration = owned.configuration;
 
       const current = await getCurrentVersion(id);
       res.json({ success: true, configuration, currentVersion: current });
@@ -357,9 +444,8 @@ export function createMetadataRouter(): Router {
       if (!req.body?.configuration) {
         return res.status(400).json({ success: false, error: 'configuration is required' });
       }
-      if (!(await getConfiguration(id))) {
-        return res.status(404).json({ success: false, error: 'configuration not found' });
-      }
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
 
       const result = await createNewVersion(
         id,
@@ -369,10 +455,20 @@ export function createMetadataRouter(): Router {
           description: req.body.description ?? null,
           sourceConnectionId: req.body.sourceConnectionId ?? null,
           targetConnectionId: req.body.targetConnectionId ?? null,
+          force: req.body.force === true,
         },
         req.actor ?? 'system',
       );
-      res.json({ success: true, ...result });
+      res.json({
+        success: true,
+        ...result,
+        // `created: false` means the snapshot was identical to the current
+        // version, so nothing was written. The UI says so rather than claiming
+        // a save that produced no new version.
+        message: result.created
+          ? `Saved as version ${result.version.version}.`
+          : `No changes — still version ${result.version.version}.`,
+      });
     }),
   );
 
@@ -383,6 +479,8 @@ export function createMetadataRouter(): Router {
     handle(async (req, res) => {
       const id = intParam(req.params.id);
       if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
       // Archive, not delete: runs point at this configuration's versions and
       // deleting would cascade that history away.
       const archived = await archiveConfiguration(id, req.actor ?? 'system');
@@ -398,6 +496,8 @@ export function createMetadataRouter(): Router {
     handle(async (req, res) => {
       const id = intParam(req.params.id);
       if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
       const restored = await restoreConfiguration(id, req.actor ?? 'system');
       if (!restored) return res.status(404).json({ success: false, error: 'configuration not found or already active' });
       res.json({ success: true, status: 'ACTIVE' });
@@ -412,6 +512,8 @@ export function createMetadataRouter(): Router {
       const id = intParam(req.params.id);
       if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
       if (!req.body?.name) return res.status(400).json({ success: false, error: 'name is required' });
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
 
       const result = await cloneConfiguration(
         id,
@@ -431,6 +533,8 @@ export function createMetadataRouter(): Router {
     handle(async (req, res) => {
       const id = intParam(req.params.id);
       if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
       res.json({ success: true, versions: await listVersions(id) });
     }),
   );
@@ -445,9 +549,125 @@ export function createMetadataRouter(): Router {
       if (id === null || version === null) {
         return res.status(400).json({ success: false, error: 'invalid id or version' });
       }
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
       const record = await getVersion(id, version);
       if (!record) return res.status(404).json({ success: false, error: 'version not found' });
       res.json({ success: true, version: record });
+    }),
+  );
+
+  /**
+   * The configuration as it will actually EXECUTE.
+   *
+   * Saved configurations keep the caller's JSON verbatim, so what is stored is
+   * not necessarily what the engine runs. This resolves the stored JSON through
+   * the same canonicalization the run path applies, so a mapping can be checked
+   * before it touches a database rather than after.
+   */
+  router.get(
+    '/migration-configurations/:id/resolved',
+    requireAppDb,
+    requireAuth,
+    handle(async (req, res) => {
+      const id = intParam(req.params.id);
+      if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
+
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
+      const configuration = owned.configuration;
+
+      const requested = intParam(req.query.version);
+      const record = requested === null ? await getCurrentVersion(id) : await getVersion(id, requested);
+      if (!record) return res.status(404).json({ success: false, error: 'version not found' });
+
+      const stored = applyConfigDefaults(record.configuration_json ?? {});
+      const { config, warnings, dropped } = toEngineConfig(stored);
+
+      res.json({
+        success: true,
+        configuration,
+        version: { id: record.id, version: record.version, created_at: record.created_at },
+        storedShape: detectConfigShape(stored),
+        engineConfig: config,
+        checksum: engineConfigChecksum(config),
+        warnings,
+        dropped,
+      });
+    }),
+  );
+
+  /**
+   * Everything needed to restore a complete ETL setup, in one call.
+   *
+   * The frontend used to rebuild its state from localStorage and bundled JSON
+   * files. This is the replacement: the stored snapshot with both schemas
+   * inlined and connection metadata resolved, so opening a saved configuration
+   * restores connections, schemas, mappings, order and run options together
+   * rather than leaving the user to reconfigure everything by hand.
+   *
+   * Connection details here are non-secret only — never a password.
+   */
+  router.get(
+    '/migration-configurations/:id/apply-payload',
+    requireAppDb,
+    requireAuth,
+    handle(async (req, res) => {
+      const id = intParam(req.params.id);
+      if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
+
+      const owned = await getOwnedConfiguration(req, id);
+      if (!owned.ok) return res.status(owned.status).json({ success: false, error: owned.error });
+      const configuration = owned.configuration;
+
+      const requested = intParam(req.query.version);
+      const record = requested === null ? await getCurrentVersion(id) : await getVersion(id, requested);
+      if (!record) return res.status(404).json({ success: false, error: 'version not found' });
+
+      const snapshot = applyConfigDefaults(record.configuration_json ?? {});
+
+      // Inline the schemas so the client needs one round trip, not three.
+      const [sourceSnapshot, targetSnapshot] = await Promise.all([
+        snapshot.schemaSnapshots.sourceId ? getSnapshot(snapshot.schemaSnapshots.sourceId) : null,
+        snapshot.schemaSnapshots.targetId ? getSnapshot(snapshot.schemaSnapshots.targetId) : null,
+      ]);
+
+      const [sourceConnection, targetConnection] = await Promise.all([
+        snapshot.connections.source.connectionId
+          ? getConnection(snapshot.connections.source.connectionId)
+          : null,
+        snapshot.connections.target.connectionId
+          ? getConnection(snapshot.connections.target.connectionId)
+          : null,
+      ]);
+
+      const { config: engineConfig, warnings, dropped } = toEngineConfig(snapshot);
+
+      res.json({
+        success: true,
+        configuration,
+        version: { id: record.id, version: record.version, created_at: record.created_at },
+        snapshot,
+        schemas: {
+          source: sourceSnapshot
+            ? { id: sourceSnapshot.id, capturedAt: sourceSnapshot.captured_at, schema: sourceSnapshot.schema_json }
+            : null,
+          target: targetSnapshot
+            ? { id: targetSnapshot.id, capturedAt: targetSnapshot.captured_at, schema: targetSnapshot.schema_json }
+            : null,
+        },
+        connections: { source: sourceConnection, target: targetConnection },
+        // What would actually execute, so the UI can show a real summary.
+        summary: {
+          tableMappings: engineConfig.tableMappings.length,
+          columnMappings: engineConfig.tableMappings.reduce(
+            (sum, m) => sum + m.columnMappings.length,
+            0,
+          ),
+          warnings,
+          dropped,
+        },
+      });
     }),
   );
 
@@ -457,14 +677,95 @@ export function createMetadataRouter(): Router {
     handle(async (req, res) => {
       const configuration = applyConfigDefaults(req.body?.configuration ?? req.body ?? {});
       const errors = validateConfigJson(configuration);
+      const { config, warnings, dropped } = toEngineConfig(configuration);
       res.json({
         success: errors.length === 0,
         valid: errors.length === 0,
         errors,
+        // Which shape was submitted, and what would actually run.
+        shape: detectConfigShape(configuration),
+        warnings,
+        dropped,
         tableMappingCount: Array.isArray(configuration.tableMappings)
           ? configuration.tableMappings.length
           : 0,
+        runnableTableMappingCount: config.tableMappings.length,
       });
+    }),
+  );
+
+  // --------------------------------------------------- schema snapshots ---
+  // The schema a configuration was built against. Pinning it is what lets the
+  // tool notice later that a mapped column no longer exists.
+  router.get(
+    '/schema-snapshots',
+    requireAppDb,
+    requireAuth,
+    handle(async (req, res) => {
+      const role = req.query.role === 'source' || req.query.role === 'target'
+        ? (req.query.role as SchemaRole)
+        : undefined;
+      const limit = Math.min(Math.max(intParam(req.query.limit) ?? 50, 1), 200);
+      res.json({ success: true, snapshots: await listSnapshots(role, limit) });
+    }),
+  );
+
+  router.get(
+    '/schema-snapshots/:id',
+    requireAppDb,
+    requireAuth,
+    handle(async (req, res) => {
+      const id = intParam(req.params.id);
+      if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
+      const snapshot = await getSnapshot(id);
+      if (!snapshot) return res.status(404).json({ success: false, error: 'snapshot not found' });
+      res.json({ success: true, snapshot });
+    }),
+  );
+
+  /** Store a schema the caller already has (uploaded, parsed, or hand-edited). */
+  router.post(
+    '/schema-snapshots',
+    requireAppDb,
+    requireRole('operator'),
+    handle(async (req, res) => {
+      const { role, schema, connectionId, origin, note } = req.body ?? {};
+      if (role !== 'source' && role !== 'target') {
+        return res.status(400).json({ success: false, error: 'role must be "source" or "target"' });
+      }
+      const result = await captureSnapshot(
+        { role, schema, connectionId: connectionId ?? null, origin: origin ?? 'MANUAL', note: note ?? null },
+        req.actor ?? 'system',
+      );
+      // Deduped means an identical schema was already stored; the caller pins
+      // the same id either way.
+      res.status(result.deduped ? 200 : 201).json({ success: true, ...result });
+    }),
+  );
+
+  router.delete(
+    '/schema-snapshots/:id',
+    requireAppDb,
+    requireRole('operator'),
+    handle(async (req, res) => {
+      const id = intParam(req.params.id);
+      if (id === null) return res.status(400).json({ success: false, error: 'invalid id' });
+
+      // Check first so the refusal names the versions, rather than surfacing a
+      // raw foreign-key error.
+      const pinning = await versionsPinning(id);
+      if (pinning.length > 0) {
+        return res.status(409).json({
+          success: false,
+          error:
+            `Snapshot ${id} is pinned by ${pinning.length} configuration version(s) and cannot be ` +
+            `deleted — removing it would make those versions unreproducible.`,
+          pinnedBy: pinning,
+        });
+      }
+      const removed = await deleteSnapshot(id);
+      if (!removed) return res.status(404).json({ success: false, error: 'snapshot not found' });
+      res.json({ success: true });
     }),
   );
 

@@ -12,6 +12,7 @@ import { createAdapter } from '../adapters/factory';
 import { TransformationEngine } from '../transformation/engine';
 import { ValidationEngine, ValidationReport } from '../validation/engine';
 import { decideTableStatus, deriveResumeState, VerificationOutcome } from '../decisions';
+import { toEngineConfig } from '../../metadata/configShape';
 import {
   acquireTableLock,
   releaseTableLock,
@@ -426,8 +427,16 @@ export function startWorkers(concurrency = 2): Worker[] {
           const sourceSchema = await sourceAdapter.getSchema();
           const targetSchema = await targetAdapter.getSchema();
           
-          let tableMappings = data.tableMappings;
-          
+          // Last line of defence. Every API entry point canonicalizes before
+          // enqueueing, but jobs enqueued by an older build may already be
+          // sitting in Redis in the browser shape, where targetTable is
+          // undefined and every column ref is an object. Re-canonicalizing is
+          // free for a well-formed job — toEngineConfig is a fixed point (see
+          // scripts/metadata/configCanonical.test.ts).
+          let tableMappings: TableMapping[] = toEngineConfig({
+            tableMappings: data.tableMappings,
+          }).config.tableMappings;
+
           if (data.tableWiseMode && data.selectedTables && data.selectedTables.length > 0) {
             tableMappings = tableMappings.filter(m => 
               data.selectedTables!.includes(m.targetTable)

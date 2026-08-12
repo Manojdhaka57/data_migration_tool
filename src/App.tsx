@@ -1,48 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Box, Typography, Chip, IconButton, Tooltip, Button } from '@mui/material';
 import {
-  Box,
-  Typography,
-  Chip,
-  IconButton,
-  Tooltip,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-} from '@mui/material';
-import {
-  AccountTree as MappingIcon,
-  Timeline as OrderIcon,
-  Storage as SQLIcon,
-  AutoFixHigh as AutoMapIcon,
-  Transform as TransformIcon,
-  Sync as MigrateIcon,
   ChevronRight as CollapseRightIcon,
   KeyboardDoubleArrowLeft as ExpandLeftIcon,
-  Refresh as ResetIcon,
-  Help as HelpIcon,
-  Schema as SchemaIcon,
-  ChevronLeft as CollapseIcon,
-  ChevronRight as ExpandIcon,
+  ArrowForward as NextStepIcon,
 } from '@mui/icons-material';
-import { useAppDispatch } from './store';
-import { 
-  setSchema as setSourceSchema, 
-  loadSchemaFromStorage as loadSourceSchemaFromStorage,
-  hasPersistedSourceSchema,
-  clearSchema as clearSourceSchema,
-} from './features/sourceSchema/sourceSchemaSlice';
-import { 
-  setSchema as setTargetSchema, 
-  loadSchemaFromStorage as loadTargetSchemaFromStorage,
-  hasPersistedTargetSchema,
-  clearSchema as clearTargetSchema,
-} from './features/targetSchema/targetSchemaSlice';
-import { loadMappings, hasPersistedMappings, getPersistedMappings, clearPersistedData } from './features/mapping/mappingSlice';
-import { sourceSchema, targetSchema, initialMappings } from './data';
+import { useAppDispatch, useAppSelector } from './store';
+import { clearSchema as clearSourceSchema } from './features/sourceSchema/sourceSchemaSlice';
+import { clearSchema as clearTargetSchema } from './features/targetSchema/targetSchemaSlice';
+import { clearPersistedData, getPersistedMappings } from './features/mapping/mappingSlice';
 import { clearAllAppData } from './utils/localStorage';
 import { MappingCanvas } from './features/mapping';
 import { PreviewPanel } from './features/preview';
@@ -56,25 +23,17 @@ import { ReadSchemaPage } from './features/readSchema';
 import { SchemaDdlPage } from './features/schemaDdl';
 import { HelpGuide } from './components/shared';
 import { ConnectionSettingsPage, restoreConnectionSettings } from './features/connection';
+import { LoginPage, UserMenu, RequireAuth, bootstrapAuth } from './features/auth';
 import {
-  CloudDownload as ReadSchemaIcon,
-  Code as SchemaDdlIcon,
-  SettingsEthernet as ConnectionIcon,
-} from '@mui/icons-material';
-
-// Navigation items — each tab is a real route. Order here drives the sidebar order.
-const navItems = [
-  { path: '/connection', label: 'Connection', icon: ConnectionIcon, description: 'Database connection settings' },
-  { path: '/read-schema', label: 'Read Schema', icon: ReadSchemaIcon, description: 'Fetch schema from database' },
-  { path: '/schema-ddl', label: 'Schema DDL', icon: SchemaDdlIcon, description: 'View schema as CREATE TABLE DDL' },
-  { path: '/schema', label: 'Schema', icon: SchemaIcon, description: 'View database schemas' },
-  { path: '/sql-analyzer', label: 'SQL Analyzer', icon: SQLIcon, description: 'Analyze SQL files' },
-  { path: '/auto-mapping', label: 'Auto Mapping', icon: AutoMapIcon, description: 'Auto-generate mappings' },
-  { path: '/mapping-order', label: 'Mapping Order', icon: OrderIcon, description: 'Set table copy/migration order' },
-  { path: '/table-mappings', label: 'Table Mappings', icon: MappingIcon, description: 'Configure mappings' },
-  { path: '/data-transform', label: 'Data Transform', icon: TransformIcon, description: 'Transform CSV data' },
-  { path: '/run-migration', label: 'Run Migration', icon: MigrateIcon, description: 'Execute migration' },
-];
+  ConfigurationsPage,
+  SaveChangesBar,
+  applyConfiguration,
+  getActiveConfiguration,
+} from './features/configurations';
+import { listConfigurations } from './api/endpoints/configurations';
+import { selectAuth } from './features/auth';
+import { ErrorBoundary } from './components/feedback';
+import { Sidebar, NAV_ITEMS, TOTAL_STEPS, findNavItem, nextStep } from './components/layout';
 
 // Table Mappings tab: the mapping canvas plus a collapsible preview panel.
 function TableMappingsView() {
@@ -153,11 +112,16 @@ function TableMappingsView() {
   );
 }
 
-function App() {
+/** The main application: sidebar, page header and the routed content area. */
+function AppShell() {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const activeItem = navItems.find((n) => n.path === location.pathname) ?? navItems[0];
+  const active = findNavItem(location.pathname);
+  const activeItem = active?.item ?? NAV_ITEMS[0];
+  const activeSection = active?.section;
+  const upcoming = nextStep(location.pathname);
+  const { appDbReachable } = useAppSelector(selectAuth);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showHelpGuide, setShowHelpGuide] = useState(() => {
     const hasSeenGuide = localStorage.getItem('erp_migration_seen_guide');
@@ -169,24 +133,51 @@ function App() {
     setShowHelpGuide(false);
   };
   
+  /** What is currently loaded, and where it came from. */
   const [dataSource, setDataSource] = useState<{
-    mappings: 'localStorage' | 'file';
-    sourceSchema: 'localStorage' | 'file';
-    targetSchema: 'localStorage' | 'file';
-  }>({ mappings: 'file', sourceSchema: 'file', targetSchema: 'file' });
+    loaded: boolean;
+    from: 'database' | 'none' | 'error' | 'pending';
+    name?: string;
+    version?: number;
+  }>({ loaded: false, from: 'pending' });
+
+  /**
+   * This browser holds a draft that differs from what the database returned.
+   * Surfaced rather than ignored: the draft may be newer work that has never
+   * been saved, and quietly showing the smaller set is how it gets lost.
+   */
+  const [draftMismatch, setDraftMismatch] = useState<{ inBrowser: number; loaded: number } | null>(
+    null,
+  );
 
   const handleResetData = () => {
-    if (window.confirm('Are you sure you want to reset all data? This will clear localStorage and reload schemas and mappings from the default files.')) {
+    if (
+      window.confirm(
+        'Discard local changes?\n\n' +
+          'This clears the unsaved draft in this browser and reloads the saved ' +
+          'configuration from the database. Saved configurations and their ' +
+          'version history are not affected.',
+      )
+    ) {
+      // Only the local draft is cleared. The database is the record, so
+      // "reset" now means "throw away my unsaved edits", not "wipe the data".
       clearAllAppData();
       dispatch(clearPersistedData());
-      dispatch(loadMappings(initialMappings));
       dispatch(clearSourceSchema());
       dispatch(clearTargetSchema());
-      dispatch(setSourceSchema(sourceSchema));
-      dispatch(setTargetSchema(targetSchema));
-      setDataSource({ mappings: 'file', sourceSchema: 'file', targetSchema: 'file' });
       localStorage.removeItem('erp_migration_seen_guide');
-      console.log('🔄 All data reset - loaded from default files');
+
+      const pointer = getActiveConfiguration();
+      if (pointer) {
+        void dispatch(applyConfiguration({ configurationId: pointer.configurationId }))
+          .unwrap()
+          .then((summary) =>
+            setDataSource({ loaded: true, from: 'database', name: summary.name, version: summary.version }),
+          )
+          .catch(() => setDataSource({ loaded: false, from: 'error' }));
+      } else {
+        setDataSource({ loaded: false, from: 'none' });
+      }
     }
   };
 
@@ -197,347 +188,78 @@ function App() {
     void restoreConnectionSettings();
   }, []);
 
+  /**
+   * Load the working data.
+   *
+   * The metadata database is the record. This reopens whichever saved
+   * configuration this browser was last working on — schemas, mappings, order
+   * and run options together — instead of rebuilding state from localStorage
+   * and bundled JSON files.
+   *
+   * localStorage is still read, but only as a DRAFT: unsaved edits made since
+   * the last save. It is never preferred over the database, and it is never
+   * the source of a configuration.
+   */
   useEffect(() => {
-    type DataSourceType = 'localStorage' | 'file';
-    const newDataSource: {
-      mappings: DataSourceType;
-      sourceSchema: DataSourceType;
-      targetSchema: DataSourceType;
-    } = { 
-      mappings: 'file', 
-      sourceSchema: 'file', 
-      targetSchema: 'file' 
-    };
-    
-    if (hasPersistedSourceSchema()) {
-      dispatch(loadSourceSchemaFromStorage());
-      newDataSource.sourceSchema = 'localStorage';
-      console.log('📦 Loaded source schema from localStorage');
-    } else {
-    dispatch(setSourceSchema(sourceSchema));
-      console.log('📄 Loaded source schema from default file');
-    }
-    
-    if (hasPersistedTargetSchema()) {
-      dispatch(loadTargetSchemaFromStorage());
-      newDataSource.targetSchema = 'localStorage';
-      console.log('📦 Loaded target schema from localStorage');
-    } else {
-    dispatch(setTargetSchema(targetSchema));
-      console.log('📄 Loaded target schema from default file');
-    }
-    
-    if (hasPersistedMappings()) {
-      const persistedMappings = getPersistedMappings();
-      if (persistedMappings) {
-        console.log('📦 Loaded mappings from localStorage:', persistedMappings.length, 'mappings');
-        dispatch(loadMappings(persistedMappings));
-        newDataSource.mappings = 'localStorage';
-      }
-    } else {
-      console.log('📄 Loaded mappings from JSON file:', initialMappings?.length, 'mappings');
-    dispatch(loadMappings(initialMappings));
-    }
-    
-    setDataSource(newDataSource);
-  }, [dispatch]);
+    if (!appDbReachable) return;
 
-  const sidebarWidth = sidebarCollapsed ? 64 : 240;
+    let cancelled = false;
+
+    void (async () => {
+      const pointer = getActiveConfiguration();
+      let configurationId = pointer?.configurationId ?? null;
+
+      // No bookmark yet: fall back to the most recently updated configuration
+      // so a fresh browser opens something rather than nothing.
+      if (configurationId === null) {
+        try {
+          const configurations = await listConfigurations();
+          configurationId = configurations[0]?.id ?? null;
+        } catch {
+          configurationId = null;
+        }
+      }
+
+      if (configurationId === null || cancelled) {
+        setDataSource({ loaded: false, from: 'none' });
+        return;
+      }
+
+      try {
+        const summary = await dispatch(applyConfiguration({ configurationId })).unwrap();
+        if (cancelled) return;
+        setDataSource({ loaded: true, from: 'database', name: summary.name, version: summary.version });
+
+        // Loading from the database replaced what was on screen. If this
+        // browser holds a draft that does NOT match what we just loaded, say
+        // so — silently showing fewer mappings than the user had is how work
+        // gets lost without anyone noticing.
+        const draft = getPersistedMappings();
+        if (draft && draft.length !== summary.tableMappings) {
+          setDraftMismatch({ inBrowser: draft.length, loaded: summary.tableMappings });
+        }
+      } catch {
+        // A configuration that will not load must not blank the app — every
+        // page still works, just without a loaded configuration.
+        if (!cancelled) setDataSource({ loaded: false, from: 'error' });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, appDbReachable]);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'neutral.100' }}>
-      {/* Sidebar */}
-      <Box
-        sx={{
-          width: sidebarWidth,
-          flexShrink: 0,
-          background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'width 0.3s ease',
-          overflow: 'hidden',
-          boxShadow: '4px 0 20px rgba(0,0,0,0.15)',
-        }}
-      >
-        {/* Logo Header */}
-        <Box
-          sx={{
-            p: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: sidebarCollapsed ? 'center' : 'space-between',
-            borderBottom: '1px solid rgba(148, 163, 184, 0.15)',
-            minHeight: 64,
-            background: 'rgba(255,255,255,0.02)',
-          }}
-        >
-          {!sidebarCollapsed && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography 
-                variant="h3Bold" 
-                sx={{ 
-                  color: '#F8FAFC',
-                  background: 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                ⬡ DataMigrate
-              </Typography>
-              <Chip 
-                label="v1.0" 
-                size="small" 
-                sx={{ 
-                  bgcolor: 'rgba(16, 185, 129, 0.2)', 
-                  color: '#10B981',
-                  fontSize: '10px',
-                  height: '18px',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                }} 
-              />
-            </Box>
-          )}
-          {sidebarCollapsed && (
-            <Typography 
-              variant="h2Bold" 
-              sx={{ 
-                background: 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              ⬡
-            </Typography>
-          )}
-        </Box>
-
-        {/* Navigation Items */}
-        <List sx={{ flex: 1, py: 2, overflow: 'auto' }}>
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <ListItem key={item.path} disablePadding sx={{ px: 1.5, mb: 0.5 }}>
-                <Tooltip title={sidebarCollapsed ? item.label : ''} placement="right">
-                  <ListItemButton
-                    selected={isActive}
-                    onClick={() => navigate(item.path)}
-                    sx={{
-                      borderRadius: 2,
-                      minHeight: 52,
-                      justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                      px: sidebarCollapsed ? 1.5 : 2,
-                      bgcolor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                      border: isActive ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
-                      '&:hover': {
-                        bgcolor: isActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(148, 163, 184, 0.08)',
-                      },
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: sidebarCollapsed ? 0 : 40,
-                        color: isActive ? '#10B981' : '#94A3B8',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <item.icon sx={{ fontSize: 22 }} />
-                    </ListItemIcon>
-                    {!sidebarCollapsed && (
-                      <ListItemText
-                        primary={item.label}
-                        secondary={item.description}
-                        primaryTypographyProps={{
-                          variant: 'body2',
-                          fontWeight: isActive ? 600 : 500,
-                          color: isActive ? '#F8FAFC' : '#CBD5E1',
-                        }}
-                        secondaryTypographyProps={{
-                          variant: 'caption',
-                          color: '#64748B',
-                          fontSize: '10px',
-                        }}
-                      />
-                    )}
-                  </ListItemButton>
-                </Tooltip>
-              </ListItem>
-            );
-          })}
-        </List>
-
-        <Divider sx={{ borderColor: 'rgba(148, 163, 184, 0.1)', mx: 1.5 }} />
-
-        {/* Bottom Actions */}
-        <Box sx={{ p: 1.5 }}>
-          {/* Help Button */}
-          <ListItem disablePadding sx={{ mb: 0.5 }}>
-            <Tooltip title={sidebarCollapsed ? 'Help Guide' : ''} placement="right">
-              <ListItemButton
-                onClick={() => setShowHelpGuide(true)}
-                sx={{
-                  borderRadius: 2,
-                  minHeight: 44,
-                  justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                  px: sidebarCollapsed ? 1.5 : 2,
-                  '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.08)' },
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: sidebarCollapsed ? 0 : 40,
-                    color: '#94A3B8',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <HelpIcon sx={{ fontSize: 20 }} />
-                </ListItemIcon>
-                {!sidebarCollapsed && (
-                  <ListItemText
-                    primary="Help Guide"
-                    primaryTypographyProps={{
-                      variant: 'body2',
-                      color: '#CBD5E1',
-                    }}
-                  />
-                )}
-              </ListItemButton>
-            </Tooltip>
-          </ListItem>
-
-          {/* Reset Button */}
-          {(dataSource.sourceSchema === 'localStorage' || dataSource.targetSchema === 'localStorage' || dataSource.mappings === 'localStorage') && (
-            <ListItem disablePadding sx={{ mb: 0.5 }}>
-              <Tooltip title={sidebarCollapsed ? 'Reset Data' : ''} placement="right">
-                <ListItemButton
-                  onClick={handleResetData}
-                  sx={{
-                    borderRadius: 2,
-                    minHeight: 44,
-                    justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                    px: sidebarCollapsed ? 1.5 : 2,
-                    '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)' },
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: sidebarCollapsed ? 0 : 40,
-                      color: '#F87171',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <ResetIcon sx={{ fontSize: 20 }} />
-                  </ListItemIcon>
-                  {!sidebarCollapsed && (
-                    <ListItemText
-                      primary="Reset Data"
-                      primaryTypographyProps={{
-                        variant: 'body2',
-                        color: '#F87171',
-                      }}
-                    />
-                  )}
-                </ListItemButton>
-              </Tooltip>
-            </ListItem>
-          )}
-
-          {/* Collapse Toggle */}
-          <ListItem disablePadding>
-            <Tooltip title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'} placement="right">
-              <ListItemButton
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                sx={{
-                  borderRadius: 2,
-                  minHeight: 44,
-                  justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                  px: sidebarCollapsed ? 1.5 : 2,
-                  '&:hover': { bgcolor: 'rgba(148, 163, 184, 0.08)' },
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: sidebarCollapsed ? 0 : 40,
-                    color: '#94A3B8',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {sidebarCollapsed ? <ExpandIcon sx={{ fontSize: 20 }} /> : <CollapseIcon sx={{ fontSize: 20 }} />}
-                </ListItemIcon>
-                {!sidebarCollapsed && (
-                  <ListItemText
-                    primary="Collapse"
-                    primaryTypographyProps={{
-                      variant: 'body2',
-                      color: '#CBD5E1',
-                    }}
-                  />
-                )}
-              </ListItemButton>
-            </Tooltip>
-          </ListItem>
-        </Box>
-
-        {/* Data Source Indicators */}
-        {!sidebarCollapsed && (
-          <Box sx={{ px: 2, pb: 2 }}>
-            <Typography variant="caption" sx={{ color: '#64748B', fontSize: '9px', fontWeight: 500 }}>
-              DATA SOURCES
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 0.5, mt: 1, flexWrap: 'wrap' }}>
-              <Chip 
-                size="small"
-                label={`Source ${dataSource.sourceSchema === 'localStorage' ? '💾' : '📄'}`}
-                sx={{ 
-                  height: 20,
-                  fontSize: '9px',
-                  bgcolor: dataSource.sourceSchema === 'localStorage' 
-                    ? 'rgba(16, 185, 129, 0.2)' 
-                    : 'rgba(148, 163, 184, 0.1)',
-                  color: dataSource.sourceSchema === 'localStorage' ? '#10B981' : '#94A3B8',
-                  border: '1px solid',
-                  borderColor: dataSource.sourceSchema === 'localStorage' 
-                    ? 'rgba(16, 185, 129, 0.3)' 
-                    : 'rgba(148, 163, 184, 0.2)',
-                }}
-              />
-              <Chip 
-                size="small"
-                label={`Target ${dataSource.targetSchema === 'localStorage' ? '💾' : '📄'}`}
-                sx={{ 
-                  height: 20,
-                  fontSize: '9px',
-                  bgcolor: dataSource.targetSchema === 'localStorage' 
-                    ? 'rgba(16, 185, 129, 0.2)' 
-                    : 'rgba(148, 163, 184, 0.1)',
-                  color: dataSource.targetSchema === 'localStorage' ? '#10B981' : '#94A3B8',
-                  border: '1px solid',
-                  borderColor: dataSource.targetSchema === 'localStorage' 
-                    ? 'rgba(16, 185, 129, 0.3)' 
-                    : 'rgba(148, 163, 184, 0.2)',
-                }}
-              />
-              <Chip 
-                size="small"
-                label={`Maps ${dataSource.mappings === 'localStorage' ? '💾' : '📄'}`}
-                sx={{ 
-                  height: 20,
-                  fontSize: '9px',
-                  bgcolor: dataSource.mappings === 'localStorage' 
-                    ? 'rgba(16, 185, 129, 0.2)' 
-                    : 'rgba(148, 163, 184, 0.1)',
-                  color: dataSource.mappings === 'localStorage' ? '#10B981' : '#94A3B8',
-                  border: '1px solid',
-                  borderColor: dataSource.mappings === 'localStorage' 
-                    ? 'rgba(16, 185, 129, 0.3)' 
-                    : 'rgba(148, 163, 184, 0.2)',
-                }}
-              />
-            </Box>
-          </Box>
-        )}
-      </Box>
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((collapsed) => !collapsed)}
+        onShowHelp={() => setShowHelpGuide(true)}
+        onReset={handleResetData}
+        canReset={dataSource.loaded}
+        configLoadState={dataSource.from}
+      />
 
       {/* Main Content */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -561,6 +283,23 @@ function App() {
                 <>
                   <CurrentIcon sx={{ fontSize: 28, color: 'primary.main' }} />
                   <Box>
+                    {/* Where this page sits: which group, and — on a workflow
+                        page — how far along the migration path you are. */}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: 'block',
+                        color: 'neutral.400',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {activeSection?.title ?? ''}
+                      {activeItem.step !== undefined &&
+                        ` · Step ${activeItem.step} of ${TOTAL_STEPS}`}
+                    </Typography>
                     <Typography variant="h2Bold" sx={{ color: 'primary.main' }}>
                       {activeItem.label}
                     </Typography>
@@ -572,13 +311,67 @@ function App() {
               );
             })()}
           </Box>
-          <Typography variant="caption" sx={{ color: 'neutral.400' }}>
-            ERP Data Migration Tool
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="caption" sx={{ color: 'neutral.400', display: { xs: 'none', lg: 'block' } }}>
+              ERP Data Migration Tool
+            </Typography>
+            {/* On a workflow page, the obvious next move. Helper pages have no
+                "next", so nothing is shown there. */}
+            {upcoming && (
+              <Button
+                size="small"
+                endIcon={<NextStepIcon fontSize="small" />}
+                onClick={() => navigate(upcoming.path)}
+                sx={{ textTransform: 'none', color: 'primary.main' }}
+              >
+                Next: {upcoming.label}
+              </Button>
+            )}
+            <SaveChangesBar />
+            <UserMenu />
+          </Box>
         </Box>
+
+        {/* This browser holds work that the loaded configuration does not. */}
+        {draftMismatch && (
+          <Box
+            sx={{
+              px: 3,
+              py: 1.25,
+              bgcolor: '#FEF3C7',
+              borderBottom: 1,
+              borderColor: '#FCD34D',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <Typography variant="caption1Medium" sx={{ color: '#92400E', flex: 1 }}>
+              This browser has <strong>{draftMismatch.inBrowser}</strong> table mappings saved
+              locally, but the configuration loaded from the database has{' '}
+              <strong>{draftMismatch.loaded}</strong>. Your local copy has not been touched — save it
+              as a new version to keep it.
+            </Typography>
+            <Chip
+              label="Open Saved Configs"
+              size="small"
+              onClick={() => navigate('/configurations')}
+              sx={{ bgcolor: '#F59E0B', color: '#fff', cursor: 'pointer' }}
+            />
+            <Chip
+              label="Dismiss"
+              size="small"
+              variant="outlined"
+              onClick={() => setDraftMismatch(null)}
+              sx={{ cursor: 'pointer', borderColor: '#D97706', color: '#92400E' }}
+            />
+          </Box>
+        )}
 
         {/* Content Area */}
         <Box sx={{ flex: 1, overflow: 'hidden' }}>
+          {/* Keyed on the path so navigating away from a crashed page recovers. */}
+          <ErrorBoundary key={location.pathname} label={activeItem.label}>
           <Routes>
             <Route path="/" element={<Navigate to="/read-schema" replace />} />
             <Route path="/connection" element={<ConnectionSettingsPage />} />
@@ -589,16 +382,51 @@ function App() {
             <Route path="/auto-mapping" element={<AutoMappingPage />} />
             <Route path="/mapping-order" element={<MigrationOrderPage />} />
             <Route path="/table-mappings" element={<TableMappingsView />} />
+            <Route path="/configurations" element={<ConfigurationsPage />} />
             <Route path="/data-transform" element={<DataTransformerPage />} />
             <Route path="/run-migration" element={<MigrationPage />} />
             <Route path="*" element={<Navigate to="/read-schema" replace />} />
           </Routes>
+          </ErrorBoundary>
         </Box>
       </Box>
 
       {/* Help Guide Dialog */}
       <HelpGuide open={showHelpGuide} onClose={handleCloseHelpGuide} />
     </Box>
+  );
+}
+
+/**
+ * Top-level routing.
+ *
+ * The login screen deliberately sits OUTSIDE the shell — it has no sidebar,
+ * no page header and no user menu, so it cannot be rendered inside AppShell.
+ * Everything else keeps the layout it has always had.
+ */
+function App() {
+  const dispatch = useAppDispatch();
+
+  // One probe at startup: is auth enforced, is the metadata database there,
+  // and does the stored token still identify anyone? Both endpoints are
+  // unguarded and safe with no metadata database, and failure is non-fatal —
+  // every pre-existing page works without it.
+  useEffect(() => {
+    void dispatch(bootstrapAuth());
+  }, [dispatch]);
+
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="*"
+        element={
+          <RequireAuth>
+            <AppShell />
+          </RequireAuth>
+        }
+      />
+    </Routes>
   );
 }
 

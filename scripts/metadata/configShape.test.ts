@@ -139,6 +139,6 @@ describe('validateConfigJson', () => {
     const errors = validateConfigJson({
       tableMappings: [{ sourceTable: 'a', targetTable: 'b', columnMappings: [] }],
     });
-    expect(errors[0]).toContain('no column mappings');
+    expect(errors[0]).toContain('no usable column mappings');
   });
 });
