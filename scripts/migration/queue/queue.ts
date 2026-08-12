@@ -5,14 +5,33 @@ import { TableMapping } from '../types';
 
 dotenv.config();
 
+/**
+ * Redis connection.
+ *
+ * REDIS_URL takes precedence when set, because that is what a managed provider
+ * hands you (Render, Upstash, Heroku) and it carries the password — which
+ * REDIS_HOST/REDIS_PORT alone cannot express. A `rediss://` URL additionally
+ * requires TLS, which ioredis only enables when asked.
+ *
+ * The host/port pair remains the local-development path, unchanged.
+ */
+const REDIS_URL = process.env.REDIS_URL?.trim();
 const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
 
-export const redisConnection = new IORedis({
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  maxRetriesPerRequest: null, // Required by BullMQ
-});
+// maxRetriesPerRequest: null is required by BullMQ in both branches.
+export const redisConnection = REDIS_URL
+  ? new IORedis(REDIS_URL, {
+      maxRetriesPerRequest: null,
+      // Managed Redis reached over the public internet is TLS-only. Providers
+      // signal that with the rediss:// scheme.
+      ...(REDIS_URL.startsWith('rediss://') ? { tls: { rejectUnauthorized: false } } : {}),
+    })
+  : new IORedis({
+      host: REDIS_HOST,
+      port: REDIS_PORT,
+      maxRetriesPerRequest: null,
+    });
 
 // Main migration execution queue
 export const migrationQueue = new Queue('migration-execution', {

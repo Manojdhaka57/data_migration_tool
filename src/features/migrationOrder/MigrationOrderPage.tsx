@@ -69,7 +69,6 @@ import ManualOrderPanel from './ManualOrderPanel';
 import {
   generateMigrationSQL,
   generateFullMigrationScript,
-  generateMigrationSummary,
   groupSQLByLevel,
   generateLevelScript,
   generateSingleTableScript,

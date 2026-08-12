@@ -45,16 +45,52 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: '*' }));
+
+/**
+ * Who may call this API.
+ *
+ * FRONTEND_URL is a comma-separated allow-list of browser origins, e.g.
+ * "https://etl.vercel.app,https://etl-git-main-you.vercel.app". When it is
+ * unset — local development — every origin is allowed, which keeps `npm run
+ * dev` working exactly as before.
+ *
+ * `origin: '*'` is NOT used once an allow-list is configured: this API issues
+ * bearer tokens, and a wildcard origin with credentials is both rejected by
+ * browsers and wrong in principle.
+ */
+const ALLOWED_ORIGINS = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((o) => o.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const corsOrigin: cors.CorsOptions['origin'] =
+  ALLOWED_ORIGINS.length === 0
+    ? true // reflect the request origin — development only
+    : (origin, callback) => {
+        // Same-origin and server-to-server calls send no Origin header.
+        if (!origin) return callback(null, true);
+        const normalized = origin.replace(/\/+$/, '');
+        if (ALLOWED_ORIGINS.includes(normalized)) return callback(null, true);
+        callback(new Error(`Origin ${origin} is not allowed by FRONTEND_URL`));
+      };
+
+app.use(cors({ origin: corsOrigin, credentials: true }));
 // Large schemas + mapping configs can exceed the 100kb default body limit.
 app.use(express.json({ limit: '50mb' }));
 
-const PORT = 9005;
+/**
+ * Render (and most hosts) assign the port at runtime. 9005 is the local default
+ * and must not be hardcoded in production.
+ */
+const PORT = Number(process.env.PORT) || 9005;
 const server = createServer(app);
 const io = new Server(server, {
+  // Socket.io needs the same allow-list as the REST API, or the dashboard
+  // connects in development and silently fails in production.
   cors: {
-    origin: '*',
+    origin: ALLOWED_ORIGINS.length === 0 ? true : ALLOWED_ORIGINS,
     methods: ['GET', 'POST'],
+    credentials: true,
   },
 });
 
@@ -1216,11 +1252,26 @@ app.post('/api/table-status/reset', requireRole('operator'), async (req, res) =>
 
 // Boot servers
 export function startServer() {
-  // Start parallel worker
-  startWorkers();
+  /**
+   * Whether this process also runs the BullMQ workers.
+   *
+   * Default true, so local development and any existing single-process deploy
+   * behave exactly as before. Set RUN_WORKER_IN_PROCESS=false when the workers
+   * run as a separate service (a Render Background Worker), so the web service
+   * only serves HTTP and a migration is not killed when the web dyno restarts
+   * or scales.
+   */
+  if (process.env.RUN_WORKER_IN_PROCESS !== 'false') {
+    startWorkers();
+  } else {
+    console.log('👷 Workers disabled in this process (RUN_WORKER_IN_PROCESS=false)');
+  }
 
   server.listen(PORT, () => {
-    console.log(`\n🚀 Production Migration Express API & WebSocket Server running on http://localhost:${PORT}`);
+    console.log(`\n🚀 Migration API & WebSocket server listening on port ${PORT}`);
+    console.log(
+      `   CORS: ${ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS.join(', ') : 'any origin (FRONTEND_URL unset — development)'}`,
+    );
     console.log(`   Connected to Redis: ${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || '6379'}`);
   });
 }

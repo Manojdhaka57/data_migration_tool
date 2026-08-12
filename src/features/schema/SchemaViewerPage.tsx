@@ -62,6 +62,7 @@ import {
 import { SourceSchemaPanel } from '../sourceSchema';
 import { TargetSchemaPanel } from '../targetSchema';
 import type { Table as TableType, Column } from '../../types';
+import { API_BASE_URL } from '../../api/config';
 
 // Schema Edit Dialog Component - Two Panel Layout
 function SchemaEditDialog({
@@ -107,7 +108,7 @@ function SchemaEditDialog({
     setPreviewError(null);
     setPreviewLoading(true);
     try {
-      const res = await fetch(`http://localhost:9005/api/preview/${schemaType}/${encodeURIComponent(name)}?limit=50`);
+      const res = await fetch(`${API_BASE_URL}/preview/${schemaType}/${encodeURIComponent(name)}?limit=50`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load preview');
       setPreview({ table: name, columns: data.columns ?? [], rows: data.rows ?? [] });

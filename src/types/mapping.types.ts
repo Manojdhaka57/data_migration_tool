@@ -8,7 +8,11 @@ export type TransformationType =
   | 'CONCAT'
   | 'DATE_FORMAT'
   | 'CUSTOM'
-  | 'BUILD_JSON';
+  | 'BUILD_JSON'
+  // Emitted by the SQL generators (utils/configGenerator, utils/sqlGenerator)
+  // and switched on there. Declaring them is what lets `npm run build` compile.
+  | 'TRIM'
+  | 'COALESCE';
 
 export type MappingType = 'DIRECT' | 'CONSTANT' | 'TRANSFORM' | 'CONCAT' | 'LOOKUP';
 
@@ -55,6 +59,20 @@ export interface ColumnMapping {
    * in 'all' (keep-all) mode with group columns set.
    */
   useGroupMin?: boolean;
+  /**
+   * CONCAT separator, read by the SQL generators.
+   *
+   * Declared here because those generators already read `cm.concatSeparator`
+   * and `cm.lookup`; without the declarations `tsc -b` fails, which meant the
+   * production build could not run at all. Type-only — no behaviour changes.
+   */
+  concatSeparator?: string;
+  /** LOOKUP mapping: resolve a value from another table. */
+  lookup?: {
+    table: string;
+    matchColumn: string;
+    returnColumn: string;
+  };
 }
 
 export type ConflictStrategy = 'skip' | 'upsert';
@@ -159,12 +177,32 @@ export interface ValidationError {
   columnMappingId?: string;
 }
 
+/**
+ * What generateMigrationConfig() emits for download / clipboard.
+ *
+ * Deliberately NOT TableMapping: formatColumnMapping flattens each column
+ * mapping into an export form, so declaring these as the editor's TableMapping
+ * was a claim the compiler correctly rejected — and that single error was
+ * enough to fail `npm run build`, and with it any Vercel deploy.
+ */
+export interface ExportedTableMapping {
+  id: string;
+  sourceTables: string[];
+  targetTables: string[];
+  description?: string;
+  conflictStrategy?: ConflictStrategy;
+  conflictKeyColumns?: string[];
+  rowFilters?: RowFilter[];
+  joins?: JoinSpec[];
+  columnMappings: unknown[];
+}
+
 export interface MigrationConfig {
   version: string;
   createdAt: string;
   sourceDatabase: string;
   targetDatabase: string;
-  tableMappings: TableMapping[];
+  tableMappings: ExportedTableMapping[];
   metadata?: {
     author?: string;
     description?: string;

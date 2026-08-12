@@ -76,8 +76,9 @@ import {
 } from './migrationResultsSlice';
 import type { TableMapping as FrontendTableMapping } from '../../types';
 import MigrationExtrasPanel from './MigrationExtrasPanel';
+import { API_BASE_URL } from '../../api/config';
 
-const API_BASE = 'http://localhost:9005/api';
+const API_BASE = API_BASE_URL;
 
 interface ConnectionStatus {
   success: boolean;

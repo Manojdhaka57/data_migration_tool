@@ -116,9 +116,7 @@ const autoMappingSlice = createSlice({
       state.selectedMapping = null;
     },
     
-    clearAll: (state) => {
-      return initialState;
-    },
+    clearAll: () => initialState,
     
     // Re-generate mapping with updated source tables
     regenerateMapping: (state) => {

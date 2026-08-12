@@ -12,7 +12,7 @@
  * Use "Reset to .env" to remove them.
  */
 
-const API_BASE = 'http://localhost:9005/api';
+import { API_BASE_URL as API_BASE } from '../../api/config';
 
 /**
  * Deliberately NOT part of STORAGE_KEYS in utils/localStorage — the sidebar

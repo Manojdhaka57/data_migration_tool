@@ -1,4 +1,4 @@
-import type { DatabaseSchema, Table, Column } from '../types/schema.types';
+import type { DatabaseSchema, Table } from '../types/schema.types';
 
 const schemaName = 'public';
 

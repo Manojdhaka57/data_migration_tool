@@ -33,8 +33,9 @@ import { setSchema as setTargetSchema } from '../targetSchema/targetSchemaSlice'
 import { refreshSchemaFromDatabase, type RefreshResult } from './refreshSchema';
 import { schemaToText } from '../../utils/schemaToText';
 import type { DatabaseSchema } from '../../types';
+import { API_BASE_URL } from '../../api/config';
 
-const API_BASE = 'http://localhost:9005/api';
+const API_BASE = API_BASE_URL;
 
 interface ConnectionStatus {
   source?: { success: boolean; message: string; tables?: number };

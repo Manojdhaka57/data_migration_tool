@@ -41,6 +41,7 @@ import {
   resetServerConnectionSettings,
   hasAnyOverride,
 } from './connectionConfig';
+import { API_BASE_URL } from '../../api/config';
 
 function errorMessage(err: unknown, fallback: string): string {
   return err instanceof Error && err.message ? err.message : fallback;
@@ -223,7 +224,7 @@ export default function ConnectionSettingsPage() {
     } catch {
       setBanner({
         kind: 'error',
-        text: 'Could not reach the API server on localhost:9005. Start it with `npm run migrate:server`.',
+        text: `Could not reach the API server at ${API_BASE_URL}. Locally, start it with \`npm run migrate:server\`.`,
       });
     }
   }, []);

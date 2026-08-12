@@ -23,7 +23,10 @@
     "sync:data": "npx tsx scripts/sync-data.ts",
     "sync:data:dry-run": "npx tsx scripts/sync-data.ts --dry-run",
     "appdb:seedusers": "npx tsx scripts/metadata/cli/seedUsers.ts",
-    "appdb:import-local": "npx tsx scripts/metadata/cli/importLocalData.ts"
+    "appdb:import-local": "npx tsx scripts/metadata/cli/importLocalData.ts",
+    "start": "tsx scripts/migration-server.ts",
+    "start:worker": "tsx scripts/migration-worker.ts",
+    "migrate:worker": "npx tsx scripts/migration-worker.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -48,6 +51,7 @@
     "react-router-dom": "^7.17.0",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
+    "tsx": "^4.19.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -65,7 +69,6 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "node-pg-migrate": "^9.0.0",
-    "tsx": "^4.19.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",

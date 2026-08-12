@@ -33,7 +33,8 @@ import {
   ContentCopy as CopyIcon,
   ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
-const API_BASE = 'http://localhost:9005/api';
+import { API_BASE_URL } from '../../api/config';
+const API_BASE = API_BASE_URL;
 
 // DDL is read directly from the database by the server (GET /api/ddl/source, GET /api/ddl/target).
 // The frontend only fetches and displays the response; it does not generate or create any DDL.
