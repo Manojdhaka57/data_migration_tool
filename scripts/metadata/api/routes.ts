@@ -9,6 +9,7 @@
  */
 import { Router, Request, Response, NextFunction } from 'express';
 import { AppDbNotConfiguredError, appDbHealth, isAppDbConfigured } from '../db';
+import { runBootstrap } from '../bootstrap';
 import { MissingSecretKeyError } from '../secretBox';
 import {
   createSession,
@@ -177,6 +178,31 @@ const intParam = (value: unknown): number | null => {
 
 export function createMetadataRouter(): Router {
   const router = Router();
+
+  // ---------------------------------------------------------- bootstrap ---
+  /**
+   * One-time setup for a host without shell access: create the tables and the
+   * first admin user.
+   *
+   * Deliberately NOT behind requireAppDb/requireAuth — there is no database and
+   * no user yet, which is the whole point. Its guards live in runBootstrap:
+   * a setup token, and a hard refusal once any user exists.
+   */
+  router.post(
+    '/setup/bootstrap',
+    handle(async (req, res) => {
+      const token =
+        (req.headers['x-setup-token'] as string | undefined) ?? req.body?.token ?? undefined;
+      const { status, body } = await runBootstrap({
+        token,
+        username: req.body?.username,
+        password: req.body?.password,
+        email: req.body?.email,
+        role: req.body?.role,
+      });
+      res.status(status).json(body);
+    }),
+  );
 
   // ------------------------------------------------------------- health ---
   router.get(
