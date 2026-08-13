@@ -4,7 +4,8 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import { Job } from 'bullmq';
 import { 
-  addMigrationJob, 
+  addMigrationJob,
+  describeRedisTarget, 
   migrationQueue, 
   getMigrationJobsStatus, 
   cleanMigrationQueues 
@@ -1272,6 +1273,6 @@ export function startServer() {
     console.log(
       `   CORS: ${ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS.join(', ') : 'any origin (FRONTEND_URL unset — development)'}`,
     );
-    console.log(`   Connected to Redis: ${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || '6379'}`);
+    console.log(`   Redis: ${describeRedisTarget()}`);
   });
 }

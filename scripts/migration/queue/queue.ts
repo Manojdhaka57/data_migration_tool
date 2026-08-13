@@ -23,15 +23,32 @@ const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
 export const redisConnection = REDIS_URL
   ? new IORedis(REDIS_URL, {
       maxRetriesPerRequest: null,
-      // Managed Redis reached over the public internet is TLS-only. Providers
-      // signal that with the rediss:// scheme.
-      ...(REDIS_URL.startsWith('redis://') ? { tls: { rejectUnauthorized: false } } : {}),
+      // TLS ONLY for rediss:// — note the two s's.
+      //
+      // Matching 'redis://' here forces TLS on every connection, including a
+      // provider's plaintext internal endpoint. The handshake then waits for a
+      // server hello that never comes and fails with ETIMEDOUT rather than
+      // anything that names TLS as the cause.
+      ...(REDIS_URL.startsWith('rediss://') ? { tls: { rejectUnauthorized: false } } : {}),
     })
   : new IORedis({
       host: REDIS_HOST,
       port: REDIS_PORT,
       maxRetriesPerRequest: null,
     });
+
+/**
+ * What we actually connected to, with any password masked.
+ *
+ * The startup banner used to print REDIS_HOST unconditionally, so a
+ * misconfigured REDIS_URL was invisible — it would cheerfully report 127.0.0.1
+ * while timing out against something else entirely.
+ */
+export function describeRedisTarget(): string {
+  if (!REDIS_URL) return `${REDIS_HOST}:${REDIS_PORT} (host/port, no TLS)`;
+  const masked = REDIS_URL.replace(/\/\/([^:@/]+):[^@]*@/, '//$1:****@');
+  return `${masked} (TLS ${REDIS_URL.startsWith('rediss://') ? 'on' : 'off'})`;
+}
 
 // Main migration execution queue
 export const migrationQueue = new Queue('migration-execution', {
