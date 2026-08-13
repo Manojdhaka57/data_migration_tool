@@ -1,7 +1,7 @@
 import { Queue, QueueEvents, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import * as dotenv from 'dotenv';
-import { TableMapping } from '../types';
+import { TableMapping } from '../types.js';
 
 dotenv.config();
 
@@ -25,7 +25,7 @@ export const redisConnection = REDIS_URL
       maxRetriesPerRequest: null,
       // Managed Redis reached over the public internet is TLS-only. Providers
       // signal that with the rediss:// scheme.
-      ...(REDIS_URL.startsWith('rediss://') ? { tls: { rejectUnauthorized: false } } : {}),
+      ...(REDIS_URL.startsWith('redis://') ? { tls: { rejectUnauthorized: false } } : {}),
     })
   : new IORedis({
       host: REDIS_HOST,
