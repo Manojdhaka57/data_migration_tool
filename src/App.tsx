@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Chip, IconButton, Tooltip, Button } from '@mui/material';
 import {
@@ -122,6 +122,15 @@ function AppShell() {
   const upcoming = nextStep(location.pathname);
   const { appDbReachable } = useAppSelector(selectAuth);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Held in refs so the boot effect can use them without re-running when they
+  // change identity — see the dependency note at the end of that effect.
+  const navigateRef = useRef(navigate);
+  useEffect(() => {
+    navigateRef.current = navigate;
+  }, [navigate]);
+  /** Whether we have already offered the configuration list this session. */
+  const suggestedConfigRoute = useRef(false);
   const [showHelpGuide, setShowHelpGuide] = useState(() => {
     const hasSeenGuide = localStorage.getItem('erp_migration_seen_guide');
     return !hasSeenGuide;
@@ -217,9 +226,19 @@ function AppShell() {
       if (configurationId === null) {
         if (cancelled) return;
         setDataSource({ loaded: false, from: 'none' });
-        // `replace` so Back does not bounce between here and the last page.
-        // Navigating to the route already shown is a no-op, so no path check.
-        navigate('/configurations', { replace: true });
+
+        // Suggest the configuration list ONCE, then never again.
+        //
+        // Without the guard this became a trap: every navigation re-ran the
+        // effect, found no configuration, and bounced the user straight back
+        // here — so no other page could be reached, and a configuration could
+        // never be created. Landing on the chooser at sign-in is helpful;
+        // pinning someone to it is not.
+        if (!suggestedConfigRoute.current) {
+          suggestedConfigRoute.current = true;
+          // `replace` so Back does not bounce between here and the last page.
+          navigateRef.current('/configurations', { replace: true });
+        }
         return;
       }
 
@@ -248,10 +267,11 @@ function AppShell() {
     return () => {
       cancelled = true;
     };
-    // location is deliberately NOT a dependency: this must run once per
-    // mount, not on every navigation, or it would re-apply the configuration
-    // each time the user changes page.
-  }, [dispatch, appDbReachable, navigate]);
+    // Neither `location` nor `navigate` is a dependency. react-router v7 gives
+    // `navigate` a new identity whenever the location changes, so listing it
+    // made this whole effect re-run on every page change — which is exactly
+    // how the redirect turned into a trap. It is reached through a ref instead.
+  }, [dispatch, appDbReachable]);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'neutral.100' }}>
